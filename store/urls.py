@@ -24,9 +24,13 @@ urlpatterns = [
     path('api/clerk-sync/', views.clerk_session_sync, name='clerk_session_sync'),
     path('logout/', views.logout_user, name='logout'),
     
+    # Customer Dashboard & Address Management Routes
+    path('dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('dashboard/delete-address/<int:address_id>/', views.delete_address, name='delete_address'),
+    path('my-orders/', views.user_orders, name='user_orders'),
+    
     # Checkout & Payment Routes
     path('checkout/', views.checkout, name='checkout'),
     path('process-payment/', views.process_payment, name='process_payment'),
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
-    path('my-orders/', views.user_orders, name='user_orders'),
 ]

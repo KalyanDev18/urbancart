@@ -1,0 +1,410 @@
+{% extends 'store/base.html' %}
+
+{% block title %}My Account Dashboard | UrbanCart{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    
+    <!-- VIP USER PROFILE HEADER BANNER -->
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 p-6 sm:p-8 text-white shadow-xl mb-10 border border-slate-800">
+        <!-- Ambient Gold Glow -->
+        <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <!-- User Avatar & Identity -->
+            <div class="flex items-center gap-4 sm:gap-5">
+                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-extrabold text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                            {{ user.get_full_name|default:user.username }}
+                        </h1>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
+                            ★ Gold Tier Member
+                        </span>
+                    </div>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1">{{ user.email|default:"Registered Customer" }} • Member since {{ user.date_joined|date:"M Y" }}</p>
+                </div>
+            </div>
+
+            <!-- Metric Quick Badges -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full md:w-auto">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-amber-300 block">Orders</span>
+                    <span class="text-lg font-extrabold text-white">{{ total_orders_count }}</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-amber-300 block">Spent</span>
+                    <span class="text-lg font-extrabold text-white">₹{{ total_spent|floatformat:0 }}</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-amber-300 block">Active</span>
+                    <span class="text-lg font-extrabold text-amber-400">{{ active_shipments }}</span>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                    <span class="text-[10px] uppercase font-bold text-amber-300 block">Coins</span>
+                    <span class="text-lg font-extrabold text-amber-400">{{ reward_points }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT (Sidebar Tabs + Tab Panels) -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        <!-- DASHBOARD NAVIGATION TABS (Sidebar) -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-3xl border border-amber-200/80 p-3 shadow-sm space-y-1 sticky top-24">
+                <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md">
+                    <span>📦</span>
+                    <span>My Orders ({{ total_orders_count }})</span>
+                </button>
+                <button onclick="switchTab('addresses')" id="tab-btn-addresses" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all">
+                    <span>📍</span>
+                    <span>Saved Addresses ({{ addresses.count }})</span>
+                </button>
+                <button onclick="switchTab('profile')" id="tab-btn-profile" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all">
+                    <span>👤</span>
+                    <span>Profile Settings</span>
+                </button>
+                <button onclick="switchTab('rewards')" id="tab-btn-rewards" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all">
+                    <span>🎁</span>
+                    <span>UrbanCoins Rewards</span>
+                </button>
+                <div class="pt-3 border-t border-stone-100 mt-2">
+                    <a href="{% url 'logout' %}" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 transition-all">
+                        <span>🚪</span>
+                        <span>Sign Out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB PANELS (Right Content) -->
+        <div class="lg:col-span-3 space-y-6">
+
+            <!-- TAB 1: ORDERS & LIVE TRACKING -->
+            <div id="panel-orders" class="tab-panel space-y-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Order History & Shipment Tracking</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Track your packages, view past purchases and digital invoices</p>
+                    </div>
+                </div>
+
+                {% if orders %}
+                <div class="space-y-6">
+                    {% for order in orders %}
+                    <div class="bg-white rounded-3xl border border-amber-200/90 p-6 shadow-sm hover:shadow-md transition-shadow space-y-6">
+                        
+                        <!-- Order Summary Top Bar -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-100 gap-4">
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-sm font-extrabold text-slate-900">Order #{{ order.id }}</span>
+                                    <span class="text-xs text-slate-400 font-semibold">• {{ order.created_at|date:"d M Y, h:i A" }}</span>
+                                </div>
+                                <span class="text-[11px] text-slate-500 font-medium">Txn Ref: {{ order.transaction_id }}</span>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <span class="text-base font-extrabold text-slate-900">₹{{ order.total_amount }}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-bold {% if order.order_status == 'Delivered' %}bg-emerald-100 text-emerald-800 border border-emerald-300{% elif order.order_status == 'Shipped' %}bg-indigo-100 text-indigo-800 border border-indigo-300{% else %}bg-amber-100 text-amber-900 border border-amber-300{% endif %}">
+                                    {{ order.order_status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- LIVE VISUAL DELIVERY TRACKER -->
+                        <div class="py-2">
+                            <span class="text-[11px] uppercase tracking-wider font-extrabold text-slate-400 block mb-3">Live Shipment Status</span>
+                            <div class="relative flex items-center justify-between w-full max-w-xl mx-auto px-4">
+                                <!-- Progress Connecting Line -->
+                                <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-stone-200 z-0"></div>
+                                <div class="absolute left-6 top-1/2 -translate-y-1/2 h-1 bg-amber-500 z-0 transition-all" 
+                                     style="width: {% if order.order_status == 'Delivered' %}100%{% elif order.order_status == 'Shipped' %}50%{% else %}0%{% endif %};"></div>
+
+                                <!-- Step 1: Processing -->
+                                <div class="relative z-10 flex flex-col items-center">
+                                    <div class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center shadow-md">✓</div>
+                                    <span class="text-[10px] font-bold text-slate-800 mt-1.5">Confirmed</span>
+                                </div>
+
+                                <!-- Step 2: Shipped -->
+                                <div class="relative z-10 flex flex-col items-center">
+                                    <div class="w-8 h-8 rounded-full {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}bg-amber-500 text-slate-950{% else %}bg-white text-slate-400 border-2 border-stone-300{% endif %} font-bold text-xs flex items-center justify-center shadow-md">
+                                        {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}✓{% else %}2{% endif %}
+                                    </div>
+                                    <span class="text-[10px] font-bold {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-1.5">Shipped</span>
+                                </div>
+
+                                <!-- Step 3: Delivered -->
+                                <div class="relative z-10 flex flex-col items-center">
+                                    <div class="w-8 h-8 rounded-full {% if order.order_status == 'Delivered' %}bg-emerald-600 text-white{% else %}bg-white text-slate-400 border-2 border-stone-300{% endif %} font-bold text-xs flex items-center justify-center shadow-md">
+                                        {% if order.order_status == 'Delivered' %}✓{% else %}3{% endif %}
+                                    </div>
+                                    <span class="text-[10px] font-bold {% if order.order_status == 'Delivered' %}text-emerald-700{% else %}text-slate-400{% endif %} mt-1.5">Delivered</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items List -->
+                        <div class="bg-stone-50/80 rounded-2xl p-4 border border-stone-200/80 space-y-3">
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">Package Items</span>
+                            <div class="divide-y divide-stone-200/60">
+                                {% for item in order.items.all %}
+                                <div class="py-2.5 flex items-center justify-between text-sm">
+                                    <div class="flex items-center gap-3">
+                                        {% if item.product and item.product.image_url %}
+                                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-xl object-cover bg-white border border-stone-200">
+                                        {% else %}
+                                        <div class="w-12 h-12 rounded-xl bg-stone-200 flex items-center justify-center text-xs text-slate-500">Item</div>
+                                        {% endif %}
+                                        <div>
+                                            <div class="font-bold text-slate-900">{{ item.product.name }}</div>
+                                            <div class="text-xs text-slate-500">Qty: {{ item.quantity }} • ₹{{ item.price }} each</div>
+                                        </div>
+                                    </div>
+                                    <span class="font-extrabold text-slate-900">₹{{ item.get_total_price }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Card Footer Actions -->
+                        <div class="flex items-center justify-between pt-2">
+                            <span class="text-xs text-slate-500">Payment: <strong class="text-slate-800">{{ order.get_payment_method_display }} ({{ order.payment_status }})</strong></span>
+                            <a href="{% url 'order_success' order.id %}" class="px-4 py-2 bg-white hover:bg-amber-50 text-amber-900 font-bold text-xs rounded-xl border border-amber-300 transition-colors shadow-sm">
+                                📄 View Tax Invoice
+                            </a>
+                        </div>
+
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-white rounded-3xl border border-amber-200 p-12 text-center max-w-lg mx-auto shadow-sm">
+                    <div class="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-2xl mx-auto mb-3">📦</div>
+                    <h3 class="text-base font-extrabold text-slate-900">No Orders Placed Yet</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-6">Explore our latest streetwear, sneakers, and futuristic electronics.</p>
+                    <a href="{% url 'home' %}#products" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md">
+                        Start Shopping Now
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB 2: SAVED ADDRESSES (Address Book) -->
+            <div id="panel-addresses" class="tab-panel hidden space-y-6">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Saved Delivery Addresses</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Manage your home, office, and delivery locations for 1-click checkout</p>
+                    </div>
+                    <button onclick="toggleAddressForm()" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md flex items-center gap-2">
+                        <span>+ Add New Address</span>
+                    </button>
+                </div>
+
+                <!-- Add New Address Form (Hidden by default, toggleable) -->
+                <div id="new-address-form-box" class="hidden bg-white p-6 rounded-3xl border border-amber-300 shadow-md">
+                    <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-4">Add Shipping Address</h3>
+                    <form method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="add_address" value="1">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name</label>
+                                <input type="text" name="full_name" required placeholder="e.g. Kalyan Dev"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Street Address</label>
+                                <input type="text" name="street_address" required placeholder="House No, Apartment, Street"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">City</label>
+                                <input type="text" name="city" required placeholder="Mumbai"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">State</label>
+                                <input type="text" name="state" required placeholder="Maharashtra"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Postal Code (PIN)</label>
+                                <input type="text" name="postal_code" required placeholder="400001"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-2 pt-2">
+                            <input type="checkbox" name="is_default" id="is_default" class="rounded text-amber-500 focus:ring-amber-400">
+                            <label for="is_default" class="text-xs font-bold text-slate-700">Set as default delivery address</label>
+                        </div>
+
+                        <div class="flex gap-3 pt-2">
+                            <button type="submit" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md">
+                                Save Address
+                            </button>
+                            <button type="button" onclick="toggleAddressForm()" class="px-5 py-2.5 bg-stone-100 text-slate-700 font-bold text-xs rounded-xl">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Saved Addresses Grid -->
+                {% if addresses %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for addr in addresses %}
+                    <div class="bg-white p-5 rounded-3xl border border-amber-200/90 shadow-sm relative space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="font-extrabold text-sm text-slate-900">{{ addr.full_name }}</div>
+                            {% if addr.is_default %}
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">Default</span>
+                            {% endif %}
+                        </div>
+
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            {{ addr.street_address }}<br>
+                            {{ addr.city }}, {{ addr.state }} - {{ addr.postal_code }}<br>
+                            {{ addr.country }}
+                        </p>
+
+                        <div class="pt-2 border-t border-stone-100 flex items-center justify-between">
+                            <span class="text-[11px] text-slate-400 font-semibold">Saved Address</span>
+                            <a href="{% url 'delete_address' addr.id %}" onclick="return confirm('Delete this address?')" class="text-xs font-bold text-red-500 hover:text-red-700">
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="bg-white rounded-3xl border border-amber-200 p-8 text-center shadow-sm">
+                    <p class="text-xs text-slate-500 mb-4">You have no saved addresses. Add an address for faster checkout!</p>
+                    <button onclick="toggleAddressForm()" class="px-4 py-2 bg-amber-100 text-amber-900 font-bold text-xs rounded-xl border border-amber-300">
+                        + Add First Address
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- TAB 3: PROFILE SETTINGS -->
+            <div id="panel-profile" class="tab-panel hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Profile & Account Settings</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Update your personal contact details and account security</p>
+                </div>
+
+                <div class="bg-white p-6 sm:p-8 rounded-3xl border border-amber-200/90 shadow-sm space-y-6">
+                    <form method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_profile" value="1">
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">First Name</label>
+                                <input type="text" name="first_name" value="{{ user.first_name }}"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Last Name</label>
+                                <input type="text" name="last_name" value="{{ user.last_name }}"
+                                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email Address</label>
+                            <input type="email" name="email" value="{{ user.email }}"
+                                   class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username (Permanent)</label>
+                            <input type="text" value="{{ user.username }}" disabled
+                                   class="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-500 cursor-not-allowed">
+                        </div>
+
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md">
+                            Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- TAB 4: URBANCOINS REWARDS -->
+            <div id="panel-rewards" class="tab-panel hidden space-y-6">
+                <div>
+                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">UrbanCoins Loyalty Program</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Earn reward coins on every order and redeem them for direct discounts</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div class="bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-8 rounded-3xl text-slate-950 shadow-xl space-y-2">
+                        <span class="text-xs uppercase font-extrabold tracking-wider">Available Balance</span>
+                        <div class="text-4xl font-extrabold">{{ reward_points }} <span class="text-xl font-bold">Coins</span></div>
+                        <p class="text-xs font-bold opacity-80 pt-2">Equivalent to ₹{{ reward_points }} discount on your next checkout.</p>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl border border-amber-200/90 shadow-sm space-y-3">
+                        <h3 class="text-sm font-extrabold text-slate-900 uppercase">How It Works</h3>
+                        <ul class="space-y-2 text-xs text-slate-600">
+                            <li class="flex items-center gap-2"><span>⚡</span> <span>Earn 1 Coin for every ₹10 spent on UrbanCart.</span></li>
+                            <li class="flex items-center gap-2"><span>🛍️</span> <span>Coins auto-apply during order payment.</span></li>
+                            <li class="flex items-center gap-2"><span>★</span> <span>Never expires as long as your account is active.</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- TAB SWITCHING JAVASCRIPT -->
+<script>
+    function switchTab(tabId) {
+        // Hide all panels
+        document.querySelectorAll('.tab-panel').forEach(panel => {
+            panel.classList.add('hidden');
+        });
+
+        // Deactivate all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('bg-gradient-to-r', 'from-amber-500', 'to-yellow-500', 'text-slate-950', 'shadow-md');
+            btn.classList.add('text-slate-700');
+        });
+
+        // Show target panel
+        const targetPanel = document.getElementById('panel-' + tabId);
+        if (targetPanel) {
+            targetPanel.classList.remove('hidden');
+        }
+
+        // Activate target button
+        const targetBtn = document.getElementById('tab-btn-' + tabId);
+        if (targetBtn) {
+            targetBtn.classList.add('bg-gradient-to-r', 'from-amber-500', 'to-yellow-500', 'text-slate-950', 'shadow-md');
+            targetBtn.classList.remove('text-slate-700');
+        }
+    }
+
+    function toggleAddressForm() {
+        const box = document.getElementById('new-address-form-box');
+        if (box) {
+            box.classList.toggle('hidden');
+        }
+    }
+</script>
+{% endblock %}

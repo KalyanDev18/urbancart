@@ -55,9 +55,6 @@ class OrderViewSet(viewsets.ModelViewSet):
 # --- TEMPLATE VIEWS FOR FRONTEND WEB STORE ---
 
 def home(request):
-    """
-    Fetches products with optional category filtering and search query in Indian Rupees (INR).
-    """
     selected_category = request.GET.get('category', 'All')
     search_query = request.GET.get('q', '')
 
@@ -128,7 +125,7 @@ def remove_from_cart(request, item_id):
 
 def register_user(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('user_dashboard')
         
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -136,7 +133,7 @@ def register_user(request):
             user = form.save()
             login(request, user)
             messages.success(request, f"Account created successfully! Welcome to UrbanCart, {user.username}.")
-            return redirect('home')
+            return redirect('user_dashboard')
         else:
             messages.error(request, "Please correct the errors below.")
     else:
@@ -148,7 +145,7 @@ def register_user(request):
 
 def login_user(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('user_dashboard')
 
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -156,7 +153,7 @@ def login_user(request):
             user = form.get_user()
             login(request, user)
             messages.success(request, f"Welcome back, {user.username}!")
-            next_url = request.GET.get('next', 'home')
+            next_url = request.GET.get('next', 'user_dashboard')
             return redirect(next_url)
         else:
             messages.error(request, "Invalid username or password.")
@@ -169,7 +166,7 @@ def login_user(request):
 
 def google_login(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('user_dashboard')
 
     if request.method == 'POST':
         gmail = request.POST.get('gmail', '').strip().lower()
@@ -200,7 +197,7 @@ def google_login(request):
             messages.success(request, f"Signed in with Google as {user.email}!")
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        next_url = request.GET.get('next', 'home')
+        next_url = request.GET.get('next', 'user_dashboard')
         return redirect(next_url)
 
     context = {}
@@ -251,6 +248,82 @@ def logout_user(request):
     return redirect('home')
 
 
+# --- PROFESSIONAL CUSTOMER USER DASHBOARD VIEWS ---
+
+@login_required(login_url='login')
+def user_dashboard(request):
+    """
+    Renders professional customer dashboard with Order history, Address Book, Profile settings & reward points.
+    """
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    addresses = ShippingAddress.objects.filter(user=request.user)
+
+    total_spent = sum(order.total_amount for order in orders)
+    active_shipments = orders.filter(order_status__in=['Processing', 'Shipped']).count()
+
+    # Handle Profile Update
+    if request.method == 'POST' and 'update_profile' in request.POST:
+        first_name = request.POST.get('first_name', '').strip()
+        last_name = request.POST.get('last_name', '').strip()
+        email = request.POST.get('email', '').strip()
+
+        request.user.first_name = first_name
+        request.user.last_name = last_name
+        if email:
+            request.user.email = email
+        request.user.save()
+        messages.success(request, "Profile information updated successfully!")
+        return redirect('user_dashboard')
+
+    # Handle Add Address
+    if request.method == 'POST' and 'add_address' in request.POST:
+        full_name = request.POST.get('full_name', '').strip()
+        street_address = request.POST.get('street_address', '').strip()
+        city = request.POST.get('city', '').strip()
+        state = request.POST.get('state', '').strip()
+        postal_code = request.POST.get('postal_code', '').strip()
+        is_default = request.POST.get('is_default') == 'on'
+
+        if is_default:
+            ShippingAddress.objects.filter(user=request.user).update(is_default=False)
+
+        ShippingAddress.objects.create(
+            user=request.user,
+            full_name=full_name or request.user.get_full_name() or request.user.username,
+            street_address=street_address,
+            city=city,
+            state=state,
+            postal_code=postal_code,
+            is_default=is_default or not addresses.exists()
+        )
+        messages.success(request, "New shipping address added to your address book!")
+        return redirect('user_dashboard')
+
+    context = {
+        'orders': orders,
+        'recent_orders': orders[:3],
+        'addresses': addresses,
+        'total_orders_count': orders.count(),
+        'total_spent': total_spent,
+        'active_shipments': active_shipments,
+        'reward_points': int(total_spent // 10),  # 1 point per 10 rupees spent
+    }
+    return render(request, 'store/user_dashboard.html', context)
+
+
+@login_required(login_url='login')
+def delete_address(request, address_id):
+    address = get_object_or_404(ShippingAddress, id=address_id, user=request.user)
+    address.delete()
+    messages.info(request, "Shipping address deleted.")
+    return redirect('user_dashboard')
+
+
+@login_required(login_url='login')
+def user_orders(request):
+    return redirect('user_dashboard')
+
+
 # --- CHECKOUT & PAYMENT SIMULATION VIEWS ---
 
 def checkout(request):
@@ -266,13 +339,19 @@ def checkout(request):
     initial_name = f"{request.user.first_name} {request.user.last_name}".strip() if request.user.is_authenticated else ""
     initial_email = request.user.email if request.user.is_authenticated else ""
 
+    # Check for default saved address
+    default_address = None
+    if request.user.is_authenticated:
+        default_address = ShippingAddress.objects.filter(user=request.user, is_default=True).first()
+
     context = {
         'cart_items': cart_items,
         'subtotal': subtotal,
         'shipping': shipping,
         'grand_total': grand_total,
-        'initial_name': initial_name,
+        'initial_name': initial_name or (default_address.full_name if default_address else ''),
         'initial_email': initial_email,
+        'default_address': default_address,
         'cart_count': sum(item.quantity for item in cart_items),
     }
     return render(request, 'store/checkout.html', context)
@@ -310,6 +389,7 @@ def process_payment(request):
         total_amount=grand_total,
         payment_method=payment_method,
         payment_status='Paid' if payment_method in ['CARD', 'UPI'] else 'Pending',
+        order_status='Processing',
         transaction_id=transaction_id
     )
 
@@ -319,6 +399,17 @@ def process_payment(request):
             product=item.product,
             price=item.product.price,
             quantity=item.quantity
+        )
+
+    # Save to user's address book if requested or if first address
+    if request.user.is_authenticated and not ShippingAddress.objects.filter(user=request.user, street_address=address).exists():
+        ShippingAddress.objects.create(
+            user=request.user,
+            full_name=full_name,
+            street_address=address,
+            city=city,
+            postal_code=postal_code,
+            is_default=not ShippingAddress.objects.filter(user=request.user).exists()
         )
 
     cart_items.delete()
@@ -331,10 +422,3 @@ def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     context = {'order': order}
     return render(request, 'store/order_success.html', context)
-
-
-@login_required(login_url='login')
-def user_orders(request):
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
-    context = {'orders': orders}
-    return render(request, 'store/user_orders.html', context)
