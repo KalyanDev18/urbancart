@@ -1,80 +1,86 @@
 {% extends 'store/base.html' %}
 
-{% block title %}My Account Dashboard | UrbanCart{% endblock %}
+{% block title %}My Account Dashboard | UrbanKart{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
     
     <!-- VIP USER PROFILE HEADER BANNER -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 p-6 sm:p-8 text-white shadow-xl mb-10 border border-slate-800">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 p-5 sm:p-8 text-white shadow-xl mb-6 sm:mb-10 border border-slate-800">
         <!-- Ambient Gold Glow -->
         <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
         <div class="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
             <!-- User Avatar & Identity -->
             <div class="flex items-center gap-4 sm:gap-5">
-                <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-extrabold text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
-                    {{ user.username|slice:":1"|upper }}
+                <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-lg shadow-amber-500/30 flex-shrink-0">
+                    {{ user.first_name|default:user.username|slice:":1"|upper }}
                 </div>
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white">
+                        <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white">
                             {{ user.get_full_name|default:user.username }}
                         </h1>
                         <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-amber-400/20 text-amber-300 border border-amber-400/30">
-                            ★ Gold Tier Member
+                            ★ VIP Gold Customer
                         </span>
                     </div>
-                    <p class="text-xs sm:text-sm text-slate-400 mt-1">{{ user.email|default:"Registered Customer" }} • Member since {{ user.date_joined|date:"M Y" }}</p>
+                    <p class="text-xs sm:text-sm text-slate-400 mt-1 truncate max-w-xs sm:max-w-md">
+                        {{ user.email|default:"Registered Customer" }} &bull; Customer since {{ user.date_joined|date:"M Y" }}
+                    </p>
                 </div>
             </div>
 
-            <!-- Metric Quick Badges -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full md:w-auto">
-                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+            <!-- Metric Quick Badges (Responsive 4 Grid) -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 w-full md:w-auto">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 border border-white/10 text-center">
                     <span class="text-[10px] uppercase font-bold text-amber-300 block">Orders</span>
-                    <span class="text-lg font-extrabold text-white">{{ total_orders_count }}</span>
+                    <span class="text-base sm:text-lg font-black text-white">{{ total_orders_count }}</span>
                 </div>
-                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 border border-white/10 text-center">
                     <span class="text-[10px] uppercase font-bold text-amber-300 block">Spent</span>
-                    <span class="text-lg font-extrabold text-white">₹{{ total_spent|floatformat:0 }}</span>
+                    <span class="text-base sm:text-lg font-black text-white">₹{{ total_spent|floatformat:0 }}</span>
                 </div>
-                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 border border-white/10 text-center">
                     <span class="text-[10px] uppercase font-bold text-amber-300 block">Active</span>
-                    <span class="text-lg font-extrabold text-amber-400">{{ active_shipments }}</span>
+                    <span class="text-base sm:text-lg font-black text-amber-400">{{ active_shipments }}</span>
                 </div>
-                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 border border-white/10 text-center">
+                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 sm:p-3 border border-white/10 text-center">
                     <span class="text-[10px] uppercase font-bold text-amber-300 block">Coins</span>
-                    <span class="text-lg font-extrabold text-amber-400">{{ reward_points }}</span>
+                    <span class="text-base sm:text-lg font-black text-amber-400">{{ reward_points }}</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD CONTENT (Sidebar Tabs + Tab Panels) -->
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <!-- MAIN DASHBOARD CONTENT (Responsive Navigation + Panels) -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
         
-        <!-- DASHBOARD NAVIGATION TABS (Sidebar) -->
+        <!-- DASHBOARD NAVIGATION TABS (Horizontal on Mobile, Sticky Vertical on Desktop) -->
         <div class="lg:col-span-1">
-            <div class="bg-white rounded-3xl border border-amber-200/80 p-3 shadow-sm space-y-1 sticky top-24">
-                <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-extrabold transition-all bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md">
+            <div class="bg-white rounded-2xl sm:rounded-3xl border border-amber-200/80 p-2 sm:p-3 shadow-sm flex overflow-x-auto lg:flex-col gap-1.5 lg:space-y-1 sticky top-16 sm:top-20 lg:top-24 z-20">
+                <button onclick="switchTab('orders')" id="tab-btn-orders" 
+                        class="tab-btn flex-shrink-0 lg:w-full flex items-center gap-2.5 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-extrabold transition-all bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md whitespace-nowrap">
                     <span>📦</span>
                     <span>My Orders ({{ total_orders_count }})</span>
                 </button>
-                <button onclick="switchTab('addresses')" id="tab-btn-addresses" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all">
+                <button onclick="switchTab('addresses')" id="tab-btn-addresses" 
+                        class="tab-btn flex-shrink-0 lg:w-full flex items-center gap-2.5 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all whitespace-nowrap">
                     <span>📍</span>
-                    <span>Saved Addresses ({{ addresses.count }})</span>
+                    <span>Address Book ({{ addresses.count }})</span>
                 </button>
-                <button onclick="switchTab('profile')" id="tab-btn-profile" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all">
-                    <span>👤</span>
-                    <span>Profile Settings</span>
-                </button>
-                <button onclick="switchTab('rewards')" id="tab-btn-rewards" class="tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all">
+                <button onclick="switchTab('rewards')" id="tab-btn-rewards" 
+                        class="tab-btn flex-shrink-0 lg:w-full flex items-center gap-2.5 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all whitespace-nowrap">
                     <span>🎁</span>
-                    <span>UrbanCoins Rewards</span>
+                    <span>UrbanCoins ({{ reward_points }})</span>
                 </button>
-                <div class="pt-3 border-t border-stone-100 mt-2">
-                    <a href="{% url 'logout' %}" class="w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 transition-all">
+                <button onclick="switchTab('profile')" id="tab-btn-profile" 
+                        class="tab-btn flex-shrink-0 lg:w-full flex items-center gap-2.5 px-3.5 sm:px-4 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-amber-50 hover:text-amber-700 transition-all whitespace-nowrap">
+                    <span>👤</span>
+                    <span>Settings</span>
+                </button>
+                <div class="hidden lg:block pt-3 border-t border-stone-100 mt-2">
+                    <a href="{% url 'logout' %}" class="w-full flex items-center gap-2.5 px-4 py-2.5 rounded-2xl text-xs font-bold text-red-600 hover:bg-red-50 transition-all">
                         <span>🚪</span>
                         <span>Sign Out</span>
                     </a>
@@ -82,115 +88,137 @@
             </div>
         </div>
 
-        <!-- TAB PANELS (Right Content) -->
+        <!-- TAB PANELS (Right Main Content) -->
         <div class="lg:col-span-3 space-y-6">
 
-            <!-- TAB 1: ORDERS & LIVE TRACKING -->
+            <!-- TAB 1: ORDERS & SHIPMENT TRACKER -->
             <div id="panel-orders" class="tab-panel space-y-6">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                     <div>
-                        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Order History & Shipment Tracking</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Track your packages, view past purchases and digital invoices</p>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Order History & Live Shipment Tracking</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Track packages, view past items and print digital tax invoices</p>
                     </div>
+                    {% if orders %}
+                    <span class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full border border-amber-200 self-start sm:self-auto">
+                        {{ orders.count }} Total Purchases
+                    </span>
+                    {% endif %}
                 </div>
 
                 {% if orders %}
                 <div class="space-y-6">
                     {% for order in orders %}
-                    <div class="bg-white rounded-3xl border border-amber-200/90 p-6 shadow-sm hover:shadow-md transition-shadow space-y-6">
+                    <div class="bg-white rounded-3xl border border-amber-200/90 p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow space-y-5">
                         
-                        <!-- Order Summary Top Bar -->
-                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-100 gap-4">
+                        <!-- Order Top Header -->
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-stone-100 gap-3">
                             <div>
-                                <div class="flex items-center gap-2">
-                                    <span class="text-sm font-extrabold text-slate-900">Order #{{ order.id }}</span>
-                                    <span class="text-xs text-slate-400 font-semibold">• {{ order.created_at|date:"d M Y, h:i A" }}</span>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-sm font-black text-slate-900">Order #{{ order.id }}</span>
+                                    <span class="text-xs text-slate-400 font-medium">• {{ order.created_at|date:"d M Y, h:i A" }}</span>
                                 </div>
-                                <span class="text-[11px] text-slate-500 font-medium">Txn Ref: {{ order.transaction_id }}</span>
+                                <span class="text-[11px] text-slate-500 font-mono">Ref: {{ order.transaction_id|default:"TXN-INR" }}</span>
                             </div>
 
                             <div class="flex items-center gap-3">
-                                <span class="text-base font-extrabold text-slate-900">₹{{ order.total_amount }}</span>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold {% if order.order_status == 'Delivered' %}bg-emerald-100 text-emerald-800 border border-emerald-300{% elif order.order_status == 'Shipped' %}bg-indigo-100 text-indigo-800 border border-indigo-300{% else %}bg-amber-100 text-amber-900 border border-amber-300{% endif %}">
+                                <span class="text-base sm:text-lg font-black text-slate-900">₹{{ order.total_amount }}</span>
+                                <span class="px-3 py-1 rounded-full text-xs font-extrabold {% if order.order_status == 'Delivered' %}bg-emerald-100 text-emerald-800 border border-emerald-300{% elif order.order_status == 'Shipped' %}bg-indigo-100 text-indigo-800 border border-indigo-300{% else %}bg-amber-100 text-amber-900 border border-amber-300{% endif %}">
                                     {{ order.order_status }}
                                 </span>
                             </div>
                         </div>
 
-                        <!-- LIVE VISUAL DELIVERY TRACKER -->
-                        <div class="py-2">
-                            <span class="text-[11px] uppercase tracking-wider font-extrabold text-slate-400 block mb-3">Live Shipment Status</span>
-                            <div class="relative flex items-center justify-between w-full max-w-xl mx-auto px-4">
+                        <!-- LIVE VISUAL DELIVERY TRACKER BAR -->
+                        <div class="py-2 px-2 bg-stone-50/60 rounded-2xl border border-stone-200/60">
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block mb-3 text-center sm:text-left sm:pl-2">
+                                Shipment Timeline
+                            </span>
+                            <div class="relative flex items-center justify-between w-full max-w-lg mx-auto px-4 py-2">
                                 <!-- Progress Connecting Line -->
-                                <div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-1 bg-stone-200 z-0"></div>
-                                <div class="absolute left-6 top-1/2 -translate-y-1/2 h-1 bg-amber-500 z-0 transition-all" 
-                                     style="width: {% if order.order_status == 'Delivered' %}100%{% elif order.order_status == 'Shipped' %}50%{% else %}0%{% endif %};"></div>
+                                <div class="absolute left-8 right-8 top-1/2 -translate-y-1/2 h-1 bg-stone-200 z-0"></div>
+                                <div class="absolute left-8 top-1/2 -translate-y-1/2 h-1 bg-amber-500 z-0 transition-all duration-700" 
+                                     style="width: {% if order.order_status == 'Delivered' %}calc(100% - 4rem){% elif order.order_status == 'Shipped' %}calc(50% - 2rem){% else %}0%{% endif %};"></div>
 
                                 <!-- Step 1: Processing -->
                                 <div class="relative z-10 flex flex-col items-center">
-                                    <div class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-bold text-xs flex items-center justify-center shadow-md">✓</div>
-                                    <span class="text-[10px] font-bold text-slate-800 mt-1.5">Confirmed</span>
+                                    <div class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center shadow-md">✓</div>
+                                    <span class="text-[10px] font-bold text-slate-800 mt-1">Confirmed</span>
                                 </div>
 
                                 <!-- Step 2: Shipped -->
                                 <div class="relative z-10 flex flex-col items-center">
-                                    <div class="w-8 h-8 rounded-full {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}bg-amber-500 text-slate-950{% else %}bg-white text-slate-400 border-2 border-stone-300{% endif %} font-bold text-xs flex items-center justify-center shadow-md">
+                                    <div class="w-8 h-8 rounded-full {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}bg-amber-500 text-slate-950{% else %}bg-white text-slate-400 border-2 border-stone-300{% endif %} font-black text-xs flex items-center justify-center shadow-md">
                                         {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}✓{% else %}2{% endif %}
                                     </div>
-                                    <span class="text-[10px] font-bold {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-1.5">Shipped</span>
+                                    <span class="text-[10px] font-bold {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}text-slate-800{% else %}text-slate-400{% endif %} mt-1">Shipped</span>
                                 </div>
 
                                 <!-- Step 3: Delivered -->
                                 <div class="relative z-10 flex flex-col items-center">
-                                    <div class="w-8 h-8 rounded-full {% if order.order_status == 'Delivered' %}bg-emerald-600 text-white{% else %}bg-white text-slate-400 border-2 border-stone-300{% endif %} font-bold text-xs flex items-center justify-center shadow-md">
+                                    <div class="w-8 h-8 rounded-full {% if order.order_status == 'Delivered' %}bg-emerald-600 text-white{% else %}bg-white text-slate-400 border-2 border-stone-300{% endif %} font-black text-xs flex items-center justify-center shadow-md">
                                         {% if order.order_status == 'Delivered' %}✓{% else %}3{% endif %}
                                     </div>
-                                    <span class="text-[10px] font-bold {% if order.order_status == 'Delivered' %}text-emerald-700{% else %}text-slate-400{% endif %} mt-1.5">Delivered</span>
+                                    <span class="text-[10px] font-bold {% if order.order_status == 'Delivered' %}text-emerald-700{% else %}text-slate-400{% endif %} mt-1">Delivered</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Order Items List -->
-                        <div class="bg-stone-50/80 rounded-2xl p-4 border border-stone-200/80 space-y-3">
-                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">Package Items</span>
+                        <div class="bg-stone-50/80 rounded-2xl p-3 sm:p-4 border border-stone-200/80 space-y-2.5">
+                            <span class="text-[10px] uppercase tracking-wider font-extrabold text-slate-400 block">Package Contents</span>
                             <div class="divide-y divide-stone-200/60">
                                 {% for item in order.items.all %}
-                                <div class="py-2.5 flex items-center justify-between text-sm">
-                                    <div class="flex items-center gap-3">
+                                <div class="py-2.5 flex items-center justify-between text-xs sm:text-sm gap-2">
+                                    <div class="flex items-center gap-3 overflow-hidden">
                                         {% if item.product and item.product.image_url %}
-                                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-xl object-cover bg-white border border-stone-200">
+                                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-12 h-12 rounded-xl object-cover bg-white border border-stone-200 flex-shrink-0">
                                         {% else %}
-                                        <div class="w-12 h-12 rounded-xl bg-stone-200 flex items-center justify-center text-xs text-slate-500">Item</div>
+                                        <div class="w-12 h-12 rounded-xl bg-stone-200 flex items-center justify-center text-xs text-slate-500 flex-shrink-0">Item</div>
                                         {% endif %}
-                                        <div>
-                                            <div class="font-bold text-slate-900">{{ item.product.name }}</div>
-                                            <div class="text-xs text-slate-500">Qty: {{ item.quantity }} • ₹{{ item.price }} each</div>
+                                        <div class="overflow-hidden">
+                                            <div class="font-bold text-slate-900 truncate">{{ item.product.name }}</div>
+                                            <div class="text-[11px] text-slate-500">Qty: {{ item.quantity }} &bull; ₹{{ item.price }}</div>
                                         </div>
                                     </div>
-                                    <span class="font-extrabold text-slate-900">₹{{ item.get_total_price }}</span>
+                                    <div class="flex items-center gap-3 flex-shrink-0">
+                                        <span class="font-extrabold text-slate-900">₹{{ item.get_total_price }}</span>
+                                        {% if item.product %}
+                                        <a href="{% url 'add_to_cart' item.product.id %}" class="hidden sm:inline-flex px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-extrabold rounded-lg transition-colors">
+                                            Buy Again
+                                        </a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                                 {% endfor %}
                             </div>
                         </div>
 
                         <!-- Card Footer Actions -->
-                        <div class="flex items-center justify-between pt-2">
-                            <span class="text-xs text-slate-500">Payment: <strong class="text-slate-800">{{ order.get_payment_method_display }} ({{ order.payment_status }})</strong></span>
-                            <a href="{% url 'order_success' order.id %}" class="px-4 py-2 bg-white hover:bg-amber-50 text-amber-900 font-bold text-xs rounded-xl border border-amber-300 transition-colors shadow-sm">
-                                📄 View Tax Invoice
-                            </a>
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between pt-2 gap-3">
+                            <div class="text-xs text-slate-500">
+                                <span>Delivery Address: <strong class="text-slate-800">{{ order.city }}, {{ order.postal_code }}</strong></span>
+                                <span class="mx-1">&bull;</span>
+                                <span>Paid via: <strong class="text-slate-800">{{ order.get_payment_method_display }}</strong></span>
+                            </div>
+                            <div class="flex items-center gap-2 self-end sm:self-auto">
+                                <a href="{% url 'order_success' order.id %}" class="px-4 py-2 bg-white hover:bg-amber-50 text-slate-900 font-bold text-xs rounded-xl border border-amber-300 transition-colors shadow-sm flex items-center gap-1.5">
+                                    <span>📄</span>
+                                    <span>Tax Invoice</span>
+                                </a>
+                            </div>
                         </div>
 
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="bg-white rounded-3xl border border-amber-200 p-12 text-center max-w-lg mx-auto shadow-sm">
+                <div class="bg-white rounded-3xl border border-amber-200 p-8 sm:p-14 text-center max-w-lg mx-auto shadow-sm">
                     <div class="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 text-2xl mx-auto mb-3">📦</div>
-                    <h3 class="text-base font-extrabold text-slate-900">No Orders Placed Yet</h3>
-                    <p class="text-xs text-slate-500 mt-1 mb-6">Explore our latest streetwear, sneakers, and futuristic electronics.</p>
-                    <a href="{% url 'home' %}#products" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md">
-                        Start Shopping Now
+                    <h3 class="text-base font-extrabold text-slate-900">No Orders Yet</h3>
+                    <p class="text-xs text-slate-500 mt-1 mb-6">Discover our curated hoodies, sneakers, and gaming accessories.</p>
+                    <a href="{% url 'home' %}#products" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md">
+                        <span>Start Shopping</span>
+                        <span>&rarr;</span>
                     </a>
                 </div>
                 {% endif %}
@@ -200,17 +228,20 @@
             <div id="panel-addresses" class="tab-panel hidden space-y-6">
                 <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                        <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Saved Delivery Addresses</h2>
-                        <p class="text-xs text-slate-500 mt-0.5">Manage your home, office, and delivery locations for 1-click checkout</p>
+                        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Saved Delivery Addresses</h2>
+                        <p class="text-xs text-slate-500 mt-0.5">Manage your home, apartment, and office locations for instant 1-click checkout</p>
                     </div>
-                    <button onclick="toggleAddressForm()" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md flex items-center gap-2">
+                    <button onclick="toggleAddressForm()" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md flex items-center gap-2 self-start sm:self-auto">
                         <span>+ Add New Address</span>
                     </button>
                 </div>
 
-                <!-- Add New Address Form (Hidden by default, toggleable) -->
-                <div id="new-address-form-box" class="hidden bg-white p-6 rounded-3xl border border-amber-300 shadow-md">
-                    <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider mb-4">Add Shipping Address</h3>
+                <!-- Add New Address Form Modal/Box -->
+                <div id="new-address-form-box" class="hidden bg-white p-5 sm:p-6 rounded-3xl border-2 border-amber-300 shadow-lg transition-all">
+                    <h3 class="text-xs font-extrabold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+                        <span>📍</span>
+                        <span>Add New Delivery Location</span>
+                    </h3>
                     <form method="POST" class="space-y-4">
                         {% csrf_token %}
                         <input type="hidden" name="add_address" value="1">
@@ -218,12 +249,12 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Full Name</label>
-                                <input type="text" name="full_name" required placeholder="e.g. Kalyan Dev"
+                                <input type="text" name="full_name" required placeholder="e.g. Rahul Sharma"
                                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Street Address</label>
-                                <input type="text" name="street_address" required placeholder="House No, Apartment, Street"
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Street / House Address</label>
+                                <input type="text" name="street_address" required placeholder="Flat 402, Skyline Towers, MG Road"
                                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             </div>
                         </div>
@@ -231,29 +262,29 @@
                         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">City</label>
-                                <input type="text" name="city" required placeholder="Mumbai"
+                                <input type="text" name="city" required placeholder="Bengaluru"
                                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase mb-1">State</label>
-                                <input type="text" name="state" required placeholder="Maharashtra"
+                                <input type="text" name="state" required placeholder="Karnataka"
                                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Postal Code (PIN)</label>
-                                <input type="text" name="postal_code" required placeholder="400001"
+                                <label class="block text-xs font-bold text-slate-700 uppercase mb-1">PIN Code</label>
+                                <input type="text" name="postal_code" required placeholder="560001"
                                        class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500">
                             </div>
                         </div>
 
                         <div class="flex items-center gap-2 pt-2">
                             <input type="checkbox" name="is_default" id="is_default" class="rounded text-amber-500 focus:ring-amber-400">
-                            <label for="is_default" class="text-xs font-bold text-slate-700">Set as default delivery address</label>
+                            <label for="is_default" class="text-xs font-bold text-slate-700">Set as my default shipping address</label>
                         </div>
 
                         <div class="flex gap-3 pt-2">
-                            <button type="submit" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md">
-                                Save Address
+                            <button type="submit" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-xl shadow-md">
+                                Save Delivery Address
                             </button>
                             <button type="button" onclick="toggleAddressForm()" class="px-5 py-2.5 bg-stone-100 text-slate-700 font-bold text-xs rounded-xl">
                                 Cancel
@@ -262,15 +293,20 @@
                     </form>
                 </div>
 
-                <!-- Saved Addresses Grid -->
+                <!-- Saved Addresses Cards Grid -->
                 {% if addresses %}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {% for addr in addresses %}
                     <div class="bg-white p-5 rounded-3xl border border-amber-200/90 shadow-sm relative space-y-3">
                         <div class="flex items-center justify-between">
-                            <div class="font-extrabold text-sm text-slate-900">{{ addr.full_name }}</div>
+                            <div class="font-black text-sm text-slate-900 flex items-center gap-2">
+                                <span>📍</span>
+                                <span>{{ addr.full_name }}</span>
+                            </div>
                             {% if addr.is_default %}
-                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300">Default</span>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-100 text-amber-900 border border-amber-300">
+                                Default
+                            </span>
                             {% endif %}
                         </div>
 
@@ -281,8 +317,9 @@
                         </p>
 
                         <div class="pt-2 border-t border-stone-100 flex items-center justify-between">
-                            <span class="text-[11px] text-slate-400 font-semibold">Saved Address</span>
-                            <a href="{% url 'delete_address' addr.id %}" onclick="return confirm('Delete this address?')" class="text-xs font-bold text-red-500 hover:text-red-700">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Verified Address</span>
+                            <a href="{% url 'delete_address' addr.id %}" onclick="return confirm('Delete this shipping address?')" 
+                               class="text-xs font-bold text-red-500 hover:text-red-700 transition-colors">
                                 Delete
                             </a>
                         </div>
@@ -291,19 +328,64 @@
                 </div>
                 {% else %}
                 <div class="bg-white rounded-3xl border border-amber-200 p-8 text-center shadow-sm">
-                    <p class="text-xs text-slate-500 mb-4">You have no saved addresses. Add an address for faster checkout!</p>
-                    <button onclick="toggleAddressForm()" class="px-4 py-2 bg-amber-100 text-amber-900 font-bold text-xs rounded-xl border border-amber-300">
+                    <p class="text-xs text-slate-500 mb-4">No saved addresses found. Add an address for swift checkout.</p>
+                    <button onclick="toggleAddressForm()" class="px-4 py-2 bg-amber-100 text-amber-900 font-extrabold text-xs rounded-xl border border-amber-300">
                         + Add First Address
                     </button>
                 </div>
                 {% endif %}
             </div>
 
-            <!-- TAB 3: PROFILE SETTINGS -->
+            <!-- TAB 3: URBANCOINS REWARDS WALLET -->
+            <div id="panel-rewards" class="tab-panel hidden space-y-6">
+                <div>
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">UrbanCoins Loyalty Program</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Earn reward coins on every order and redeem them for direct discounts</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Metal Gold Member Loyalty Card -->
+                    <div class="relative overflow-hidden bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-6 sm:p-8 rounded-3xl text-slate-950 shadow-xl space-y-4 border border-amber-300">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black uppercase tracking-wider text-slate-900">UrbanKart VIP Pass</span>
+                            <span class="text-xl">💳</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-800 block">Available Rewards Balance</span>
+                            <div class="text-4xl font-black">{{ reward_points }} <span class="text-xl font-extrabold">Coins</span></div>
+                        </div>
+                        <div class="pt-2 border-t border-slate-950/20 flex items-center justify-between text-xs font-extrabold">
+                            <span>Value: ₹{{ reward_points }} Discount</span>
+                            <span class="bg-slate-950 text-amber-400 px-2 py-0.5 rounded-lg text-[10px]">Active</span>
+                        </div>
+                    </div>
+
+                    <!-- Program Perks Breakdown -->
+                    <div class="bg-white p-6 rounded-3xl border border-amber-200/90 shadow-sm space-y-3.5">
+                        <h3 class="text-xs font-black text-slate-900 uppercase tracking-wider">How to Earn & Spend</h3>
+                        <ul class="space-y-2.5 text-xs text-slate-600">
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-amber-600 text-sm">⚡</span>
+                                <span><strong>Earn 10% Back:</strong> Get 1 UrbanCoin for every ₹10 spent on any product.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-amber-600 text-sm">🛍️</span>
+                                <span><strong>Auto Redemption:</strong> 1 UrbanCoin = ₹1. Coins auto-discount your checkout.</span>
+                            </li>
+                            <li class="flex items-start gap-2.5">
+                                <span class="text-amber-600 text-sm">♾️</span>
+                                <span><strong>Lifetime Validity:</strong> UrbanCoins never expire as long as your account is active.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: PROFILE SETTINGS -->
             <div id="panel-profile" class="tab-panel hidden space-y-6">
                 <div>
-                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">Profile & Account Settings</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Update your personal contact details and account security</p>
+                    <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">Profile & Account Settings</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Manage your personal customer profile details and contact information</p>
                 </div>
 
                 <div class="bg-white p-6 sm:p-8 rounded-3xl border border-amber-200/90 shadow-sm space-y-6">
@@ -331,40 +413,15 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username (Permanent)</label>
+                            <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Username (Permanent Identifier)</label>
                             <input type="text" value="{{ user.username }}" disabled
                                    class="w-full bg-stone-100 border border-stone-200 rounded-xl px-4 py-2.5 text-xs text-slate-500 cursor-not-allowed">
                         </div>
 
-                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-xs rounded-xl shadow-md">
-                            Save Changes
+                        <button type="submit" class="px-6 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black text-xs rounded-xl shadow-md">
+                            Save Profile Updates
                         </button>
                     </form>
-                </div>
-            </div>
-
-            <!-- TAB 4: URBANCOINS REWARDS -->
-            <div id="panel-rewards" class="tab-panel hidden space-y-6">
-                <div>
-                    <h2 class="text-xl font-extrabold text-slate-900 tracking-tight">UrbanCoins Loyalty Program</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Earn reward coins on every order and redeem them for direct discounts</p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div class="bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 p-8 rounded-3xl text-slate-950 shadow-xl space-y-2">
-                        <span class="text-xs uppercase font-extrabold tracking-wider">Available Balance</span>
-                        <div class="text-4xl font-extrabold">{{ reward_points }} <span class="text-xl font-bold">Coins</span></div>
-                        <p class="text-xs font-bold opacity-80 pt-2">Equivalent to ₹{{ reward_points }} discount on your next checkout.</p>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-3xl border border-amber-200/90 shadow-sm space-y-3">
-                        <h3 class="text-sm font-extrabold text-slate-900 uppercase">How It Works</h3>
-                        <ul class="space-y-2 text-xs text-slate-600">
-                            <li class="flex items-center gap-2"><span>⚡</span> <span>Earn 1 Coin for every ₹10 spent on UrbanCart.</span></li>
-                            <li class="flex items-center gap-2"><span>🛍️</span> <span>Coins auto-apply during order payment.</span></li>
-                            <li class="flex items-center gap-2"><span>★</span> <span>Never expires as long as your account is active.</span></li>
-                        </ul>
-                    </div>
                 </div>
             </div>
 
@@ -375,24 +432,20 @@
 <!-- TAB SWITCHING JAVASCRIPT -->
 <script>
     function switchTab(tabId) {
-        // Hide all panels
         document.querySelectorAll('.tab-panel').forEach(panel => {
             panel.classList.add('hidden');
         });
 
-        // Deactivate all buttons
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('bg-gradient-to-r', 'from-amber-500', 'to-yellow-500', 'text-slate-950', 'shadow-md');
             btn.classList.add('text-slate-700');
         });
 
-        // Show target panel
         const targetPanel = document.getElementById('panel-' + tabId);
         if (targetPanel) {
             targetPanel.classList.remove('hidden');
         }
 
-        // Activate target button
         const targetBtn = document.getElementById('tab-btn-' + tabId);
         if (targetBtn) {
             targetBtn.classList.add('bg-gradient-to-r', 'from-amber-500', 'to-yellow-500', 'text-slate-950', 'shadow-md');

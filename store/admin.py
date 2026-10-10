@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -43,3 +43,10 @@ class OrderAdmin(admin.ModelAdmin):
 class ShippingAddressAdmin(admin.ModelAdmin):
     list_display = ('user', 'full_name', 'city', 'postal_code', 'is_default')
     search_fields = ('full_name', 'city', 'street_address')
+
+@admin.register(EmailOTP)
+class EmailOTPAdmin(admin.ModelAdmin):
+    list_display = ('email', 'otp', 'is_verified', 'created_at')
+    search_fields = ('email', 'otp')
+    list_filter = ('is_verified', 'created_at')
+

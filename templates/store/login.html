@@ -3,71 +3,195 @@
 {% block title %}Sign In | UrbanCart{% endblock %}
 
 {% block content %}
-<div class="min-h-[75vh] flex items-center justify-center px-4 py-12">
-    <div class="max-w-md w-full bg-white p-8 rounded-3xl border border-amber-200/90 shadow-xl">
+<div class="min-h-[75vh] flex items-center justify-center px-4 py-8 sm:py-12">
+    <div class="max-w-md w-full bg-white p-6 sm:p-8 rounded-3xl border border-amber-200/90 shadow-xl transition-all">
         
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-500 flex items-center justify-center text-slate-950 font-extrabold text-xl mx-auto mb-3 shadow-md shadow-amber-500/30">
-                U
-            </div>
-            <h2 class="text-2xl font-extrabold text-slate-900 tracking-tight">Welcome Back</h2>
-            <p class="text-sm text-slate-500 mt-1">Sign in to access your cart, saved orders, and profile</p>
+        <!-- Brand Header Logo Text -->
+        <div class="text-center mb-6">
+            <a href="{% url 'home' %}" class="inline-flex items-center gap-2.5 mb-3 group">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 flex items-center justify-center text-slate-950 font-black text-xl shadow-md shadow-amber-500/30 group-hover:scale-105 transition-transform">
+                    U
+                </div>
+                <div class="text-left">
+                    <span class="text-2xl font-black tracking-tight text-slate-900 block leading-tight">
+                        Urban<span class="text-amber-500">Kart</span>
+                    </span>
+                    <span class="text-[9px] uppercase tracking-widest font-extrabold text-amber-600">Secure Customer Sign In</span>
+                </div>
+            </a>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">Welcome Back</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">Sign in to access your saved cart, orders & rewards</p>
         </div>
 
-        <!-- Clerk Auth API Button -->
-        <button onclick="if(window.Clerk){Clerk.openSignIn({});}else{window.location.href='{% url 'google_login' %}';}"
-                class="w-full py-3 px-4 bg-clerk-600 hover:bg-clerk-700 text-white rounded-xl font-extrabold text-sm flex items-center justify-center gap-3 transition-all shadow-md shadow-clerk-600/30 mb-3 group">
-            <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
-            </svg>
-            <span>Sign in with Clerk Auth API</span>
-        </button>
+        <!-- AUTH METHOD TABS -->
+        <div class="grid grid-cols-2 gap-1.5 p-1 bg-stone-100 rounded-2xl mb-6 border border-stone-200/80">
+            <button type="button" id="tab-otp-btn" onclick="switchLoginMode('otp')" 
+                    class="py-2.5 text-xs font-extrabold rounded-xl transition-all {% if step == 'otp' or not form.errors %}bg-white text-slate-900 shadow-sm border border-stone-200/60{% else %}text-slate-500 hover:text-slate-800{% endif %} flex items-center justify-center gap-1.5">
+                <span>⚡ Email OTP</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[9px] bg-amber-100 text-amber-800 font-bold hidden sm:inline">Fast</span>
+            </button>
+            <button type="button" id="tab-pass-btn" onclick="switchLoginMode('password')" 
+                    class="py-2.5 text-xs font-bold rounded-xl transition-all {% if form.errors and step != 'otp' %}bg-white text-slate-900 shadow-sm border border-stone-200/60{% else %}text-slate-500 hover:text-slate-800{% endif %} flex items-center justify-center gap-1.5">
+                <span>🔑 Password</span>
+            </button>
+        </div>
 
-        <!-- Google / Gmail SSO Button -->
-        <a href="{% url 'google_login' %}" class="w-full py-3 px-4 bg-white border border-stone-300 hover:border-amber-400 hover:bg-amber-50/50 rounded-xl font-bold text-slate-700 text-sm flex items-center justify-center gap-3 transition-all shadow-sm mb-6 group">
-            <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24">
+        <!-- ==================== METHOD 1: EMAIL OTP AUTH ==================== -->
+        <div id="otp-section" class="{% if form.errors and step != 'otp' %}hidden{% endif %} space-y-4">
+            
+            {% if step == 'otp' and email %}
+            <!-- STEP 2: VERIFY OTP FORM -->
+            <div class="p-4 rounded-2xl bg-amber-50/70 border border-amber-200 mb-2">
+                <div class="flex items-center justify-between text-xs mb-1">
+                    <span class="text-slate-600">Verification code sent to:</span>
+                    <a href="{% url 'login' %}" class="font-bold text-amber-700 hover:text-amber-900 underline">Change</a>
+                </div>
+                <div class="font-extrabold text-slate-900 text-sm truncate flex items-center gap-1.5">
+                    <span>✉️</span>
+                    <span>{{ email }}</span>
+                </div>
+            </div>
+
+            <form action="{% url 'verify_otp' %}" method="POST" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                <div>
+                    <label for="id_otp" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Enter 6-Digit OTP Code
+                    </label>
+                    <input type="text" name="otp" id="id_otp" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" required autofocus
+                           placeholder="••••••"
+                           class="w-full text-center tracking-[0.5em] text-2xl font-black bg-stone-50 border-2 border-amber-300 rounded-2xl py-3 text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-4 focus:ring-amber-200/50 shadow-inner transition-all">
+                    <p class="text-[11px] text-slate-500 mt-1.5 text-center">
+                        Code expires in 10 minutes. Check spam folder if not in inbox.
+                    </p>
+                </div>
+
+                <button type="submit" 
+                        class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/25 transition-all text-sm flex items-center justify-center gap-2">
+                    <span>Verify & Continue</span>
+                    <span>&rarr;</span>
+                </button>
+            </form>
+
+            <!-- Resend OTP Trigger -->
+            <form action="{% url 'send_otp' %}" method="POST" class="pt-2 text-center">
+                {% csrf_token %}
+                <input type="hidden" name="email" value="{{ email }}">
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+                <button type="submit" class="text-xs font-bold text-amber-700 hover:text-amber-900 transition-colors">
+                    Didn't receive code? <span class="underline">Resend OTP</span>
+                </button>
+            </form>
+
+            {% else %}
+            <!-- STEP 1: REQUEST OTP FORM -->
+            <form action="{% url 'send_otp' %}" method="POST" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.GET.next }}">
+
+                <div>
+                    <label for="otp_email" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+                        Your Email Address
+                    </label>
+                    <div class="relative">
+                        <input type="email" name="email" id="otp_email" value="{{ email }}" required autofocus
+                               placeholder="e.g. name@example.com"
+                               class="w-full bg-stone-50 border border-stone-200 rounded-2xl pl-11 pr-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 shadow-inner transition-all">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.206" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1.5">
+                        We'll send a 6-digit one-time code to your email. No password needed!
+                    </p>
+                </div>
+
+                <button type="submit" 
+                        class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/25 transition-all text-sm flex items-center justify-center gap-2">
+                    <span>Send Verification Code</span>
+                    <span>&rarr;</span>
+                </button>
+            </form>
+            {% endif %}
+
+        </div>
+
+        <!-- ==================== METHOD 2: USERNAME & PASSWORD AUTH ==================== -->
+        <div id="password-section" class="{% if not form.errors or step == 'otp' %}hidden{% endif %} space-y-4">
+            <form method="POST" action="{% url 'login' %}{% if request.GET.next %}?next={{ request.GET.next }}{% endif %}" class="space-y-4">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="id_username" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Username</label>
+                    <input type="text" name="username" id="id_username" required
+                           class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
+                </div>
+
+                <div>
+                    <label for="id_password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Password</label>
+                    <input type="password" name="password" id="id_password" required
+                           class="w-full bg-stone-50 border border-stone-200 rounded-2xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
+                </div>
+
+                <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/25 transition-all text-sm">
+                    Sign In with Password &rarr;
+                </button>
+            </form>
+        </div>
+
+        <!-- Divider -->
+        <div class="relative flex py-3 items-center my-3">
+            <div class="flex-grow border-t border-stone-200"></div>
+            <span class="flex-shrink mx-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Or 1-Click SSO</span>
+            <div class="flex-grow border-t border-stone-200"></div>
+        </div>
+
+        <!-- 1-Click Google / Gmail SSO Button -->
+        <a href="{% url 'google_login' %}" class="w-full py-3 px-4 bg-white border border-stone-200 hover:border-amber-400 hover:bg-amber-50/50 rounded-2xl font-bold text-slate-700 text-xs sm:text-sm flex items-center justify-center gap-3 transition-all shadow-sm group">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
             </svg>
-            <span class="group-hover:text-slate-900">Continue with Google / Gmail</span>
+            <span class="group-hover:text-slate-900">Sign in with Google / Gmail</span>
         </a>
 
-        <!-- Divider -->
-        <div class="relative flex py-2 items-center mb-6">
-            <div class="flex-grow border-t border-stone-200"></div>
-            <span class="flex-shrink mx-4 text-xs font-bold text-slate-400 uppercase">Or with Username</span>
-            <div class="flex-grow border-t border-stone-200"></div>
-        </div>
-
-        <!-- Login Form -->
-        <form method="POST" class="space-y-5">
-            {% csrf_token %}
-            
-            <div>
-                <label for="id_username" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Username</label>
-                <input type="text" name="username" id="id_username" required autofocus
-                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
-            </div>
-
-            <div>
-                <label for="id_password" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Password</label>
-                <input type="password" name="password" id="id_password" required
-                       class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
-            </div>
-
-            <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/25 transition-all text-sm">
-                Sign In &rarr;
-            </button>
-        </form>
-
         <!-- Footer link -->
-        <div class="mt-6 pt-6 border-t border-stone-100 text-center text-xs text-slate-500">
-            Don't have an account? 
-            <a href="{% url 'register' %}" class="font-bold text-amber-700 hover:text-amber-900 transition-colors">Create one now</a>
+        <div class="mt-6 pt-5 border-t border-stone-100 text-center text-xs text-slate-500">
+            First time at UrbanCart? 
+            <a href="{% url 'register' %}" class="font-bold text-amber-700 hover:text-amber-900 transition-colors">Create account</a>
         </div>
     </div>
 </div>
+
+<script>
+    function switchLoginMode(mode) {
+        const otpSec = document.getElementById('otp-section');
+        const passSec = document.getElementById('password-section');
+        const otpBtn = document.getElementById('tab-otp-btn');
+        const passBtn = document.getElementById('tab-pass-btn');
+
+        if (mode === 'otp') {
+            otpSec.classList.remove('hidden');
+            passSec.classList.add('hidden');
+            otpBtn.className = "py-2.5 text-xs font-extrabold rounded-xl transition-all bg-white text-slate-900 shadow-sm border border-stone-200/60 flex items-center justify-center gap-1.5";
+            passBtn.className = "py-2.5 text-xs font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5";
+            const emailInput = document.getElementById('otp_email') || document.getElementById('id_otp');
+            if (emailInput) emailInput.focus();
+        } else {
+            passSec.classList.remove('hidden');
+            otpSec.classList.add('hidden');
+            passBtn.className = "py-2.5 text-xs font-extrabold rounded-xl transition-all bg-white text-slate-900 shadow-sm border border-stone-200/60 flex items-center justify-center gap-1.5";
+            otpBtn.className = "py-2.5 text-xs font-bold rounded-xl transition-all text-slate-500 hover:text-slate-800 flex items-center justify-center gap-1.5";
+            const userField = document.getElementById('id_username');
+            if (userField) userField.focus();
+        }
+    }
+</script>
 {% endblock %}

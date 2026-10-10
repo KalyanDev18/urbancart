@@ -1,5 +1,6 @@
 import uuid
 import json
+import random
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -9,12 +10,15 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.core.mail import send_mail
+from django.conf import settings
+from django.utils import timezone
 
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP
 from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer
@@ -121,7 +125,127 @@ def remove_from_cart(request, item_id):
     return redirect('cart_detail')
 
 
-# --- AUTHENTICATION, GOOGLE & CLERK AUTH API VIEWS ---
+# --- AUTHENTICATION & EMAIL OTP VIEWS ---
+
+def send_email_otp(request):
+    """
+    Generates a secure 6-digit OTP, stores in EmailOTP and sends to user's email.
+    Works seamlessly with AJAX or standard form submissions.
+    """
+    if request.method != 'POST':
+        return redirect('login')
+
+    email = request.POST.get('email', '').strip().lower()
+    if not email or '@' not in email or '.' not in email:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({'status': 'error', 'message': 'Please provide a valid email address.'}, status=400)
+        messages.error(request, 'Please provide a valid email address.')
+        return redirect('login')
+
+    # Generate 6-digit numeric OTP
+    otp = f"{random.randint(100000, 999999)}"
+
+    # Invalidate old unverified OTPs for this email and create new
+    EmailOTP.objects.filter(email=email, is_verified=False).delete()
+    EmailOTP.objects.create(email=email, otp=otp)
+
+    request.session['otp_email'] = email
+
+    # Email Subject & Body
+    subject = f"Your UrbanCart Login OTP: {otp}"
+    message = (
+        f"Hello,\n\n"
+        f"Your 6-digit login verification code for UrbanCart is:\n\n"
+        f"    {otp}\n\n"
+        f"This code will expire in 10 minutes.\n"
+        f"Please do not share this OTP with anyone for your account security.\n\n"
+        f"If you did not request this login code, you can safely ignore this email.\n\n"
+        f"Happy Shopping,\n"
+        f"Team UrbanCart\n"
+    )
+
+    try:
+        send_mail(
+            subject=subject,
+            message=message,
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'UrbanCart <noreply@urbancart.com>'),
+            recipient_list=[email],
+            fail_silently=False
+        )
+    except Exception as e:
+        pass
+
+    # Development notice so user can test without external SMTP setup
+    if settings.DEBUG:
+        messages.success(request, f"OTP sent to {email}! (Dev Code: {otp})")
+    else:
+        messages.success(request, f"OTP sent to {email}. Please check your inbox.")
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        return JsonResponse({'status': 'success', 'message': f'OTP sent to {email}', 'email': email, 'dev_otp': otp if settings.DEBUG else None})
+
+    next_param = request.GET.get('next', '')
+    next_query = f"&next={next_param}" if next_param else ""
+    return redirect(f"/login/?step=otp&email={email}{next_query}")
+
+
+def verify_email_otp(request):
+    """
+    Verifies 6-digit OTP sent to user's email and signs them in.
+    Automatically creates user account if new customer!
+    """
+    if request.method != 'POST':
+        return redirect('login')
+
+    email = request.POST.get('email', '').strip().lower() or request.session.get('otp_email', '').strip().lower()
+    otp = request.POST.get('otp', '').strip()
+    next_url = request.POST.get('next') or request.GET.get('next') or 'user_dashboard'
+
+    if not email or not otp:
+        messages.error(request, "Email and 6-digit OTP code are required.")
+        return redirect('login')
+
+    otp_record = EmailOTP.objects.filter(email=email, otp=otp, is_verified=False).order_by('-created_at').first()
+
+    if not otp_record or otp_record.is_expired():
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+            return JsonResponse({'status': 'error', 'message': 'Invalid or expired OTP code. Please request a new one.'}, status=400)
+        messages.error(request, "Invalid or expired OTP code. Please try again.")
+        return redirect(f"/login/?step=otp&email={email}")
+
+    # Mark OTP as verified
+    otp_record.is_verified = True
+    otp_record.save()
+
+    # Find or create User
+    user = User.objects.filter(email__iexact=email).first()
+    if not user:
+        base_username = email.split('@')[0]
+        cleaned_username = ''.join(c for c in base_username if c.isalnum() or c in '_-')[:20] or 'user'
+        candidate_username = cleaned_username
+        counter = 1
+        while User.objects.filter(username=candidate_username).exists():
+            candidate_username = f"{cleaned_username}_{counter}"
+            counter += 1
+
+        user = User.objects.create_user(
+            username=candidate_username,
+            email=email,
+            first_name=cleaned_username.capitalize()
+        )
+        user.set_unusable_password()
+        user.save()
+
+    login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+    request.session.pop('otp_email', None)
+
+    messages.success(request, f"Welcome to UrbanCart, {user.first_name or user.username}!")
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
+        return JsonResponse({'status': 'success', 'redirect_url': '/dashboard/'})
+
+    return redirect(next_url)
+
 
 def register_user(request):
     if request.user.is_authenticated:
@@ -147,7 +271,10 @@ def login_user(request):
     if request.user.is_authenticated:
         return redirect('user_dashboard')
 
-    if request.method == 'POST':
+    step = request.GET.get('step', 'email')
+    email = request.GET.get('email', request.session.get('otp_email', ''))
+
+    if request.method == 'POST' and 'username' in request.POST:
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
@@ -160,7 +287,11 @@ def login_user(request):
     else:
         form = AuthenticationForm()
 
-    context = {'form': form}
+    context = {
+        'form': form,
+        'step': step,
+        'email': email,
+    }
     return render(request, 'store/login.html', context)
 
 
@@ -202,44 +333,6 @@ def google_login(request):
 
     context = {}
     return render(request, 'store/google_login.html', context)
-
-
-@csrf_exempt
-def clerk_session_sync(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body.decode('utf-8'))
-            clerk_id = data.get('clerk_id', '')
-            email = data.get('email', '').strip().lower()
-            first_name = data.get('first_name', '')
-            last_name = data.get('last_name', '')
-
-            if not email:
-                return JsonResponse({'status': 'error', 'message': 'Email required'}, status=400)
-
-            username = email.split('@')[0]
-            username = ''.join(e for e in username if e.isalnum() or e in '_-')[:30]
-
-            user = User.objects.filter(email=email).first()
-            if not user:
-                user = User.objects.filter(username=username).first()
-
-            if not user:
-                user = User.objects.create_user(
-                    username=username,
-                    email=email,
-                    first_name=first_name or username.capitalize(),
-                    last_name=last_name
-                )
-                user.set_unusable_password()
-                user.save()
-
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return JsonResponse({'status': 'success', 'username': user.username, 'email': user.email})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
-
-    return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
 
 
 def logout_user(request):

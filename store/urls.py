@@ -17,11 +17,12 @@ urlpatterns = [
     path('cart/', views.cart_detail, name='cart_detail'),
     path('cart/remove/<int:item_id>/', views.remove_from_cart, name='remove_from_cart'),
     
-    # Auth, Google & Clerk Auth Routes
+    # Auth & Email OTP Routes
     path('register/', views.register_user, name='register'),
     path('login/', views.login_user, name='login'),
+    path('send-otp/', views.send_email_otp, name='send_otp'),
+    path('verify-otp/', views.verify_email_otp, name='verify_otp'),
     path('google-login/', views.google_login, name='google_login'),
-    path('api/clerk-sync/', views.clerk_session_sync, name='clerk_session_sync'),
     path('logout/', views.logout_user, name='logout'),
     
     # Customer Dashboard & Address Management Routes

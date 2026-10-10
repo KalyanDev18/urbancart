@@ -59,10 +59,10 @@
                         {% endif %}
                         <div>
                             <div class="font-bold text-slate-900">{{ item.product.name }}</div>
-                            <div class="text-xs text-slate-500">Qty: {{ item.quantity }} x ${{ item.price }}</div>
+                            <div class="text-xs text-slate-500">Qty: {{ item.quantity }} x ₹{{ item.price }}</div>
                         </div>
                     </div>
-                    <div class="font-bold text-slate-900">${{ item.get_total_price }}</div>
+                    <div class="font-bold text-slate-900">₹{{ item.get_total_price }}</div>
                 </div>
                 {% endfor %}
             </div>
@@ -71,7 +71,7 @@
         <!-- Grand Total -->
         <div class="border-t border-amber-200 pt-4 flex justify-between items-center text-lg font-extrabold text-slate-900">
             <span>Total Paid</span>
-            <span class="text-amber-600">${{ order.total_amount }}</span>
+            <span class="text-amber-600">₹{{ order.total_amount }}</span>
         </div>
     </div>
 

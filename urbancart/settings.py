@@ -61,7 +61,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'store.context_processors.clerk_context',
             ],
         },
     },
@@ -76,14 +75,17 @@ DATABASES = {
     }
 }
 
-CLERK_PUBLISHABLE_KEY = os.environ.get(
-    'CLERK_PUBLISHABLE_KEY', 
-    'pk_test_Y2xlcmstYWxsb3dlZC1kZXYudXJiYW5jYXJ0LmNvbSQ'
+# Email Configuration for Login OTP Verification
+EMAIL_BACKEND = os.environ.get(
+    'EMAIL_BACKEND',
+    'django.core.mail.backends.smtp.EmailBackend' if os.environ.get('EMAIL_HOST_USER') else 'django.core.mail.backends.console.EmailBackend'
 )
-CLERK_SECRET_KEY = os.environ.get(
-    'CLERK_SECRET_KEY', 
-    'sk_test_urbancart_clerk_secret_key_dev'
-)
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'UrbanCart <noreply@urbancart.com>')
 
 AUTH_PASSWORD_VALIDATORS = []
 

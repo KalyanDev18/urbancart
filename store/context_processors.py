@@ -1,9 +1,7 @@
-from django.conf import settings
-
-def clerk_context(request):
+def store_context(request):
     """
-    Exposes Clerk Auth API publishable key to all Django templates.
+    Exposes brand context to all Django templates.
     """
     return {
-        'CLERK_PUBLISHABLE_KEY': getattr(settings, 'CLERK_PUBLISHABLE_KEY', ''),
+        'BRAND_NAME': 'UrbanCart',
     }

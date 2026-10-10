@@ -1,143 +1,149 @@
 {% extends 'store/base.html' %}
 
-{% block title %}Checkout & Payment | UrbanCart{% endblock %}
+{% block title %}Checkout & Secure Payment | UrbanKart{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
     <div class="mb-8">
-        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Checkout</h1>
-        <p class="text-sm text-slate-500 mt-1">Provide your shipping address and choose payment method</p>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Checkout & Payment</h1>
+        <p class="text-xs sm:text-sm text-slate-500 mt-1">Provide your delivery shipping address and select payment mode</p>
     </div>
 
-    <form action="{% url 'process_payment' %}" method="POST" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <form action="{% url 'process_payment' %}" method="POST" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {% csrf_token %}
 
         <!-- Left Column: Shipping & Payment Options -->
-        <div class="lg:col-span-2 space-y-8">
+        <div class="lg:col-span-8 space-y-6 sm:space-y-8">
             
             <!-- Shipping Information Card -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
-                <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+            <div class="bg-white p-5 sm:p-8 rounded-3xl border border-amber-200/90 shadow-sm space-y-5">
+                <h2 class="text-base sm:text-lg font-black text-slate-900 border-b border-stone-100 pb-3 flex items-center gap-2">
                     <span>📦</span>
-                    <span>Shipping Address</span>
+                    <span>Shipping & Delivery Details</span>
                 </h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Full Name</label>
                         <input type="text" name="full_name" value="{{ initial_name }}" required placeholder="e.g. Kalyan Dev"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                               class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
                     </div>
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Email Address</label>
-                        <input type="email" name="email" value="{{ initial_email }}" required placeholder="kalyan@example.com"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                        <input type="email" name="email" value="{{ initial_email }}" required placeholder="name@example.com"
+                               class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Street Address</label>
-                    <input type="text" name="address" required placeholder="Apartment, Street, House No."
-                           class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Street / House Address</label>
+                    <input type="text" name="address" value="{{ default_address.street_address|default:'' }}" required placeholder="Flat, Building, Street, Area"
+                           class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">City</label>
-                        <input type="text" name="city" required placeholder="Mumbai / Delhi / Bangalore"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                        <input type="text" name="city" value="{{ default_address.city|default:'' }}" required placeholder="Mumbai / Delhi / Bengaluru"
+                               class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Postal / ZIP Code</label>
-                        <input type="text" name="postal_code" required placeholder="400001"
-                               class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">Postal PIN Code</label>
+                        <input type="text" name="postal_code" value="{{ default_address.postal_code|default:'' }}" required placeholder="400001"
+                               class="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-2.5 text-xs sm:text-sm text-slate-900 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200 transition-all">
                     </div>
                 </div>
             </div>
 
-            <!-- Payment Method Card -->
-            <div class="bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/90 shadow-sm space-y-4">
-                <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+            <!-- Payment Method Selection Card -->
+            <div class="bg-white p-5 sm:p-8 rounded-3xl border border-amber-200/90 shadow-sm space-y-5">
+                <h2 class="text-base sm:text-lg font-black text-slate-900 border-b border-stone-100 pb-3 flex items-center gap-2">
                     <span>💳</span>
-                    <span>Select Payment Method</span>
+                    <span>Choose Payment Mode</span>
                 </h2>
 
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                     <!-- Option 1: Card -->
-                    <label class="relative flex flex-col p-4 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:border-indigo-500 transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50">
+                    <label class="relative flex flex-col p-4 bg-stone-50 border-2 border-stone-200 rounded-2xl cursor-pointer hover:border-amber-400 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/60 shadow-sm">
                         <input type="radio" name="payment_method" value="CARD" checked class="sr-only">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-slate-900">Credit / Debit</span>
+                            <span class="text-xs sm:text-sm font-extrabold text-slate-900">Credit / Debit Card</span>
                             <span class="text-lg">💳</span>
                         </div>
-                        <span class="text-xs text-slate-500">Visa, Mastercard, RuPay</span>
+                        <span class="text-[11px] text-slate-500">Visa, Mastercard, RuPay</span>
                     </label>
 
                     <!-- Option 2: UPI -->
-                    <label class="relative flex flex-col p-4 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:border-indigo-500 transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50">
+                    <label class="relative flex flex-col p-4 bg-stone-50 border-2 border-stone-200 rounded-2xl cursor-pointer hover:border-amber-400 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/60 shadow-sm">
                         <input type="radio" name="payment_method" value="UPI" class="sr-only">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-slate-900">UPI Instant</span>
+                            <span class="text-xs sm:text-sm font-extrabold text-slate-900">UPI Instant</span>
                             <span class="text-lg">📱</span>
                         </div>
-                        <span class="text-xs text-slate-500">GPay, PhonePe, Paytm</span>
+                        <span class="text-[11px] text-slate-500">GPay, PhonePe, Paytm, BHIM</span>
                     </label>
 
                     <!-- Option 3: COD -->
-                    <label class="relative flex flex-col p-4 bg-slate-50 border border-slate-200 rounded-2xl cursor-pointer hover:border-indigo-500 transition-all has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50/50">
+                    <label class="relative flex flex-col p-4 bg-stone-50 border-2 border-stone-200 rounded-2xl cursor-pointer hover:border-amber-400 transition-all has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50/60 shadow-sm">
                         <input type="radio" name="payment_method" value="COD" class="sr-only">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="text-sm font-bold text-slate-900">Cash on Delivery</span>
+                            <span class="text-xs sm:text-sm font-extrabold text-slate-900">Cash on Delivery</span>
                             <span class="text-lg">💵</span>
                         </div>
-                        <span class="text-xs text-slate-500">Pay cash upon arrival</span>
+                        <span class="text-[11px] text-slate-500">Pay cash upon delivery</span>
                     </label>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Order Summary & Place Order -->
-        <div class="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm h-fit space-y-6">
-            <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Order Summary</h2>
+        <!-- Right Column: Order Summary & Place Order Button -->
+        <div class="lg:col-span-4 bg-white p-5 sm:p-7 rounded-3xl border border-amber-200/90 shadow-sm h-fit space-y-6">
+            <h2 class="text-base sm:text-lg font-black text-slate-900 border-b border-stone-100 pb-3">Order Summary</h2>
 
-            <!-- Items preview -->
-            <div class="space-y-3 max-h-60 overflow-y-auto pr-1 border-b border-slate-100 pb-4">
+            <!-- Items list preview -->
+            <div class="space-y-3 max-h-64 overflow-y-auto pr-1 border-b border-stone-100 pb-4">
                 {% for item in cart_items %}
-                <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-3">
-                        <img src="{{ item.product.image_url }}" class="w-10 h-10 rounded-lg object-cover bg-slate-100">
-                        <div>
-                            <div class="font-bold text-slate-900 line-clamp-1">{{ item.product.name }}</div>
-                            <div class="text-xs text-slate-500">Qty: {{ item.quantity }}</div>
+                <div class="flex items-center justify-between text-xs sm:text-sm gap-2">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        {% if item.product.image_url %}
+                        <img src="{{ item.product.image_url }}" alt="{{ item.product.name }}" class="w-11 h-11 rounded-xl object-cover bg-stone-100 flex-shrink-0">
+                        {% endif %}
+                        <div class="overflow-hidden">
+                            <div class="font-bold text-slate-900 truncate">{{ item.product.name }}</div>
+                            <div class="text-[11px] text-slate-500">Qty: {{ item.quantity }}</div>
                         </div>
                     </div>
-                    <div class="font-bold text-slate-900">${{ item.get_total_price }}</div>
+                    <div class="font-black text-slate-900 flex-shrink-0">₹{{ item.get_total_price }}</div>
                 </div>
                 {% endfor %}
             </div>
 
-            <!-- Price Breakdown -->
-            <div class="space-y-2 text-sm">
+            <!-- Price Breakdown in INR -->
+            <div class="space-y-2.5 text-xs sm:text-sm">
                 <div class="flex justify-between text-slate-600">
-                    <span>Items Total</span>
-                    <span class="font-bold text-slate-900">${{ subtotal }}</span>
+                    <span>Items Subtotal</span>
+                    <span class="font-bold text-slate-900">₹{{ subtotal }}</span>
                 </div>
                 <div class="flex justify-between text-slate-600">
                     <span>Express Shipping</span>
-                    <span class="font-bold text-slate-900">${{ shipping }}</span>
+                    <span class="font-bold text-slate-900">₹{{ shipping }}</span>
                 </div>
-                <div class="border-t border-slate-100 pt-3 flex justify-between text-base font-extrabold text-slate-900">
-                    <span>Payable Amount</span>
-                    <span class="text-indigo-600">${{ grand_total }}</span>
+                <div class="border-t border-stone-100 pt-3 flex justify-between text-base font-black text-slate-900">
+                    <span>Total Payable</span>
+                    <span class="text-amber-600">₹{{ grand_total }}</span>
                 </div>
             </div>
 
             <!-- Payment Action Button -->
-            <button type="submit" class="w-full py-4 bg-gradient-to-r from-emerald-600 via-teal-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white font-extrabold text-base rounded-2xl shadow-xl shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
-                <span>🔒 Pay ${{ grand_total }} & Place Order</span>
+            <button type="submit" class="w-full py-4 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base rounded-2xl shadow-xl shadow-amber-500/25 transition-all flex items-center justify-center gap-2">
+                <span>🔒 Pay ₹{{ grand_total }} & Confirm Order</span>
             </button>
 
-            <p class="text-[11px] text-slate-400 text-center">
+            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200/80 text-center text-[11px] text-amber-900 font-bold">
+                ⚡ Earn <strong>{{ grand_total|floatformat:0 }}</strong> UrbanCoins on this purchase!
+            </div>
+
+            <p class="text-[10px] text-slate-400 text-center">
                 Guaranteed 256-bit SSL encrypted safe checkout simulation.
             </p>
         </div>
