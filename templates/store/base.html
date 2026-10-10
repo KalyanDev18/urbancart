@@ -46,30 +46,40 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
         .glass-nav {
-            background: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
         }
     </style>
 </head>
-<body class="bg-stone-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-stone-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950 pb-16 md:pb-0">
 
-    <!-- NAVBAR (Warm Gold & Clean Light Glassmorphism) -->
+    <!-- MAIN NAVBAR -->
     <header class="sticky top-0 z-50 glass-nav border-b border-amber-200/60 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-3">
             
-            <!-- Brand Logo from uploaded image -->
-            <a href="{% url 'home' %}" class="flex items-center gap-3 group">
-                <div class="h-12 w-auto flex items-center justify-center p-1 bg-white rounded-2xl border border-amber-200 shadow-sm group-hover:scale-105 transition-transform duration-300">
-                    <img src="{% static 'images/logo.png' %}" alt="UrbanCart Logo" class="h-10 w-auto object-contain">
-                </div>
-            </a>
+            <!-- Left: Mobile Menu Toggle & Brand Logo -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Hamburger Button (Mobile only) -->
+                <button id="mobile-menu-btn" aria-label="Open Menu" class="lg:hidden p-2 rounded-xl text-slate-800 hover:bg-amber-50 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
 
-            <!-- Search Bar -->
+                <!-- Brand Logo -->
+                <a href="{% url 'home' %}" class="flex items-center gap-2 group">
+                    <div class="h-10 sm:h-12 w-auto flex items-center justify-center p-1 bg-white rounded-2xl border border-amber-200 shadow-sm group-hover:scale-105 transition-transform duration-300">
+                        <img src="{% static 'images/logo.png' %}" alt="UrbanCart Logo" class="h-8 sm:h-10 w-auto object-contain">
+                    </div>
+                </a>
+            </div>
+
+            <!-- Center: Desktop Search Bar -->
             <form action="{% url 'home' %}" method="GET" class="hidden md:flex flex-1 max-w-md mx-4">
                 <div class="relative w-full">
                     <input type="text" name="q" value="{{ search_query }}" placeholder="Search hoodie, sneakers, keyboard, smartwatch..." 
-                           class="w-full bg-stone-100/80 text-sm text-slate-900 border border-amber-200/80 rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200/50 placeholder-slate-400 transition-all shadow-inner">
+                           class="w-full bg-stone-100/90 text-sm text-slate-900 border border-amber-200/80 rounded-full py-2.5 pl-11 pr-4 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200/50 placeholder-slate-400 transition-all shadow-inner">
                     <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                         <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -78,30 +88,30 @@
                 </div>
             </form>
 
-            <!-- Nav Actions & Auth Buttons -->
-            <div class="flex items-center gap-4">
+            <!-- Right: Nav Links, Cart & Account Buttons -->
+            <div class="flex items-center gap-2 sm:gap-4">
                 <nav class="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
-                    <a href="{% url 'home' %}?category=Clothing" class="hover:text-amber-600 transition-colors">Clothing</a>
-                    <a href="{% url 'home' %}?category=Electronics" class="hover:text-amber-600 transition-colors">Electronics</a>
-                    <a href="{% url 'home' %}?category=Footwear" class="hover:text-amber-600 transition-colors">Footwear</a>
+                    <a href="{% url 'home' %}?category=Clothing#products" class="hover:text-amber-600 transition-colors">Clothing</a>
+                    <a href="{% url 'home' %}?category=Electronics#products" class="hover:text-amber-600 transition-colors">Electronics</a>
+                    <a href="{% url 'home' %}?category=Footwear#products" class="hover:text-amber-600 transition-colors">Footwear</a>
                 </nav>
 
                 <div class="h-6 w-px bg-amber-200 hidden lg:block"></div>
 
                 <!-- Cart Button with Golden Badge -->
-                <a href="{% url 'cart_detail' %}" class="relative p-2.5 text-slate-800 hover:text-amber-600 bg-white hover:bg-amber-50 rounded-2xl border border-amber-200 shadow-sm transition-all group">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <a href="{% url 'cart_detail' %}" class="relative p-2 sm:p-2.5 text-slate-800 hover:text-amber-600 bg-white hover:bg-amber-50 rounded-2xl border border-amber-200 shadow-sm transition-all group">
+                    <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
                     </svg>
-                    <span class="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-[11px] w-5.5 h-5.5 px-1 rounded-full flex items-center justify-center shadow-md shadow-amber-500/40 group-hover:scale-110 transition-transform">
+                    <span class="absolute -top-1.5 -right-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-[10px] sm:text-[11px] w-5 h-5 px-1 rounded-full flex items-center justify-center shadow-md shadow-amber-500/40 group-hover:scale-110 transition-transform">
                         {{ cart_count|default:0 }}
                     </span>
                 </a>
 
-                <!-- Clerk & Django Auth Navigation -->
+                <!-- Desktop Auth Section -->
                 {% if user.is_authenticated %}
-                <div class="flex items-center gap-3">
-                    <a href="{% url 'user_orders' %}" class="hidden sm:inline-flex px-3.5 py-2 text-xs font-bold text-slate-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-colors">
+                <div class="hidden sm:flex items-center gap-3">
+                    <a href="{% url 'user_orders' %}" class="px-3 py-2 text-xs font-bold text-slate-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-xl transition-colors">
                         My Orders
                     </a>
                     <div id="clerk-user-button"></div>
@@ -110,30 +120,158 @@
                     </a>
                 </div>
                 {% else %}
-                <div class="flex items-center gap-2">
-                    <!-- Clerk Auth Modal Button -->
-                    <button id="clerk-sign-in-btn" class="hidden sm:inline-flex px-3.5 py-2 text-xs font-extrabold text-white bg-clerk-600 hover:bg-clerk-700 rounded-xl shadow-md transition-all items-center gap-1.5">
-                        <span>⚡ Clerk SSO</span>
+                <div class="hidden sm:flex items-center gap-2">
+                    <button id="clerk-sign-in-btn" class="hidden md:inline-flex px-3 py-2 text-xs font-extrabold text-white bg-clerk-600 hover:bg-clerk-700 rounded-xl shadow-md transition-all items-center gap-1.5">
+                        <span>⚡ Clerk</span>
                     </button>
-                    <a href="{% url 'login' %}" class="px-3.5 py-2 text-xs font-bold text-slate-800 hover:text-amber-600 transition-colors">
+                    <a href="{% url 'login' %}" class="px-3 py-2 text-xs font-bold text-slate-800 hover:text-amber-600 transition-colors">
                         Sign In
                     </a>
-                    <a href="{% url 'register' %}" class="px-4 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 rounded-xl shadow-md shadow-amber-500/25 transition-all">
+                    <a href="{% url 'register' %}" class="px-3.5 py-2 text-xs font-bold text-slate-950 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 rounded-xl shadow-md shadow-amber-500/25 transition-all">
                         Register
                     </a>
                 </div>
                 {% endif %}
+
+                <!-- Mobile Account Icon Button (Click to open Drawer) -->
+                <button id="mobile-user-trigger" class="sm:hidden p-2 text-slate-800 bg-white hover:bg-amber-50 border border-amber-200 rounded-2xl shadow-sm">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                </button>
             </div>
         </div>
+
+        <!-- MOBILE SEARCH BAR (Prominently visible on Mobile Screens) -->
+        <div class="md:hidden px-4 pb-3 pt-1 border-t border-stone-100">
+            <form action="{% url 'home' %}" method="GET" class="relative w-full">
+                <input type="text" name="q" value="{{ search_query }}" placeholder="Search clothes, shoes, electronics..." 
+                       class="w-full bg-stone-100 text-xs sm:text-sm text-slate-900 border border-amber-200/90 rounded-2xl py-2.5 pl-10 pr-16 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200/50 shadow-inner">
+                <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <button type="submit" class="absolute inset-y-1 right-1 px-3 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-xs rounded-xl shadow-sm">
+                    Search
+                </button>
+            </form>
+        </div>
     </header>
+
+    <!-- MOBILE SLIDE-OUT DRAWER / MENU OVERLAY -->
+    <div id="mobile-menu-overlay" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden transition-opacity">
+        <div id="mobile-menu-drawer" class="fixed top-0 left-0 bottom-0 w-80 max-w-[85%] bg-white p-6 shadow-2xl flex flex-col justify-between overflow-y-auto transform -translate-x-full transition-transform duration-300">
+            
+            <div class="space-y-6">
+                <!-- Drawer Header -->
+                <div class="flex items-center justify-between border-b border-stone-100 pb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-9 h-9 rounded-xl bg-amber-500 text-slate-950 font-extrabold flex items-center justify-center">U</div>
+                        <span class="font-extrabold text-slate-900">UrbanCart</span>
+                    </div>
+                    <button id="close-mobile-menu" class="p-2 text-slate-400 hover:text-slate-700">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- User Account Profile Box in Mobile Drawer -->
+                <div class="p-4 rounded-2xl bg-gradient-to-br from-amber-50 via-amber-100/50 to-stone-50 border border-amber-200">
+                    {% if user.is_authenticated %}
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-10 h-10 rounded-full bg-slate-900 text-amber-400 font-bold flex items-center justify-center text-sm">
+                            {{ user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="font-bold text-slate-900 text-sm truncate">{{ user.username }}</div>
+                            <div class="text-[11px] text-slate-500 truncate">{{ user.email|default:"User Account" }}</div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 pt-2 border-t border-amber-200/80">
+                        <a href="{% url 'user_orders' %}" class="flex items-center justify-between p-2 rounded-xl bg-white text-xs font-bold text-slate-800 shadow-sm">
+                            <span>📦 My Orders</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <a href="{% url 'logout' %}" class="flex items-center justify-between p-2 rounded-xl bg-red-50 text-xs font-bold text-red-700">
+                            <span>Logout</span>
+                            <span>&rarr;</span>
+                        </a>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <div class="font-bold text-slate-900 text-sm">Welcome to UrbanCart!</div>
+                        <div class="text-[11px] text-slate-500">Sign in to track orders & save items</div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <a href="{% url 'login' %}" class="py-2.5 text-center bg-white border border-amber-200 text-slate-800 font-bold text-xs rounded-xl shadow-sm">
+                            Sign In
+                        </a>
+                        <a href="{% url 'register' %}" class="py-2.5 text-center bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-bold text-xs rounded-xl shadow-md">
+                            Register
+                        </a>
+                    </div>
+                    <div class="mt-2.5">
+                        <a href="{% url 'google_login' %}" class="w-full py-2 bg-white border border-stone-200 text-[11px] font-bold text-slate-700 rounded-xl flex items-center justify-center gap-2 shadow-sm">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24">
+                                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+                            </svg>
+                            <span>1-Click Gmail Login</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Category Navigation Links in Mobile Drawer -->
+                <div class="space-y-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-2 mb-2">Shop Categories</span>
+                    <a href="{% url 'home' %}?category=All#products" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-xs font-bold text-slate-800">
+                        <span>🔥 All Products</span>
+                        <span>&rarr;</span>
+                    </a>
+                    <a href="{% url 'home' %}?category=Clothing#products" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-xs font-bold text-slate-800">
+                        <span>👕 Clothing & Apparel</span>
+                        <span>&rarr;</span>
+                    </a>
+                    <a href="{% url 'home' %}?category=Footwear#products" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-xs font-bold text-slate-800">
+                        <span>👟 Footwear & Sneakers</span>
+                        <span>&rarr;</span>
+                    </a>
+                    <a href="{% url 'home' %}?category=Electronics#products" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-xs font-bold text-slate-800">
+                        <span>🎧 Electronics & Audio</span>
+                        <span>&rarr;</span>
+                    </a>
+                    <a href="{% url 'home' %}?category=Wearables#products" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-xs font-bold text-slate-800">
+                        <span>⌚ Wearables & Smartwatches</span>
+                        <span>&rarr;</span>
+                    </a>
+                    <a href="{% url 'home' %}?category=Gaming#products" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-amber-50 text-xs font-bold text-slate-800">
+                        <span>🎮 Gaming Gear</span>
+                        <span>&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Drawer Footer -->
+            <div class="pt-6 border-t border-stone-100 text-center">
+                <a href="/admin/" class="block text-xs font-bold text-slate-600 hover:text-amber-700 py-1">
+                    Django Admin Dashboard &rarr;
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- FLASH MESSAGES -->
     {% if messages %}
     <div class="max-w-7xl mx-auto px-4 mt-4 w-full">
         {% for message in messages %}
-        <div class="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-sm font-semibold flex items-center justify-between shadow-sm">
+        <div class="p-3.5 sm:p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 text-xs sm:text-sm font-semibold flex items-center justify-between shadow-sm">
             <div class="flex items-center gap-2">
-                <span class="text-amber-600 text-lg">✔</span>
+                <span class="text-amber-600 text-base">✔</span>
                 <span>{{ message }}</span>
             </div>
             <a href="{% url 'cart_detail' %}" class="underline text-amber-800 hover:text-amber-950">View Cart &rarr;</a>
@@ -156,14 +294,14 @@
                     <div class="flex items-center gap-3 mb-4 bg-white p-2 rounded-xl w-fit">
                         <img src="{% static 'images/logo.png' %}" alt="UrbanCart Logo" class="h-10 w-auto object-contain">
                     </div>
-                    <p class="text-sm text-slate-400">UrbanCart - Powered by Django, Tailwind CSS & Clerk Auth API.</p>
+                    <p class="text-sm text-slate-400">UrbanCart - Next-gen e-commerce platform for streetwear, sneakers & tech gear.</p>
                 </div>
                 <div>
                     <h4 class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Categories</h4>
                     <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="{% url 'home' %}?category=Clothing" class="hover:text-amber-400 transition-colors">Clothing & Apparel</a></li>
-                        <li><a href="{% url 'home' %}?category=Footwear" class="hover:text-amber-400 transition-colors">Footwear & Sneakers</a></li>
-                        <li><a href="{% url 'home' %}?category=Electronics" class="hover:text-amber-400 transition-colors">Electronics & Gadgets</a></li>
+                        <li><a href="{% url 'home' %}?category=Clothing#products" class="hover:text-amber-400 transition-colors">Clothing & Apparel</a></li>
+                        <li><a href="{% url 'home' %}?category=Footwear#products" class="hover:text-amber-400 transition-colors">Footwear & Sneakers</a></li>
+                        <li><a href="{% url 'home' %}?category=Electronics#products" class="hover:text-amber-400 transition-colors">Electronics & Gadgets</a></li>
                     </ul>
                 </div>
                 <div>
@@ -184,54 +322,87 @@
                 </div>
             </div>
             <div class="border-t border-slate-900 pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500">
-                <p>&copy; 2026 UrbanCart. Integrated with Clerk Auth API.</p>
-                <div class="flex gap-6 mt-4 sm:mt-0">
-                    <a href="#" class="hover:text-amber-400">Privacy Policy</a>
-                    <a href="#" class="hover:text-amber-400">Terms of Service</a>
-                </div>
+                <p>&copy; 2026 UrbanCart. Modern E-Commerce Platform.</p>
             </div>
         </div>
     </footer>
 
-    <!-- CLERK AUTH INITIALIZATION & BACKEND SYNC SCRIPT -->
+    <!-- MOBILE BOTTOM APP-LIKE NAVIGATION BAR (Always visible at bottom on mobile) -->
+    <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-amber-200/80 px-4 py-2 shadow-lg flex items-center justify-around">
+        <!-- Home -->
+        <a href="{% url 'home' %}" class="flex flex-col items-center gap-1 text-slate-700 hover:text-amber-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span class="text-[10px] font-bold">Home</span>
+        </a>
+
+        <!-- Categories Trigger -->
+        <button id="bottom-categories-trigger" class="flex flex-col items-center gap-1 text-slate-700 hover:text-amber-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            <span class="text-[10px] font-bold">Categories</span>
+        </button>
+
+        <!-- Cart with Badge -->
+        <a href="{% url 'cart_detail' %}" class="flex flex-col items-center gap-1 text-slate-700 hover:text-amber-600 relative transition-colors">
+            <div class="relative">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+                </svg>
+                <span class="absolute -top-1.5 -right-2 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-extrabold text-[9px] w-4 h-4 rounded-full flex items-center justify-center">
+                    {{ cart_count|default:0 }}
+                </span>
+            </div>
+            <span class="text-[10px] font-bold">Cart</span>
+        </a>
+
+        <!-- Account -->
+        <button id="bottom-account-trigger" class="flex flex-col items-center gap-1 text-slate-700 hover:text-amber-600 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+            </svg>
+            <span class="text-[10px] font-bold">Account</span>
+        </button>
+    </nav>
+
+    <!-- MOBILE MENU INTERACTIVE SCRIPT -->
     <script>
-        window.addEventListener('load', async () => {
-            if (window.Clerk) {
-                try {
-                    await Clerk.load();
+        document.addEventListener('DOMContentLoaded', () => {
+            const overlay = document.getElementById('mobile-menu-overlay');
+            const drawer = document.getElementById('mobile-menu-drawer');
+            const openBtn = document.getElementById('mobile-menu-btn');
+            const closeBtn = document.getElementById('close-mobile-menu');
+            const userTrigger = document.getElementById('mobile-user-trigger');
+            const bottomAccountTrigger = document.getElementById('bottom-account-trigger');
+            const bottomCategoriesTrigger = document.getElementById('bottom-categories-trigger');
 
-                    // If Clerk user is logged in, sync with Django session
-                    if (Clerk.user) {
-                        const email = Clerk.user.primaryEmailAddress ? Clerk.user.primaryEmailAddress.emailAddress : '';
-                        if (email) {
-                            fetch("{% url 'clerk_session_sync' %}", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({
-                                    clerk_id: Clerk.user.id,
-                                    email: email,
-                                    first_name: Clerk.user.firstName || '',
-                                    last_name: Clerk.user.lastName || ''
-                                })
-                            });
-                        }
-
-                        const userButtonDiv = document.getElementById('clerk-user-button');
-                        if (userButtonDiv) {
-                            Clerk.mountUserButton(userButtonDiv);
-                        }
-                    }
-
-                    const clerkBtn = document.getElementById('clerk-sign-in-btn');
-                    if (clerkBtn) {
-                        clerkBtn.addEventListener('click', () => {
-                            Clerk.openSignIn({});
-                        });
-                    }
-                } catch (err) {
-                    console.log("Clerk Auth initialization:", err);
-                }
+            function openDrawer() {
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    drawer.classList.remove('-translate-x-full');
+                }, 10);
+                document.body.style.overflow = 'hidden';
             }
+
+            function closeDrawer() {
+                drawer.classList.add('-translate-x-full');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 300);
+            }
+
+            if (openBtn) openBtn.addEventListener('click', openDrawer);
+            if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
+            if (userTrigger) userTrigger.addEventListener('click', openDrawer);
+            if (bottomAccountTrigger) bottomAccountTrigger.addEventListener('click', openDrawer);
+            if (bottomCategoriesTrigger) bottomCategoriesTrigger.addEventListener('click', openDrawer);
+
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeDrawer();
+            });
         });
     </script>
 </body>
