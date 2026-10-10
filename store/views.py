@@ -87,6 +87,22 @@ def home(request):
     return render(request, 'store/index.html', context)
 
 
+def welcome_landing(request):
+    featured_products = Product.objects.filter(is_featured=True)[:4]
+    if not featured_products.exists():
+        featured_products = Product.objects.all()[:4]
+
+    cart_items = CartItem.objects.all()
+    cart_count = sum(item.quantity for item in cart_items)
+
+    context = {
+        'featured_products': featured_products,
+        'total_products_count': Product.objects.count(),
+        'cart_count': cart_count,
+    }
+    return render(request, 'store/welcome.html', context)
+
+
 # --- CART VIEWS ---
 
 def add_to_cart(request, product_id):

@@ -120,6 +120,10 @@
             <!-- Right: Nav Links, Cart & Account Buttons -->
             <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
                 <nav class="hidden lg:flex items-center gap-5 text-xs lg:text-sm font-bold text-slate-700">
+                    <a href="{% url 'welcome' %}" class="px-2.5 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-black transition-all flex items-center gap-1 shadow-sm">
+                        <span>✨</span>
+                        <span>Intro</span>
+                    </a>
                     <a href="{% url 'home' %}?category=Clothing#products" class="hover:text-amber-600 transition-colors">Clothing</a>
                     <a href="{% url 'home' %}?category=Footwear#products" class="hover:text-amber-600 transition-colors">Footwear</a>
                     <a href="{% url 'home' %}?category=Electronics#products" class="hover:text-amber-600 transition-colors">Electronics</a>
@@ -256,6 +260,15 @@
                     {% endif %}
                 </div>
 
+                <!-- Welcome Landing Page Feature Link -->
+                <a href="{% url 'welcome' %}" class="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-transparent border border-amber-300 text-xs font-black text-amber-900 shadow-sm">
+                    <span class="flex items-center gap-2">
+                        <span class="text-base">✨</span>
+                        <span>Welcome Landing Page</span>
+                    </span>
+                    <span class="text-amber-600 font-extrabold">&rarr;</span>
+                </a>
+
                 <!-- Category Navigation Links in Drawer -->
                 <div class="space-y-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-2 mb-2">Shop Categories</span>
@@ -363,6 +376,7 @@
                 <div>
                     <h4 class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Account & Support</h4>
                     <ul class="space-y-2 text-sm text-slate-400">
+                        <li><a href="{% url 'welcome' %}" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">✨</span><span>Welcome Intro Page</span></a></li>
                         <li><a href="{% url 'cart_detail' %}" class="hover:text-amber-400 transition-colors">View Cart</a></li>
                         <li><a href="{% url 'user_dashboard' %}" class="hover:text-amber-400 transition-colors">My Customer Dashboard</a></li>
                         <li><a href="{% url 'login' %}" class="hover:text-amber-400 transition-colors">Email OTP Sign In</a></li>
