@@ -1,3 +1,4 @@
+from decimal import Decimal
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -34,6 +35,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def get_discount_percent(self):
+        if self.compare_at_price and self.compare_at_price > self.price:
+            return int(((self.compare_at_price - self.price) / self.compare_at_price) * 100)
+        return int((self.id * 7) % 25 + 20)
+
+    def get_original_price(self):
+        if self.compare_at_price and self.compare_at_price > self.price:
+            return self.compare_at_price
+        disc = self.get_discount_percent()
+        return round(self.price * Decimal(100) / Decimal(100 - disc), 2)
 
 class ShippingAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shipping_addresses')

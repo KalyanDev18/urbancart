@@ -1,470 +1,471 @@
 {% extends 'store/base.html' %}
 
-{% block title %}UrbanCart | Modern E-Commerce{% endblock %}
+{% block title %}UrbanKart | Modern Streetwear & Cyber Tech Store{% endblock %}
 
 {% block content %}
-<!-- AUTO SLIDING HERO CAROUSEL SECTION (5 Responsive Animated Slides with Direct Product Links & True Infinite Loop) -->
-<section class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-4 sm:pt-8 pb-8 sm:pb-12">
-    <div id="hero-carousel" class="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-200/90 bg-gradient-to-br from-amber-500/15 via-stone-100 to-amber-100/50 shadow-xl sm:shadow-2xl flex items-center group select-none">
-        
-        <!-- Ambient Animated Glow Halos -->
-        <div class="absolute -top-24 -left-24 w-72 sm:w-96 h-72 sm:h-96 bg-amber-400/25 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
-        <div class="absolute -bottom-24 -right-24 w-72 sm:w-96 h-72 sm:h-96 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none animate-pulse" style="animation-delay: 1.5s;"></div>
+<div class="bg-stone-50 min-h-screen pb-16">
 
-        <!-- Slides Wrapper -->
-        <div id="carousel-slides" class="w-full flex h-full">
-            
-            <!-- SLIDE 1: Urban Streetwear Hoodie -->
-            <div class="carousel-slide w-full min-w-full flex-shrink-0 px-4 sm:px-8 md:px-12 pt-6 pb-14 sm:py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 md:gap-8">
-                <div class="w-full md:max-w-xl text-center md:text-left space-y-2.5 sm:space-y-4 z-10">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-[10px] sm:text-xs font-black tracking-wide">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                        <span>🔥 TRENDING STREETWEAR 2026</span>
-                    </div>
-                    <h1 class="text-xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                        Heavyweight <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Organic Cotton Hoodies</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-slate-700 leading-relaxed font-normal line-clamp-2 sm:line-clamp-none max-w-lg mx-auto md:mx-0">
-                        450gsm ultra-soft streetwear hoodie with relaxed drop-shoulder fit. Flat 20% off this week!
-                    </p>
-                    <div class="pt-1 sm:pt-2 flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap">
-                        <a href="{% url 'home' %}?q=Hoodie#products" class="px-5 py-2.5 sm:px-7 sm:py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                            <span>Shop Streetwear</span>
-                            <span>&rarr;</span>
-                        </a>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-lg sm:text-2xl font-black text-slate-900">₹2,499</span>
-                            <span class="text-xs sm:text-sm line-through text-slate-400 font-normal">₹3,199</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="{% url 'home' %}?q=Hoodie#products" class="relative w-36 h-36 xs:w-44 xs:h-44 sm:w-60 sm:h-60 md:w-80 md:h-80 flex-shrink-0 z-10 group/img my-1 sm:my-0">
-                    <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80" 
-                         alt="Streetwear Hoodie" class="w-full h-full object-cover rounded-2xl sm:rounded-3xl border-2 border-amber-300/80 shadow-xl sm:shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
-                    <div class="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-amber-400 shadow-xl whitespace-nowrap">
-                        ★ 4.9 Top Seller
-                    </div>
-                </a>
-            </div>
-
-            <!-- SLIDE 2: Wireless Audio Headphones -->
-            <div class="carousel-slide w-full min-w-full flex-shrink-0 px-4 sm:px-8 md:px-12 pt-6 pb-14 sm:py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 md:gap-8">
-                <div class="w-full md:max-w-xl text-center md:text-left space-y-2.5 sm:space-y-4 z-10">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-[10px] sm:text-xs font-black tracking-wide">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                        <span>🎧 NEXT-GEN SPATIAL AUDIO</span>
-                    </div>
-                    <h1 class="text-xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                        Aura Pulse <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">ANC Headphones</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-slate-700 leading-relaxed font-normal line-clamp-2 sm:line-clamp-none max-w-lg mx-auto md:mx-0">
-                        Active Noise Cancellation with 40-hour battery life and custom titanium acoustic drivers.
-                    </p>
-                    <div class="pt-1 sm:pt-2 flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap">
-                        <a href="{% url 'home' %}?q=Headphones#products" class="px-5 py-2.5 sm:px-7 sm:py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                            <span>Explore Audio</span>
-                            <span>&rarr;</span>
-                        </a>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-lg sm:text-2xl font-black text-slate-900">₹14,999</span>
-                            <span class="text-xs sm:text-sm line-through text-slate-400 font-normal">₹18,999</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="{% url 'home' %}?q=Headphones#products" class="relative w-36 h-36 xs:w-44 xs:h-44 sm:w-60 sm:h-60 md:w-80 md:h-80 flex-shrink-0 z-10 group/img my-1 sm:my-0">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" 
-                         alt="Wireless Headphones" class="w-full h-full object-cover rounded-2xl sm:rounded-3xl border-2 border-amber-300/80 shadow-xl sm:shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
-                    <div class="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-amber-400 shadow-xl whitespace-nowrap">
-                        40H Battery
-                    </div>
-                </a>
-            </div>
-
-            <!-- SLIDE 3: Leather Low-Top Sneakers -->
-            <div class="carousel-slide w-full min-w-full flex-shrink-0 px-4 sm:px-8 md:px-12 pt-6 pb-14 sm:py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 md:gap-8">
-                <div class="w-full md:max-w-xl text-center md:text-left space-y-2.5 sm:space-y-4 z-10">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-[10px] sm:text-xs font-black tracking-wide">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                        <span>👟 HANDCRAFTED FOOTWEAR</span>
-                    </div>
-                    <h1 class="text-xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                        Urban Leather <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Low-Top Sneakers</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-slate-700 leading-relaxed font-normal line-clamp-2 sm:line-clamp-none max-w-lg mx-auto md:mx-0">
-                        Hand-stitched genuine calfskin leather with shock-absorbing memory foam soles.
-                    </p>
-                    <div class="pt-1 sm:pt-2 flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap">
-                        <a href="{% url 'home' %}?q=Sneakers#products" class="px-5 py-2.5 sm:px-7 sm:py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                            <span>Discover Sneakers</span>
-                            <span>&rarr;</span>
-                        </a>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-lg sm:text-2xl font-black text-slate-900">₹4,999</span>
-                            <span class="text-xs sm:text-sm line-through text-slate-400 font-normal">₹6,499</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="{% url 'home' %}?q=Sneakers#products" class="relative w-36 h-36 xs:w-44 xs:h-44 sm:w-60 sm:h-60 md:w-80 md:h-80 flex-shrink-0 z-10 group/img my-1 sm:my-0">
-                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80" 
-                         alt="Leather Sneakers" class="w-full h-full object-cover rounded-2xl sm:rounded-3xl border-2 border-amber-300/80 shadow-xl sm:shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
-                    <div class="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-amber-400 shadow-xl whitespace-nowrap">
-                        Genuine Leather
-                    </div>
-                </a>
-            </div>
-
-            <!-- SLIDE 4: Horizon Smartwatch Pro -->
-            <div class="carousel-slide w-full min-w-full flex-shrink-0 px-4 sm:px-8 md:px-12 pt-6 pb-14 sm:py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 md:gap-8">
-                <div class="w-full md:max-w-xl text-center md:text-left space-y-2.5 sm:space-y-4 z-10">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-[10px] sm:text-xs font-black tracking-wide">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                        <span>⌚ TITANIUM WEARABLE TECH</span>
-                    </div>
-                    <h1 class="text-xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                        Horizon <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Smartwatch Pro</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-slate-700 leading-relaxed font-normal line-clamp-2 sm:line-clamp-none max-w-lg mx-auto md:mx-0">
-                        Grade-5 Titanium casing with AMOLED sapphire display, dual-frequency GPS & SpO2 biometric sensors.
-                    </p>
-                    <div class="pt-1 sm:pt-2 flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap">
-                        <a href="{% url 'home' %}?q=Smartwatch#products" class="px-5 py-2.5 sm:px-7 sm:py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                            <span>Shop Smartwatch</span>
-                            <span>&rarr;</span>
-                        </a>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-lg sm:text-2xl font-black text-slate-900">₹19,999</span>
-                            <span class="text-xs sm:text-sm line-through text-slate-400 font-normal">₹24,999</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="{% url 'home' %}?q=Smartwatch#products" class="relative w-36 h-36 xs:w-44 xs:h-44 sm:w-60 sm:h-60 md:w-80 md:h-80 flex-shrink-0 z-10 group/img my-1 sm:my-0">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80" 
-                         alt="Smartwatch Pro" class="w-full h-full object-cover rounded-2xl sm:rounded-3xl border-2 border-amber-300/80 shadow-xl sm:shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
-                    <div class="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-amber-400 shadow-xl whitespace-nowrap">
-                        AMOLED Sapphire
-                    </div>
-                </a>
-            </div>
-
-            <!-- SLIDE 5: CyberDeck Mechanical Keyboard -->
-            <div class="carousel-slide w-full min-w-full flex-shrink-0 px-4 sm:px-8 md:px-12 pt-6 pb-14 sm:py-8 md:py-10 flex flex-col md:flex-row items-center justify-between gap-4 sm:gap-6 md:gap-8">
-                <div class="w-full md:max-w-xl text-center md:text-left space-y-2.5 sm:space-y-4 z-10">
-                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-[10px] sm:text-xs font-black tracking-wide">
-                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping"></span>
-                        <span>🎮 PRO GAMING GEAR</span>
-                    </div>
-                    <h1 class="text-xl sm:text-3xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight">
-                        CyberDeck <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">RGB Mechanical Keyboard</span>
-                    </h1>
-                    <p class="text-xs sm:text-sm md:text-base text-slate-700 leading-relaxed font-normal line-clamp-2 sm:line-clamp-none max-w-lg mx-auto md:mx-0">
-                        Hot-swappable PCB with custom factory-lubricated switches and south-facing RGB per key.
-                    </p>
-                    <div class="pt-1 sm:pt-2 flex items-center justify-center md:justify-start gap-3 sm:gap-4 flex-wrap">
-                        <a href="{% url 'home' %}?q=Keyboard#products" class="px-5 py-2.5 sm:px-7 sm:py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black rounded-xl sm:rounded-2xl shadow-lg shadow-amber-500/25 hover:scale-105 active:scale-95 transition-all text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2">
-                            <span>Explore Gaming</span>
-                            <span>&rarr;</span>
-                        </a>
-                        <div class="flex items-baseline gap-1.5">
-                            <span class="text-lg sm:text-2xl font-black text-slate-900">₹8,999</span>
-                            <span class="text-xs sm:text-sm line-through text-slate-400 font-normal">₹11,499</span>
-                        </div>
-                    </div>
-                </div>
-                <a href="{% url 'home' %}?q=Keyboard#products" class="relative w-36 h-36 xs:w-44 xs:h-44 sm:w-60 sm:h-60 md:w-80 md:h-80 flex-shrink-0 z-10 group/img my-1 sm:my-0">
-                    <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80" 
-                         alt="Mechanical Keyboard" class="w-full h-full object-cover rounded-2xl sm:rounded-3xl border-2 border-amber-300/80 shadow-xl sm:shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
-                    <div class="absolute -bottom-2 -right-2 sm:-bottom-3 sm:-right-3 bg-slate-950 text-amber-400 text-[10px] sm:text-xs font-black px-2.5 py-1 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-amber-400 shadow-xl whitespace-nowrap">
-                        Hot-Swappable
-                    </div>
-                </a>
-            </div>
-
-        </div>
-
-        <!-- Carousel Left & Right Arrow Controls -->
-        <button id="prev-slide" aria-label="Previous Slide" class="hidden sm:flex absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/90 hover:bg-white text-slate-900 border border-amber-300 items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 z-20">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
-            </svg>
-        </button>
-        <button id="next-slide" aria-label="Next Slide" class="hidden sm:flex absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-white/90 hover:bg-white text-slate-900 border border-amber-300 items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-95 z-20">
-            <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
-            </svg>
-        </button>
-
-        <!-- Carousel Indicator Dots -->
-        <div id="carousel-dots" class="absolute bottom-2.5 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 z-20 bg-white/85 backdrop-blur-md px-3 sm:px-4 py-1 sm:py-1.5 rounded-full border border-amber-200/90 shadow-sm">
-            <button class="dot w-6 h-2 rounded-full bg-amber-500 transition-all duration-300" data-index="0" aria-label="Slide 1"></button>
-            <button class="dot w-2 h-2 rounded-full bg-stone-300 hover:bg-amber-400 transition-all duration-300" data-index="1" aria-label="Slide 2"></button>
-            <button class="dot w-2 h-2 rounded-full bg-stone-300 hover:bg-amber-400 transition-all duration-300" data-index="2" aria-label="Slide 3"></button>
-            <button class="dot w-2 h-2 rounded-full bg-stone-300 hover:bg-amber-400 transition-all duration-300" data-index="3" aria-label="Slide 4"></button>
-            <button class="dot w-2 h-2 rounded-full bg-stone-300 hover:bg-amber-400 transition-all duration-300" data-index="4" aria-label="Slide 5"></button>
-        </div>
-    </div>
-</section>
-
-<!-- PRODUCT CATALOG SECTION -->
-<section id="products" class="py-8 sm:py-12 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-    
-    <!-- Section Header & Filter Pills -->
-    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-12">
-        <div>
-            <span class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1 block">
-                {% if search_query %}Search results for "{{ search_query }}"{% else %}Catalog • {{ total_products_count|default:110 }} Items{% endif %}
-            </span>
-            <h2 class="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Curated Collection</h2>
-        </div>
-
-        <!-- Category Filters -->
-        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none whitespace-nowrap">
-            {% for cat in categories %}
-            <a href="{% url 'home' %}?category={{ cat }}#products" 
-               class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {% if selected_category == cat or selected_category == 'All' and cat == 'All' %} bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/25 {% else %} bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50 border border-amber-200 shadow-sm {% endif %}">
-                {% if cat == 'Clothing' %}👕 {% elif cat == 'Footwear' %}👟 {% elif cat == 'Electronics' %}🎧 {% elif cat == 'Gaming' %}🎮 {% endif %}{{ cat }}
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- PRODUCT GRID (Responsive 1 -> 2 -> 3 -> 4 columns) -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-        {% for product in products %}
-        <div id="product-card-{{ product.id }}" class="group bg-white rounded-3xl border border-amber-200/80 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 flex flex-col overflow-hidden shadow-sm">
-            
-            <!-- Product Image Container -->
-            <div class="relative aspect-square w-full overflow-hidden bg-stone-100">
-                {% if product.image_url %}
-                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-                {% else %}
-                <div class="w-full h-full flex items-center justify-center bg-stone-100 text-slate-400 text-sm">No Image Available</div>
-                {% endif %}
+    <!-- ==================== 1. FLIPKART-STYLE CATEGORY ICON BAR ==================== -->
+    <div class="bg-white border-b border-stone-200/90 shadow-sm sticky top-16 sm:top-20 z-30">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-4 sm:gap-8 overflow-x-auto py-3 scrollbar-none select-none">
                 
-                <!-- Category Tag -->
-                <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-amber-900 border border-amber-200 shadow-sm">
-                    {{ product.category }}
-                </div>
+                <!-- Category 1: For You (All) -->
+                <a href="{% url 'home' %}?category=All#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'All' or not selected_category %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">✨</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'All' or not selected_category %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        For You
+                    </span>
+                </a>
 
-                <!-- Rating Tag -->
-                <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-600 border border-amber-200 shadow-sm flex items-center gap-1">
-                    <span>★</span>
-                    <span>{{ product.rating }}</span>
-                </div>
+                <!-- Category 2: Streetwear / Clothing -->
+                <a href="{% url 'home' %}?category=Clothing#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Clothing' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">👕</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Clothing' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Streetwear
+                    </span>
+                </a>
+
+                <!-- Category 3: Footwear / Sneakers -->
+                <a href="{% url 'home' %}?category=Footwear#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Footwear' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">👟</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Footwear' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Sneakers
+                    </span>
+                </a>
+
+                <!-- Category 4: Electronics / Audio -->
+                <a href="{% url 'home' %}?category=Electronics#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Electronics' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">🎧</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Electronics' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Audio &amp; Tech
+                    </span>
+                </a>
+
+                <!-- Category 5: Wearables -->
+                <a href="{% url 'home' %}?category=Wearables#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Wearables' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">⌚</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Wearables' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Wearables
+                    </span>
+                </a>
+
+                <!-- Category 6: Gaming -->
+                <a href="{% url 'home' %}?category=Gaming#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Gaming' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">🎮</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Gaming' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Gaming
+                    </span>
+                </a>
+
+                <!-- Category 7: Lifestyle -->
+                <a href="{% url 'home' %}?category=Lifestyle#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Lifestyle' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">🎒</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Lifestyle' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Lifestyle
+                    </span>
+                </a>
+
+                <!-- Category 8: Home Tech -->
+                <a href="{% url 'home' %}?category=Home%20Tech#products" 
+                   class="flex flex-col items-center gap-1.5 min-w-[62px] sm:min-w-[72px] group text-center flex-shrink-0">
+                    <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center transition-all duration-300 {% if selected_category == 'Home Tech' %}bg-gradient-to-tr from-amber-500 to-yellow-400 text-slate-950 shadow-md shadow-amber-500/30 scale-105 border-2 border-amber-300{% else %}bg-stone-100 text-slate-700 group-hover:bg-amber-100 group-hover:text-amber-900 border border-stone-200/80{% endif %}">
+                        <span class="text-xl sm:text-2xl">💡</span>
+                    </div>
+                    <span class="text-[11px] sm:text-xs font-black tracking-tight leading-tight {% if selected_category == 'Home Tech' %}text-amber-800 border-b-2 border-amber-500 pb-0.5{% else %}text-slate-700 group-hover:text-amber-700{% endif %}">
+                        Home Tech
+                    </span>
+                </a>
+
             </div>
+        </div>
+    </div>
 
-            <!-- Product Body -->
-            <div class="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-600 transition-colors line-clamp-1 mb-2">
-                        {{ product.name }}
-                    </h3>
-                    <p class="text-sm text-slate-500 line-clamp-2 mb-6 font-normal">
-                        {{ product.description }}
-                    </p>
+    <!-- ==================== 2. "IN THE SPOTLIGHT" MULTI-BANNER HERO GRID ==================== -->
+    <section class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 sm:pt-8 pb-4">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+                    <span>In The Spotlight</span>
+                    <span class="text-amber-500 text-sm">✦</span>
+                </h2>
+                <p class="text-xs text-slate-500">Curated top picks with exclusive bank discounts &amp; instant savings</p>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="scrollContainer('spotlight-container', -360)" 
+                        aria-label="Scroll left"
+                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white border border-stone-300 text-slate-700 hover:bg-amber-50 hover:text-amber-900 hover:border-amber-400 flex items-center justify-center shadow-sm transition-all">
+                    &larr;
+                </button>
+                <button type="button" onclick="scrollContainer('spotlight-container', 360)" 
+                        aria-label="Scroll right"
+                        class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-900 text-white hover:bg-amber-500 hover:text-slate-950 flex items-center justify-center shadow-md transition-all">
+                    &rarr;
+                </button>
+            </div>
+        </div>
+
+        <!-- Horizontal Multi-Banner Row (Flipkart Format: 3 cards side-by-side) -->
+        <div id="spotlight-container" class="flex gap-4 sm:gap-6 overflow-x-auto scrollbar-none pb-2 scroll-smooth">
+            {% for item in spotlight_products %}
+            <div class="min-w-[280px] sm:min-w-[340px] md:min-w-[380px] flex-shrink-0 bg-gradient-to-br from-white via-stone-50 to-amber-50/40 rounded-3xl p-5 border border-amber-200/90 shadow-md hover:shadow-xl hover:border-amber-400 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden">
+                
+                <!-- Background ambient corner glow -->
+                <div class="absolute -top-12 -right-12 w-28 h-28 bg-amber-400/15 rounded-full blur-xl pointer-events-none group-hover:scale-150 transition-transform"></div>
+
+                <!-- Card Header -->
+                <div class="flex items-start justify-between gap-3 mb-3 relative z-10">
+                    <div>
+                        <span class="text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 inline-block mb-1">
+                            {{ item.category }}
+                        </span>
+                        <h3 class="text-base sm:text-lg font-black text-slate-900 leading-tight group-hover:text-amber-700 transition-colors line-clamp-1">
+                            {{ item.name }}
+                        </h3>
+                    </div>
+                    <span class="bg-slate-950 text-amber-400 text-[10px] font-black px-2 py-0.5 rounded-lg flex-shrink-0">
+                        ★ {{ item.rating }}
+                    </span>
                 </div>
 
-                <!-- Price in INR & Add to Cart Action -->
-                <div class="flex items-center justify-between pt-4 border-t border-stone-100 mt-auto">
-                    <div>
-                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Price</span>
-                        <span class="text-xl font-extrabold text-slate-900">₹{{ product.price }}</span>
+                <!-- Product Image Showcase with Spotlight styling -->
+                <div class="relative h-44 sm:h-48 rounded-2xl overflow-hidden bg-white border border-stone-200/80 mb-4 flex items-center justify-center group-hover:scale-[1.02] transition-transform duration-500">
+                    <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 left-2 bg-slate-950/80 backdrop-blur-md text-amber-400 text-[10px] font-extrabold px-2.5 py-1 rounded-lg">
+                        Lowest Price Ever
+                    </div>
+                </div>
+
+                <!-- Price & Bank Offer Strip -->
+                <div class="space-y-3 relative z-10">
+                    <div class="flex items-baseline justify-between">
+                        <div>
+                            <span class="text-[10px] text-slate-500 uppercase font-bold block">From</span>
+                            <span class="text-xl sm:text-2xl font-black text-slate-900">₹{{ item.price }}</span>
+                            <span class="text-xs text-slate-400 line-through ml-1.5">₹{{ item.get_original_price }}</span>
+                        </div>
+                        <span class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">
+                            {{ item.get_discount_percent }}% OFF
+                        </span>
                     </div>
 
+                    <!-- Bank / Instant perk pill (Flipkart style) -->
+                    <div class="p-2 rounded-xl bg-amber-100/70 border border-amber-200 text-[11px] font-bold text-amber-950 flex items-center gap-1.5 truncate">
+                        <span>⚡</span>
+                        <span class="truncate">Flat ₹500 OFF with code <b>WELCOME500</b></span>
+                    </div>
+
+                    <!-- Direct Add to Cart Action -->
                     {% if user.is_authenticated %}
-                    <a href="{% url 'add_to_cart' product.id %}" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 text-xs font-extrabold rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 group/btn">
-                        <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
+                    <a href="{% url 'add_to_cart' item.id %}" class="w-full py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2">
                         <span>Add to Cart</span>
+                        <span>&rarr;</span>
                     </a>
                     {% else %}
-                    <a href="{% url 'login' %}?next={% url 'add_to_cart' product.id %}" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 text-xs font-extrabold rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 group/btn" title="Sign In to Add to Cart">
-                        <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                        </svg>
+                    <a href="{% url 'login' %}?next={% url 'add_to_cart' item.id %}" class="w-full py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-md transition-all flex items-center justify-center gap-2" title="Sign In to Add to Cart">
                         <span>Add to Cart</span>
+                        <span>&rarr;</span>
                     </a>
                     {% endif %}
                 </div>
+
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- ==================== 3. "DEALS ON YOUR FAVOURITES! ✨" GRADIENT BANNER & ROW ==================== -->
+    <section class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        <div class="bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 rounded-3xl p-5 sm:p-7 shadow-2xl relative overflow-hidden border border-purple-800">
+            
+            <!-- Ambient Light Flares -->
+            <div class="absolute -top-20 -left-20 w-64 h-64 bg-amber-500/20 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -bottom-20 -right-20 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+            <!-- Banner Header -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 relative z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-400 text-slate-950 font-black text-lg flex items-center justify-center shadow-lg shadow-amber-400/30">
+                        🔥
+                    </div>
+                    <div>
+                        <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-2">
+                            <span>Deals on your favourites!</span>
+                            <span class="text-amber-400">✨</span>
+                        </h2>
+                        <p class="text-xs text-purple-200">Limited-time price cuts with up to 45% discount</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Controls -->
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="scrollContainer('deals-scroll-container', -320)" 
+                            aria-label="Scroll left"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/20 hover:bg-white text-white hover:text-slate-900 border border-white/30 flex items-center justify-center transition-all backdrop-blur-md">
+                        &larr;
+                    </button>
+                    <button type="button" onclick="scrollContainer('deals-scroll-container', 320)" 
+                            aria-label="Scroll right"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-amber-400 hover:bg-amber-500 text-slate-950 flex items-center justify-center font-bold transition-all shadow-md">
+                        &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Horizontal Deals Product Cards Carousel -->
+            <div id="deals-scroll-container" class="flex gap-4 overflow-x-auto scrollbar-none pb-2 scroll-smooth relative z-10">
+                {% for item in deals_products %}
+                <div class="min-w-[190px] sm:min-w-[220px] max-w-[220px] flex-shrink-0 bg-white rounded-2xl p-3.5 border border-purple-200/50 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col justify-between group">
+                    
+                    <div>
+                        <!-- Product Image with Discount Badge -->
+                        <div class="relative aspect-square w-full rounded-xl overflow-hidden bg-stone-100 mb-3">
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            
+                            <!-- Flipkart Style Discount Tag (e.g. ↓ 40%) -->
+                            <div class="absolute top-2 left-2 bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md shadow flex items-center gap-0.5">
+                                <span>&darr;</span>
+                                <span>{{ item.get_discount_percent }}%</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 bg-slate-950/80 backdrop-blur-md text-amber-400 text-[9px] font-extrabold px-1.5 py-0.5 rounded">
+                                ★ {{ item.rating }}
+                            </div>
+                        </div>
+
+                        <!-- Product Name -->
+                        <h4 class="text-xs font-bold text-slate-900 line-clamp-2 leading-tight group-hover:text-amber-700 transition-colors mb-2">
+                            {{ item.name }}
+                        </h4>
+                    </div>
+
+                    <!-- Price & Add to Cart -->
+                    <div class="pt-2 border-t border-stone-100 space-y-2 mt-auto">
+                        <div class="flex items-baseline gap-1.5">
+                            <span class="text-base font-black text-slate-900">₹{{ item.price }}</span>
+                            <span class="text-[11px] text-slate-400 line-through">₹{{ item.get_original_price }}</span>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'add_to_cart' item.id %}" class="w-full py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-extrabold text-[11px] rounded-lg transition-all text-center block shadow-sm">
+                            Add to Cart
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'add_to_cart' item.id %}" class="w-full py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-white font-extrabold text-[11px] rounded-lg transition-all text-center block shadow-sm" title="Sign In to Add to Cart">
+                            Add to Cart
+                        </a>
+                        {% endif %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==================== 4. "SUGGESTED FOR YOU ➔" ROW (FLIPKART STYLE) ==================== -->
+    <section class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6">
+        <div class="bg-white rounded-3xl p-5 sm:p-7 border border-amber-200/90 shadow-sm">
+            
+            <div class="flex items-center justify-between mb-5">
+                <div>
+                    <h2 class="text-lg sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                        <span>Suggested For You</span>
+                        <span class="text-amber-600 text-lg">&rarr;</span>
+                    </h2>
+                    <p class="text-xs text-slate-500">Trending footwear, audio essentials, and tech accessories</p>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="scrollContainer('suggested-scroll-container', -320)" 
+                            aria-label="Scroll left"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-stone-100 hover:bg-amber-100 text-slate-700 hover:text-amber-900 flex items-center justify-center transition-all">
+                        &larr;
+                    </button>
+                    <button type="button" onclick="scrollContainer('suggested-scroll-container', 320)" 
+                            aria-label="Scroll right"
+                            class="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-900 text-white hover:bg-amber-500 hover:text-slate-950 flex items-center justify-center transition-all shadow-md">
+                        &rarr;
+                    </button>
+                </div>
+            </div>
+
+            <!-- Horizontal Suggested Items Scroll Container -->
+            <div id="suggested-scroll-container" class="flex gap-4 sm:gap-5 overflow-x-auto scrollbar-none pb-2 scroll-smooth">
+                {% for item in suggested_products %}
+                <div class="min-w-[180px] sm:min-w-[210px] max-w-[210px] flex-shrink-0 bg-stone-50/70 hover:bg-white rounded-2xl p-3 border border-stone-200 hover:border-amber-400 hover:shadow-md transition-all duration-300 flex flex-col justify-between group">
+                    
+                    <div>
+                        <div class="relative aspect-square w-full rounded-xl overflow-hidden bg-white mb-2.5 border border-stone-100">
+                            <img src="{{ item.image_url }}" alt="{{ item.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                            <span class="absolute top-2 left-2 bg-amber-100 text-amber-900 text-[9px] font-black px-2 py-0.5 rounded-full border border-amber-200">
+                                {{ item.category }}
+                            </span>
+                        </div>
+
+                        <h4 class="text-xs font-bold text-slate-900 line-clamp-1 leading-tight group-hover:text-amber-700 transition-colors">
+                            {{ item.name }}
+                        </h4>
+                        <p class="text-[11px] text-slate-500 line-clamp-1 mt-0.5">{{ item.description }}</p>
+                    </div>
+
+                    <div class="pt-2 mt-2 border-t border-stone-200/80 flex items-center justify-between">
+                        <div>
+                            <span class="text-sm font-black text-slate-900">₹{{ item.price }}</span>
+                        </div>
+                        
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'add_to_cart' item.id %}" class="p-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl transition-all shadow-sm font-bold text-xs" title="Add to Cart">
+                            +
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'add_to_cart' item.id %}" class="p-2 bg-amber-500 hover:bg-amber-600 text-slate-950 rounded-xl transition-all shadow-sm font-bold text-xs" title="Sign In to Add to Cart">
+                            +
+                        </a>
+                        {% endif %}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ==================== 5. FULL PRODUCT CATALOG WITH FILTER PILLS ==================== -->
+    <section id="products" class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+        
+        <!-- Filter Header -->
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
+            <div>
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1 block">
+                    {% if search_query %}Search results for "{{ search_query }}"{% else %}Explore All Products ({{ total_products_count|default:54 }} Items){% endif %}
+                </span>
+                <h2 class="text-xl sm:text-3xl font-black text-slate-900 tracking-tight">Curated Streetwear &amp; Tech Catalog</h2>
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none whitespace-nowrap">
+                {% for cat in categories %}
+                <a href="{% url 'home' %}?category={{ cat }}#products" 
+                   class="px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {% if selected_category == cat or selected_category == 'All' and cat == 'All' %} bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/25 {% else %} bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50 border border-amber-200 shadow-sm {% endif %}">
+                    {% if cat == 'Clothing' %}👕 {% elif cat == 'Footwear' %}👟 {% elif cat == 'Electronics' %}🎧 {% elif cat == 'Gaming' %}🎮 {% endif %}{{ cat }}
+                </a>
+                {% endfor %}
             </div>
         </div>
-        {% empty %}
-        <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-amber-200 shadow-sm">
-            <h3 class="text-lg font-bold text-slate-900 mb-1">No products found</h3>
-            <p class="text-sm text-slate-500 mb-6">Try selecting another category or clear search filter.</p>
-            <a href="{% url 'home' %}" class="inline-block px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-bold rounded-xl">View All Products</a>
+
+        <!-- Product Grid (Responsive 1 -> 2 -> 3 -> 4 columns) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {% for product in products %}
+            <div id="product-card-{{ product.id }}" class="group bg-white rounded-3xl border border-amber-200/80 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 flex flex-col overflow-hidden shadow-sm">
+                
+                <!-- Product Image -->
+                <div class="relative aspect-square w-full overflow-hidden bg-stone-100">
+                    {% if product.image_url %}
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center bg-stone-100 text-slate-400 text-sm">No Image Available</div>
+                    {% endif %}
+                    
+                    <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-amber-900 border border-amber-200 shadow-sm">
+                        {{ product.category }}
+                    </div>
+
+                    <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-600 border border-amber-200 shadow-sm flex items-center gap-1">
+                        <span>★</span>
+                        <span>{{ product.rating }}</span>
+                    </div>
+
+                    <div class="absolute bottom-2.5 left-2.5 bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded shadow">
+                        {{ product.get_discount_percent }}% OFF
+                    </div>
+                </div>
+
+                <!-- Product Details -->
+                <div class="p-5 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-extrabold text-base text-slate-900 mb-1.5 leading-snug group-hover:text-amber-700 transition-colors">
+                            {{ product.name }}
+                        </h3>
+                        <p class="text-xs text-slate-500 line-clamp-2 mb-4 font-normal">
+                            {{ product.description }}
+                        </p>
+                    </div>
+
+                    <!-- Price & Add to Cart -->
+                    <div class="flex items-center justify-between pt-3 border-t border-stone-100 mt-auto">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Price</span>
+                            <div class="flex items-baseline gap-1.5">
+                                <span class="text-lg font-black text-slate-900">₹{{ product.price }}</span>
+                                <span class="text-xs text-slate-400 line-through">₹{{ product.get_original_price }}</span>
+                            </div>
+                        </div>
+
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'add_to_cart' product.id %}" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 group/btn">
+                            <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            <span>Add</span>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'login' %}?next={% url 'add_to_cart' product.id %}" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 text-xs font-black rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-1.5 group/btn" title="Sign In to Add to Cart">
+                            <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            <span>Add</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+            {% empty %}
+            <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-amber-200 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-900 mb-1">No products found</h3>
+                <p class="text-sm text-slate-500 mb-6">Try selecting another category or clear search filter.</p>
+                <a href="{% url 'home' %}" class="inline-block px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-bold rounded-xl">View All Products</a>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
-</section>
+    </section>
 
-<!-- SEAMLESS INFINITE AUTO-LOOP CAROUSEL JAVASCRIPT -->
+</div>
+
+<!-- SCRIPT FOR FLIPKART HORIZONTAL CAROUSEL CONTROLS -->
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const slidesContainer = document.getElementById('carousel-slides');
-        const heroCarousel = document.getElementById('hero-carousel');
-        const prevBtn = document.getElementById('prev-slide');
-        const nextBtn = document.getElementById('next-slide');
-        const dots = document.querySelectorAll('.dot');
-        
-        // Get original 5 slides
-        const originalSlides = Array.from(slidesContainer.querySelectorAll('.carousel-slide'));
-        const totalOriginal = originalSlides.length; // 5
-        if (totalOriginal === 0) return;
-
-        // Clone first slide to end and last slide to beginning for true seamless circular loop
-        const firstClone = originalSlides[0].cloneNode(true);
-        firstClone.classList.add('carousel-clone');
-        const lastClone = originalSlides[totalOriginal - 1].cloneNode(true);
-        lastClone.classList.add('carousel-clone');
-
-        slidesContainer.appendChild(firstClone);
-        slidesContainer.insertBefore(lastClone, slidesContainer.firstChild);
-
-        // Slides count is now totalOriginal + 2 (indexes 0 to 6)
-        // Index 0: Clone of Slide 5
-        // Index 1: Slide 1 (start)
-        // Index 2: Slide 2
-        // Index 3: Slide 3
-        // Index 4: Slide 4
-        // Index 5: Slide 5
-        // Index 6: Clone of Slide 1
-        let currentIndex = 1;
-        let isTransitioning = false;
-        let autoPlayTimer = null;
-
-        // Initialize position at Slide 1
-        slidesContainer.style.transition = 'none';
-        slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-
-        function updateDots(activeOriginalIdx) {
-            dots.forEach((dot, idx) => {
-                if (idx === activeOriginalIdx) {
-                    dot.className = "dot w-6 h-2 rounded-full bg-amber-500 transition-all duration-300 shadow-sm";
-                } else {
-                    dot.className = "dot w-2 h-2 rounded-full bg-stone-300 hover:bg-amber-400 transition-all duration-300";
-                }
+    function scrollContainer(containerId, distance) {
+        const container = document.getElementById(containerId);
+        if (container) {
+            container.scrollBy({
+                left: distance,
+                behavior: 'smooth'
             });
         }
-        updateDots(0);
-
-        function moveToSlide(index, withTransition = true) {
-            if (withTransition) {
-                slidesContainer.style.transition = 'transform 600ms cubic-bezier(0.25, 1, 0.5, 1)';
-                isTransitioning = true;
-            } else {
-                slidesContainer.style.transition = 'none';
-            }
-            currentIndex = index;
-            slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
-
-            // Active original dot (0 to 4)
-            let dotIndex = currentIndex - 1;
-            if (dotIndex < 0) dotIndex = totalOriginal - 1;
-            if (dotIndex >= totalOriginal) dotIndex = 0;
-            updateDots(dotIndex);
-        }
-
-        // Seamless infinite loop transitionend event
-        slidesContainer.addEventListener('transitionend', () => {
-            isTransitioning = false;
-            if (currentIndex === totalOriginal + 1) {
-                // Slid forward to Clone(Slide 1) -> silently snap back to real Slide 1
-                moveToSlide(1, false);
-            } else if (currentIndex === 0) {
-                // Slid backward to Clone(Slide 5) -> silently snap back to real Slide 5
-                moveToSlide(totalOriginal, false);
-            }
-        });
-
-        function nextSlide() {
-            if (isTransitioning) return;
-            moveToSlide(currentIndex + 1, true);
-        }
-
-        function prevSlide() {
-            if (isTransitioning) return;
-            moveToSlide(currentIndex - 1, true);
-        }
-
-        function startAutoLoop() {
-            stopAutoLoop();
-            autoPlayTimer = setInterval(() => {
-                nextSlide();
-            }, 3200); // Continuous forward slide every 3.2 seconds
-        }
-
-        function stopAutoLoop() {
-            if (autoPlayTimer) {
-                clearInterval(autoPlayTimer);
-                autoPlayTimer = null;
-            }
-        }
-
-        // Arrow button click handlers
-        if (nextBtn) {
-            nextBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                nextSlide();
-                startAutoLoop();
-            });
-        }
-        if (prevBtn) {
-            prevBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                prevSlide();
-                startAutoLoop();
-            });
-        }
-
-        // Dot indicator click handlers
-        dots.forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                e.preventDefault();
-                const targetIdx = parseInt(dot.getAttribute('data-index'));
-                moveToSlide(targetIdx + 1, true);
-                startAutoLoop();
-            });
-        });
-
-        // Pause auto-loop on desktop mouse hover & resume on mouse leave
-        heroCarousel.addEventListener('mouseenter', stopAutoLoop);
-        heroCarousel.addEventListener('mouseleave', startAutoLoop);
-
-        // Mobile touch swipe gestures
-        let touchStartX = 0;
-        let touchStartY = 0;
-        heroCarousel.addEventListener('touchstart', (e) => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-            stopAutoLoop();
-        }, { passive: true });
-
-        heroCarousel.addEventListener('touchend', (e) => {
-            const diffX = touchStartX - e.changedTouches[0].clientX;
-            const diffY = touchStartY - e.changedTouches[0].clientY;
-            // Only trigger if horizontal swipe was intentional (> 35px)
-            if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
-                if (diffX > 0) {
-                    nextSlide(); // Swiped left -> Next slide
-                } else {
-                    prevSlide(); // Swiped right -> Prev slide
-                }
-            }
-            startAutoLoop();
-        }, { passive: true });
-
-        // Maintain loop when browser tab loses and regains visibility
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                stopAutoLoop();
-            } else {
-                startAutoLoop();
-            }
-        });
-
-        // Start infinite auto loop immediately
-        startAutoLoop();
-    });
+    }
 </script>
 {% endblock %}

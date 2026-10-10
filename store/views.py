@@ -64,7 +64,8 @@ def home(request):
     selected_category = request.GET.get('category', 'All')
     search_query = request.GET.get('q', '')
 
-    products = Product.objects.all().order_by('-created_at')
+    all_products = Product.objects.all().order_by('-created_at')
+    products = all_products
 
     if selected_category and selected_category != 'All':
         products = products.filter(category__iexact=selected_category)
@@ -72,17 +73,31 @@ def home(request):
     if search_query:
         products = products.filter(name__icontains=search_query)
 
+    # Spotlight showcase items for multi-banner hero row
+    spotlight_products = all_products.filter(is_featured=True)[:6]
+    if not spotlight_products.exists() or spotlight_products.count() < 3:
+        spotlight_products = all_products[:6]
+
+    # Deals on your favourites (top-rated products with discount tags)
+    deals_products = all_products.order_by('-rating')[:10]
+
+    # Suggested For You selection
+    suggested_products = all_products.order_by('id')[:10]
+
     cart_items = CartItem.objects.all()
     cart_count = sum(item.quantity for item in cart_items)
     categories = ['All', 'Clothing', 'Footwear', 'Electronics', 'Wearables', 'Gaming', 'Lifestyle', 'Home Tech']
 
     context = {
         'products': products,
+        'spotlight_products': spotlight_products,
+        'deals_products': deals_products,
+        'suggested_products': suggested_products,
         'selected_category': selected_category,
         'search_query': search_query,
         'categories': categories,
         'cart_count': cart_count,
-        'total_products_count': Product.objects.count(),
+        'total_products_count': all_products.count(),
     }
     return render(request, 'store/index.html', context)
 
