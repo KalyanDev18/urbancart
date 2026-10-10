@@ -40,7 +40,9 @@
     </script>
 
     <!-- CLERK AUTH JS SDK -->
+    {% if CLERK_PUBLISHABLE_KEY %}
     <script async crossorigin="anonymous" data-clerk-publishable-key="{{ CLERK_PUBLISHABLE_KEY }}" src="https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js" type="text/javascript"></script>
+    {% endif %}
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -149,7 +151,7 @@
                 </div>
                 {% else %}
                 <div class="hidden sm:flex items-center gap-2">
-                    <button id="clerk-sign-in-btn" class="hidden md:inline-flex px-3 py-2 text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all items-center gap-1.5 cursor-pointer">
+                    <button type="button" onclick="triggerClerkAuth('signin')" id="clerk-sign-in-btn" class="hidden md:inline-flex px-3 py-2 text-xs font-black text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all items-center gap-1.5 cursor-pointer">
                         <span>⚡ Clerk</span>
                     </button>
                     <a href="{% url 'login' %}" class="px-3 py-2 text-xs font-bold text-slate-800 hover:text-amber-600 transition-colors flex items-center gap-1">
@@ -256,7 +258,7 @@
                         </a>
                     </div>
                     <div class="mt-2.5 space-y-2">
-                        <button onclick="if(window.Clerk){Clerk.openSignIn({});}else{window.location.href='{% url 'google_login' %}';}" 
+                        <button type="button" onclick="triggerClerkAuth('signin')" 
                                 class="w-full py-2 px-3 bg-indigo-600 hover:bg-indigo-700 text-white text-[11px] font-black rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
                             <span>⚡ Sign in with Clerk Auth API</span>
                         </button>
@@ -500,6 +502,18 @@
 
     <!-- CLERK AUTH SYNCHRONIZATION SCRIPT -->
     <script>
+        window.triggerClerkAuth = function(mode) {
+            if (window.Clerk && typeof window.Clerk.openSignIn === 'function') {
+                if (mode === 'signup') {
+                    window.Clerk.openSignUp({});
+                } else {
+                    window.Clerk.openSignIn({});
+                }
+            } else {
+                alert("⚡ Clerk Authentication Setup Notice:\n\nClerk keys abhi configure nahi hain.\n\nKripya https://dashboard.clerk.com se Publishable Key (pk_test_...) copy karke Render Dashboard Environment Variables me 'CLERK_PUBLISHABLE_KEY' add karein.");
+            }
+        };
+
         let isClerkSyncing = false;
         async function syncClerkUserWithDjango(clerkUser) {
             if (!clerkUser || isClerkSyncing) return;

@@ -35,7 +35,7 @@
         </div>
 
         <!-- 1-Click Clerk Auth Button -->
-        <button type="button" onclick="if(window.Clerk){Clerk.openSignUp({});}else{alert('Clerk Auth is loading, please wait a moment.');}" 
+        <button type="button" onclick="triggerClerkAuth('signup')" 
                 class="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 via-indigo-700 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white rounded-2xl font-black text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all shadow-md shadow-indigo-500/20 mb-2.5 cursor-pointer group">
             <svg class="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>

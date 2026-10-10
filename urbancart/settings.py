@@ -77,14 +77,8 @@ DATABASES = {
 }
 
 # Clerk Auth API Configuration
-CLERK_PUBLISHABLE_KEY = os.environ.get(
-    'CLERK_PUBLISHABLE_KEY', 
-    'pk_test_Y2xlcmstYWxsb3dlZC1kZXYudXJiYW5jYXJ0LmNvbSQ'
-)
-CLERK_SECRET_KEY = os.environ.get(
-    'CLERK_SECRET_KEY', 
-    'sk_test_urbancart_clerk_secret_key_dev'
-)
+CLERK_PUBLISHABLE_KEY = os.environ.get('CLERK_PUBLISHABLE_KEY', '').strip()
+CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY', '').strip()
 
 # Email Configuration for Login OTP Verification
 EMAIL_BACKEND = os.environ.get(
