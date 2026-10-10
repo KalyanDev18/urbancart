@@ -90,6 +90,16 @@ def home(request):
 # --- CART VIEWS ---
 
 def add_to_cart(request, product_id):
+    if not request.user.is_authenticated:
+        messages.info(request, "Cart me product add karne ya order place karne ke liye pehle Sign In karein.")
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+            return JsonResponse({
+                'status': 'auth_required',
+                'login_url': f"/login/?next=/add-to-cart/{product_id}/",
+                'message': "Sign in required to add items to cart."
+            }, status=401)
+        return redirect(f"/login/?next=/add-to-cart/{product_id}/")
+
     product = get_object_or_404(Product, id=product_id)
     cart_item, created = CartItem.objects.get_or_create(product=product)
     
@@ -102,7 +112,14 @@ def add_to_cart(request, product_id):
         return JsonResponse({'status': 'success', 'message': f'Added {product.name} to your cart!', 'cart_count': cart_count, 'product_name': product.name})
 
     messages.success(request, f"Added {product.name} to your cart!")
-    return redirect('home')
+
+    # If user was redirected from login, send them directly to cart
+    referer = request.META.get('HTTP_REFERER', '')
+    if 'login' in referer or '/login/' in request.path:
+        return redirect('cart_detail')
+    if referer and 'login' not in referer:
+        return redirect(referer)
+    return redirect('cart_detail')
 
 
 def cart_detail(request):
@@ -202,7 +219,7 @@ def send_email_otp(request):
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
         return JsonResponse({'status': 'success', 'message': f'OTP dispatched to {email}', 'email': email})
 
-    next_param = request.GET.get('next', '')
+    next_param = request.POST.get('next') or request.GET.get('next', '')
     next_query = f"&next={next_param}" if next_param else ""
     return redirect(f"/login/?step=otp&email={email}{next_query}")
 
@@ -398,6 +415,10 @@ def user_orders(request):
 # --- CHECKOUT & PAYMENT SIMULATION VIEWS ---
 
 def checkout(request):
+    if not request.user.is_authenticated:
+        messages.info(request, "Order place karne ke liye kripya pehle Sign In karein.")
+        return redirect('/login/?next=/checkout/')
+
     cart_items = CartItem.objects.all()
     if not cart_items.exists():
         messages.warning(request, "Your cart is empty. Add some products before checking out!")
@@ -429,6 +450,10 @@ def checkout(request):
 
 
 def process_payment(request):
+    if not request.user.is_authenticated:
+        messages.info(request, "Order place karne ke liye kripya pehle Sign In karein.")
+        return redirect('/login/?next=/checkout/')
+
     if request.method != 'POST':
         return redirect('checkout')
 
