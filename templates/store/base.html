@@ -75,6 +75,103 @@
 </head>
 <body class="bg-stone-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-amber-500 selection:text-slate-950 pb-20 md:pb-0">
 
+    {% if request.path == '/' %}
+    <!-- ==================== 3-SECOND LUXURY WELCOME SPLASH SCREEN ==================== -->
+    <div id="welcome-splash" class="fixed inset-0 z-[99999] bg-[#070B12] flex flex-col items-center justify-center p-6 transition-all duration-700 ease-out select-none">
+        
+        <!-- Ambient Golden Pulsing Glow -->
+        <div class="absolute w-72 sm:w-96 h-72 sm:h-96 rounded-full bg-amber-500/20 blur-[130px] pointer-events-none animate-pulse"></div>
+        <div class="absolute w-60 sm:w-80 h-60 sm:h-80 rounded-full bg-indigo-600/15 blur-[120px] pointer-events-none"></div>
+
+        <!-- Quick Skip Button (Top Right) -->
+        <button type="button" onclick="dismissWelcomeSplash()" 
+                class="absolute top-6 right-6 px-3.5 py-1.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-stone-400 hover:text-white border border-slate-800 text-[11px] font-bold transition-all flex items-center gap-1 shadow-md">
+            <span>Skip</span>
+            <span>▸</span>
+        </button>
+
+        <!-- Center Content: Logo, Brand & Tagline -->
+        <div class="relative z-10 flex flex-col items-center text-center space-y-5 max-w-sm">
+            
+            <!-- Animated 3D Glowing Brand Icon -->
+            <div class="relative group">
+                <div class="absolute -inset-1 rounded-3xl bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-600 opacity-70 blur-md group-hover:opacity-100 transition-opacity animate-pulse"></div>
+                <div class="relative w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-black text-4xl sm:text-5xl flex items-center justify-center shadow-2xl shadow-amber-500/40 transform hover:scale-105 transition-transform duration-500">
+                    U
+                </div>
+            </div>
+
+            <!-- Brand Name with Golden Gradient -->
+            <div class="space-y-1">
+                <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white leading-tight">
+                    Urban<span class="bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-500 bg-clip-text text-transparent">Kart</span>
+                </h1>
+                <p class="text-xs uppercase tracking-[0.25em] font-extrabold text-amber-400/90">
+                    Streetwear &bull; Future Tech
+                </p>
+            </div>
+
+            <!-- Creator Tribute Pill -->
+            <div class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-slate-900/90 border border-amber-500/30 text-[11px] font-bold text-stone-300 shadow-inner">
+                <span>Crafted by</span>
+                <span class="text-amber-400 font-extrabold">Kalyan Dev</span>
+                <span class="text-rose-500">❤️</span>
+            </div>
+
+            <!-- 3-Second Loading Bar & Status -->
+            <div class="w-56 sm:w-64 pt-4 space-y-2">
+                <div class="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                    <div id="splash-progress" class="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all duration-[3000ms] ease-out" style="width: 0%;"></div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] text-stone-500 font-bold uppercase tracking-wider px-0.5">
+                    <span>Entering Store</span>
+                    <span id="splash-countdown" class="text-amber-400 font-black">3s</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            const splash = document.getElementById('welcome-splash');
+            if (!splash) return;
+
+            // Animate progress bar to 100% over 3s
+            setTimeout(function() {
+                const bar = document.getElementById('splash-progress');
+                if (bar) bar.style.width = '100%';
+            }, 40);
+
+            // Countdown timer 3s -> 2s -> 1s
+            let remaining = 3;
+            const countdownElem = document.getElementById('splash-countdown');
+            const timer = setInterval(function() {
+                remaining--;
+                if (countdownElem && remaining > 0) {
+                    countdownElem.innerText = remaining + 's';
+                }
+            }, 1000);
+
+            // Auto dismiss at exactly 3 seconds
+            setTimeout(function() {
+                clearInterval(timer);
+                dismissWelcomeSplash();
+            }, 3000);
+
+            window.dismissWelcomeSplash = function() {
+                if (!splash) return;
+                splash.style.opacity = '0';
+                splash.style.pointerEvents = 'none';
+                setTimeout(function() {
+                    splash.style.display = 'none';
+                }, 600);
+            };
+        })();
+    </script>
+    {% endif %}
+
     <!-- MAIN NAVBAR -->
     <header class="sticky top-0 z-50 glass-nav border-b border-amber-200/60 shadow-sm transition-all">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between gap-2 sm:gap-4">
@@ -120,10 +217,6 @@
             <!-- Right: Nav Links, Cart & Account Buttons -->
             <div class="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
                 <nav class="hidden lg:flex items-center gap-5 text-xs lg:text-sm font-bold text-slate-700">
-                    <a href="{% url 'welcome' %}" class="px-2.5 py-1 rounded-full bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-black transition-all flex items-center gap-1 shadow-sm">
-                        <span>✨</span>
-                        <span>Intro</span>
-                    </a>
                     <a href="{% url 'home' %}?category=Clothing#products" class="hover:text-amber-600 transition-colors">Clothing</a>
                     <a href="{% url 'home' %}?category=Footwear#products" class="hover:text-amber-600 transition-colors">Footwear</a>
                     <a href="{% url 'home' %}?category=Electronics#products" class="hover:text-amber-600 transition-colors">Electronics</a>
@@ -260,15 +353,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Welcome Landing Page Feature Link -->
-                <a href="{% url 'welcome' %}" class="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/10 to-transparent border border-amber-300 text-xs font-black text-amber-900 shadow-sm">
-                    <span class="flex items-center gap-2">
-                        <span class="text-base">✨</span>
-                        <span>Welcome Landing Page</span>
-                    </span>
-                    <span class="text-amber-600 font-extrabold">&rarr;</span>
-                </a>
-
                 <!-- Category Navigation Links in Drawer -->
                 <div class="space-y-1">
                     <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block px-2 mb-2">Shop Categories</span>
@@ -376,7 +460,6 @@
                 <div>
                     <h4 class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-4">Account & Support</h4>
                     <ul class="space-y-2 text-sm text-slate-400">
-                        <li><a href="{% url 'welcome' %}" class="hover:text-amber-400 transition-colors flex items-center gap-1.5"><span class="text-amber-400">✨</span><span>Welcome Intro Page</span></a></li>
                         <li><a href="{% url 'cart_detail' %}" class="hover:text-amber-400 transition-colors">View Cart</a></li>
                         <li><a href="{% url 'user_dashboard' %}" class="hover:text-amber-400 transition-colors">My Customer Dashboard</a></li>
                         <li><a href="{% url 'login' %}" class="hover:text-amber-400 transition-colors">Email OTP Sign In</a></li>
