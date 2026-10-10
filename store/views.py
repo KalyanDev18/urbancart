@@ -341,6 +341,56 @@ def google_login(request):
     return render(request, 'store/google_login.html', context)
 
 
+@csrf_exempt
+def clerk_session_sync(request):
+    """
+    Synchronizes Clerk authentication session with Django's request.user.
+    Creates or retrieves user, then logs in via ModelBackend.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        clerk_id = data.get('clerk_id', '')
+        email = data.get('email', '').strip().lower()
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+
+        if not email:
+            return JsonResponse({'status': 'error', 'message': 'Valid email is required'}, status=400)
+
+        user = User.objects.filter(email__iexact=email).first()
+        if not user:
+            base_username = email.split('@')[0]
+            cleaned_username = ''.join(c for c in base_username if c.isalnum() or c in '_-')[:20] or 'clerk_user'
+            candidate_username = cleaned_username
+            counter = 1
+            while User.objects.filter(username=candidate_username).exists():
+                candidate_username = f"{cleaned_username}_{counter}"
+                counter += 1
+
+            user = User.objects.create_user(
+                username=candidate_username,
+                email=email,
+                first_name=first_name or cleaned_username.capitalize(),
+                last_name=last_name or ''
+            )
+            user.set_unusable_password()
+            user.save()
+
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        messages.success(request, f"Welcome to UrbanCart, {user.first_name or user.username}!")
+        return JsonResponse({
+            'status': 'success',
+            'username': user.username,
+            'email': user.email,
+            'redirect_url': '/dashboard/'
+        })
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
 def logout_user(request):
     logout(request)
     messages.info(request, "You have been logged out.")
