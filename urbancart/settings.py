@@ -61,7 +61,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'store.context_processors.clerk_context',
             ],
         },
     },
@@ -76,9 +75,6 @@ DATABASES = {
     }
 }
 
-# Clerk Auth API Configuration
-CLERK_PUBLISHABLE_KEY = os.environ.get('CLERK_PUBLISHABLE_KEY', '').strip()
-CLERK_SECRET_KEY = os.environ.get('CLERK_SECRET_KEY', '').strip()
 
 # Email Configuration for Login OTP Verification
 EMAIL_BACKEND = os.environ.get(

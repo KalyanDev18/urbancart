@@ -23,7 +23,6 @@ urlpatterns = [
     path('send-otp/', views.send_email_otp, name='send_otp'),
     path('verify-otp/', views.verify_email_otp, name='verify_otp'),
     path('google-login/', views.google_login, name='google_login'),
-    path('api/clerk-sync/', views.clerk_session_sync, name='clerk_session_sync'),
     path('logout/', views.logout_user, name='logout'),
     
     # Customer Dashboard & Address Management Routes
