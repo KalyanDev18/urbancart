@@ -170,25 +170,37 @@ def send_email_otp(request):
         f"Team UrbanCart\n"
     )
 
+    email_dispatched = False
     try:
+        from_email_addr = getattr(settings, 'EMAIL_HOST_USER', '') or getattr(settings, 'DEFAULT_FROM_EMAIL', 'UrbanCart <noreply@urbancart.com>')
         send_mail(
             subject=subject,
             message=message,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'UrbanCart <noreply@urbancart.com>'),
+            from_email=from_email_addr,
             recipient_list=[email],
             fail_silently=False
         )
+        email_dispatched = True
     except Exception as e:
-        pass
+        print(f"[UrbanCart SMTP Error] Failed to send email to {email}: {e}")
 
-    # Development notice so user can test without external SMTP setup
-    if settings.DEBUG:
-        messages.success(request, f"OTP sent to {email}! (Dev Code: {otp})")
+    # Log to server console for secure backend debugging
+    print(f"[UrbanCart OTP Log] Generated OTP for {email}: {otp} (Dispatched via SMTP: {email_dispatched})")
+
+    # Never show the OTP code in frontend flash message popup
+    if getattr(settings, 'EMAIL_HOST_USER', None):
+        if email_dispatched:
+            messages.success(request, f"Verification code sent to {email}! Please check your inbox (and spam folder).")
+        else:
+            messages.error(request, f"Email delivery failed. Please check SMTP credentials in server settings.")
     else:
-        messages.success(request, f"OTP sent to {email}. Please check your inbox.")
+        messages.warning(
+            request, 
+            f"SMTP mail service is not configured yet on Render. To receive real OTP emails at {email}, add EMAIL_HOST_USER & EMAIL_HOST_PASSWORD in Render Environment variables."
+        )
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
-        return JsonResponse({'status': 'success', 'message': f'OTP sent to {email}', 'email': email, 'dev_otp': otp if settings.DEBUG else None})
+        return JsonResponse({'status': 'success', 'message': f'OTP dispatched to {email}', 'email': email})
 
     next_param = request.GET.get('next', '')
     next_query = f"&next={next_param}" if next_param else ""
