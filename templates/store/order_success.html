@@ -1,0 +1,90 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Order Confirmed | UrbanCart{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 py-16 text-center">
+    
+    <!-- Success Badge -->
+    <div class="w-20 h-20 bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-slate-950 font-extrabold text-3xl mx-auto mb-6 shadow-xl shadow-amber-500/30">
+        ✓
+    </div>
+
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight mb-2">Order Confirmed!</h1>
+    <p class="text-base text-slate-600 mb-8">Thank you for shopping with UrbanCart. Your order has been processed successfully.</p>
+
+    <!-- Order Summary Ticket -->
+    <div class="bg-white rounded-3xl border border-amber-200 p-6 sm:p-8 shadow-md text-left space-y-6">
+        
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-stone-100 pb-4 gap-2">
+            <div>
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Order ID</span>
+                <div class="text-xl font-extrabold text-amber-600">#{{ order.id }}</div>
+            </div>
+            <div>
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Transaction Ref</span>
+                <div class="text-sm font-bold text-slate-800">{{ order.transaction_id }}</div>
+            </div>
+            <div>
+                <span class="text-xs text-slate-400 font-bold uppercase tracking-wider">Payment Status</span>
+                <div class="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                    {{ order.payment_status }} ({{ order.get_payment_method_display }})
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping details -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm bg-stone-50 p-4 rounded-2xl border border-stone-200/80">
+            <div>
+                <span class="text-xs font-bold uppercase text-slate-500 block mb-1">Customer Details</span>
+                <div class="font-bold text-slate-900">{{ order.full_name }}</div>
+                <div class="text-slate-600">{{ order.email }}</div>
+            </div>
+            <div>
+                <span class="text-xs font-bold uppercase text-slate-500 block mb-1">Shipping Address</span>
+                <div class="text-slate-800">{{ order.address }}</div>
+                <div class="text-slate-600">{{ order.city }}, {{ order.postal_code }}</div>
+            </div>
+        </div>
+
+        <!-- Purchased items -->
+        <div class="space-y-3">
+            <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wider">Items Ordered</h3>
+            <div class="divide-y divide-stone-100">
+                {% for item in order.items.all %}
+                <div class="py-3 flex justify-between items-center text-sm">
+                    <div class="flex items-center gap-3">
+                        {% if item.product and item.product.image_url %}
+                        <img src="{{ item.product.image_url }}" class="w-12 h-12 rounded-xl object-cover">
+                        {% endif %}
+                        <div>
+                            <div class="font-bold text-slate-900">{{ item.product.name }}</div>
+                            <div class="text-xs text-slate-500">Qty: {{ item.quantity }} x ${{ item.price }}</div>
+                        </div>
+                    </div>
+                    <div class="font-bold text-slate-900">${{ item.get_total_price }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Grand Total -->
+        <div class="border-t border-amber-200 pt-4 flex justify-between items-center text-lg font-extrabold text-slate-900">
+            <span>Total Paid</span>
+            <span class="text-amber-600">${{ order.total_amount }}</span>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="{% url 'home' %}" class="px-8 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-extrabold text-sm rounded-2xl shadow-lg shadow-amber-500/25 transition-all">
+            Continue Shopping &rarr;
+        </a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'user_orders' %}" class="px-8 py-3.5 bg-white text-slate-800 font-bold text-sm rounded-2xl border border-stone-200 shadow-sm hover:bg-stone-100">
+            View All My Orders
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

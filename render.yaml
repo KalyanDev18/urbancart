@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: urbancart
+    runtime: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn urbancart.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.13.1"

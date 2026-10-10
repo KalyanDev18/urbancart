@@ -1,0 +1,368 @@
+{% extends 'store/base.html' %}
+
+{% block title %}UrbanCart | Modern E-Commerce{% endblock %}
+
+{% block content %}
+<!-- AUTO SLIDING HERO CAROUSEL SECTION (5 Animated Slides with Direct Product Links & Infinite Auto-Loop) -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-12">
+    <div id="hero-carousel" class="relative overflow-hidden rounded-3xl border border-amber-200/90 bg-gradient-to-br from-amber-500/15 via-stone-100 to-amber-100/50 shadow-2xl min-h-[420px] sm:min-h-[480px] flex items-center group">
+        
+        <!-- Ambient Animated Glow Halos -->
+        <div class="absolute -top-24 -left-24 w-96 h-96 bg-amber-400/25 rounded-full blur-3xl pointer-events-none animate-pulse"></div>
+        <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-yellow-400/20 rounded-full blur-3xl pointer-events-none animate-pulse" style="animation-delay: 1.5s;"></div>
+
+        <!-- Slides Wrapper -->
+        <div id="carousel-slides" class="w-full flex transition-transform duration-700 ease-in-out h-full">
+            
+            <!-- SLIDE 1: Urban Streetwear Hoodie -->
+            <div class="w-full flex-shrink-0 px-6 sm:px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl text-center md:text-left space-y-4 z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-extrabold tracking-wide">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                        <span>🔥 TRENDING STREETWEAR 2026</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Heavyweight <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Organic Cotton Hoodies</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                        450gsm ultra-soft streetwear hoodie with relaxed drop-shoulder fit. Flat 20% off this week!
+                    </p>
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                        <a href="{% url 'home' %}?q=Hoodie#products" class="px-7 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/30 hover:scale-105 transition-all flex items-center gap-2">
+                            <span>Shop Streetwear</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <span class="text-2xl font-extrabold text-slate-900">₹2,499 <span class="text-sm line-through text-slate-400 font-normal">₹3,199</span></span>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}?q=Hoodie#products" class="relative w-64 h-64 sm:w-80 sm:h-80 flex-shrink-0 z-10 group/img">
+                    <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80" 
+                         alt="Streetwear Hoodie" class="w-full h-full object-cover rounded-3xl border-2 border-amber-300/80 shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
+                    <div class="absolute -bottom-3 -right-3 bg-slate-950 text-amber-400 text-xs font-extrabold px-4 py-2 rounded-2xl border border-amber-400 shadow-xl">
+                        ★ 4.9 Top Seller
+                    </div>
+                </a>
+            </div>
+
+            <!-- SLIDE 2: Wireless Audio Headphones -->
+            <div class="w-full flex-shrink-0 px-6 sm:px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl text-center md:text-left space-y-4 z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-extrabold tracking-wide">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                        <span>🎧 NEXT-GEN SPATIAL AUDIO</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Aura Pulse <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">ANC Headphones</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                        Active Noise Cancellation with 40-hour battery life and custom titanium acoustic drivers.
+                    </p>
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                        <a href="{% url 'home' %}?q=Headphones#products" class="px-7 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/30 hover:scale-105 transition-all flex items-center gap-2">
+                            <span>Explore Audio</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <span class="text-2xl font-extrabold text-slate-900">₹14,999 <span class="text-sm line-through text-slate-400 font-normal">₹18,999</span></span>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}?q=Headphones#products" class="relative w-64 h-64 sm:w-80 sm:h-80 flex-shrink-0 z-10 group/img">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" 
+                         alt="Wireless Headphones" class="w-full h-full object-cover rounded-3xl border-2 border-amber-300/80 shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
+                    <div class="absolute -bottom-3 -right-3 bg-slate-950 text-amber-400 text-xs font-extrabold px-4 py-2 rounded-2xl border border-amber-400 shadow-xl">
+                        40H Battery
+                    </div>
+                </a>
+            </div>
+
+            <!-- SLIDE 3: Leather Low-Top Sneakers -->
+            <div class="w-full flex-shrink-0 px-6 sm:px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl text-center md:text-left space-y-4 z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-extrabold tracking-wide">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                        <span>👟 HANDCRAFTED FOOTWEAR</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Urban Leather <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Low-Top Sneakers</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                        Hand-stitched genuine calfskin leather with shock-absorbing memory foam soles.
+                    </p>
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                        <a href="{% url 'home' %}?q=Sneakers#products" class="px-7 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/30 hover:scale-105 transition-all flex items-center gap-2">
+                            <span>Discover Sneakers</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <span class="text-2xl font-extrabold text-slate-900">₹4,999 <span class="text-sm line-through text-slate-400 font-normal">₹6,499</span></span>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}?q=Sneakers#products" class="relative w-64 h-64 sm:w-80 sm:h-80 flex-shrink-0 z-10 group/img">
+                    <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80" 
+                         alt="Leather Sneakers" class="w-full h-full object-cover rounded-3xl border-2 border-amber-300/80 shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
+                    <div class="absolute -bottom-3 -right-3 bg-slate-950 text-amber-400 text-xs font-extrabold px-4 py-2 rounded-2xl border border-amber-400 shadow-xl">
+                        Genuine Leather
+                    </div>
+                </a>
+            </div>
+
+            <!-- SLIDE 4: Horizon Smartwatch Pro -->
+            <div class="w-full flex-shrink-0 px-6 sm:px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl text-center md:text-left space-y-4 z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-extrabold tracking-wide">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                        <span>⌚ TITANIUM WEARABLE TECH</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        Horizon <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">Smartwatch Pro</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                        Grade-5 Titanium casing with AMOLED sapphire display, dual-frequency GPS & SpO2 biometric sensors.
+                    </p>
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                        <a href="{% url 'home' %}?q=Smartwatch#products" class="px-7 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/30 hover:scale-105 transition-all flex items-center gap-2">
+                            <span>Shop Smartwatch</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <span class="text-2xl font-extrabold text-slate-900">₹19,999 <span class="text-sm line-through text-slate-400 font-normal">₹24,999</span></span>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}?q=Smartwatch#products" class="relative w-64 h-64 sm:w-80 sm:h-80 flex-shrink-0 z-10 group/img">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80" 
+                         alt="Smartwatch Pro" class="w-full h-full object-cover rounded-3xl border-2 border-amber-300/80 shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
+                    <div class="absolute -bottom-3 -right-3 bg-slate-950 text-amber-400 text-xs font-extrabold px-4 py-2 rounded-2xl border border-amber-400 shadow-xl">
+                        AMOLED Sapphire
+                    </div>
+                </a>
+            </div>
+
+            <!-- SLIDE 5: CyberDeck Mechanical Keyboard -->
+            <div class="w-full flex-shrink-0 px-6 sm:px-12 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="max-w-xl text-center md:text-left space-y-4 z-10">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-100 border border-amber-300 text-amber-950 text-xs font-extrabold tracking-wide">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                        <span>🎮 PRO GAMING GEAR</span>
+                    </div>
+                    <h1 class="text-3xl sm:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                        CyberDeck <span class="bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 bg-clip-text text-transparent">RGB Mechanical Keyboard</span>
+                    </h1>
+                    <p class="text-sm sm:text-base text-slate-700 leading-relaxed font-normal">
+                        Hot-swappable PCB with custom factory-lubricated switches and south-facing RGB per key.
+                    </p>
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4">
+                        <a href="{% url 'home' %}?q=Keyboard#products" class="px-7 py-3.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-extrabold rounded-2xl shadow-lg shadow-amber-500/30 hover:scale-105 transition-all flex items-center gap-2">
+                            <span>Explore Gaming</span>
+                            <span>&rarr;</span>
+                        </a>
+                        <span class="text-2xl font-extrabold text-slate-900">₹8,999 <span class="text-sm line-through text-slate-400 font-normal">₹11,499</span></span>
+                    </div>
+                </div>
+                <a href="{% url 'home' %}?q=Keyboard#products" class="relative w-64 h-64 sm:w-80 sm:h-80 flex-shrink-0 z-10 group/img">
+                    <img src="https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80" 
+                         alt="Mechanical Keyboard" class="w-full h-full object-cover rounded-3xl border-2 border-amber-300/80 shadow-2xl shadow-amber-500/20 group-hover/img:scale-105 transition-transform duration-500">
+                    <div class="absolute -bottom-3 -right-3 bg-slate-950 text-amber-400 text-xs font-extrabold px-4 py-2 rounded-2xl border border-amber-400 shadow-xl">
+                        Hot-Swappable
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        <!-- Carousel Left & Right Arrow Controls -->
+        <button id="prev-slide" aria-label="Previous Slide" class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-white/90 hover:bg-white text-slate-900 border border-amber-300 flex items-center justify-center shadow-lg transition-all hover:scale-110 z-20">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+        <button id="next-slide" aria-label="Next Slide" class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-white/90 hover:bg-white text-slate-900 border border-amber-300 flex items-center justify-center shadow-lg transition-all hover:scale-110 z-20">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+
+        <!-- Carousel Indicator Dots -->
+        <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20 bg-white/80 backdrop-blur-md px-4 py-1.5 rounded-full border border-amber-200">
+            <button class="dot w-3 h-3 rounded-full bg-amber-500 transition-all" data-index="0"></button>
+            <button class="dot w-3 h-3 rounded-full bg-stone-300 hover:bg-amber-400 transition-all" data-index="1"></button>
+            <button class="dot w-3 h-3 rounded-full bg-stone-300 hover:bg-amber-400 transition-all" data-index="2"></button>
+            <button class="dot w-3 h-3 rounded-full bg-stone-300 hover:bg-amber-400 transition-all" data-index="3"></button>
+            <button class="dot w-3 h-3 rounded-full bg-stone-300 hover:bg-amber-400 transition-all" data-index="4"></button>
+        </div>
+    </div>
+</section>
+
+<!-- PRODUCT CATALOG SECTION -->
+<section id="products" class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    
+    <!-- Section Header & Filter Pills -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+            <span class="text-xs font-bold uppercase tracking-widest text-amber-700 mb-1 block">
+                {% if search_query %}Search results for "{{ search_query }}"{% else %}Catalog • {{ total_products_count|default:110 }} Items{% endif %}
+            </span>
+            <h2 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Curated Collection</h2>
+        </div>
+
+        <!-- Category Filters -->
+        <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+            {% for cat in categories %}
+            <a href="{% url 'home' %}?category={{ cat }}#products" 
+               class="px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap {% if selected_category == cat or selected_category == 'All' and cat == 'All' %} bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 shadow-md shadow-amber-500/25 {% else %} bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50 border border-amber-200 shadow-sm {% endif %}">
+                {% if cat == 'Clothing' %}👕 {% elif cat == 'Footwear' %}👟 {% elif cat == 'Electronics' %}🎧 {% elif cat == 'Gaming' %}🎮 {% endif %}{{ cat }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for product in products %}
+        <div id="product-card-{{ product.id }}" class="group bg-white rounded-3xl border border-amber-200/80 hover:border-amber-400 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 flex flex-col overflow-hidden shadow-sm">
+            
+            <!-- Product Image Container -->
+            <div class="relative aspect-square w-full overflow-hidden bg-stone-100">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center bg-stone-100 text-slate-400 text-sm">No Image Available</div>
+                {% endif %}
+                
+                <!-- Category Tag -->
+                <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-md px-3 py-1 rounded-full text-[11px] font-bold text-amber-900 border border-amber-200 shadow-sm">
+                    {{ product.category }}
+                </div>
+
+                <!-- Rating Tag -->
+                <div class="absolute top-3 right-3 bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-bold text-amber-600 border border-amber-200 shadow-sm flex items-center gap-1">
+                    <span>★</span>
+                    <span>{{ product.rating }}</span>
+                </div>
+            </div>
+
+            <!-- Product Body -->
+            <div class="p-6 flex-1 flex flex-col justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 group-hover:text-amber-600 transition-colors line-clamp-1 mb-2">
+                        {{ product.name }}
+                    </h3>
+                    <p class="text-sm text-slate-500 line-clamp-2 mb-6 font-normal">
+                        {{ product.description }}
+                    </p>
+                </div>
+
+                <!-- Price in INR & Add to Cart Action -->
+                <div class="flex items-center justify-between pt-4 border-t border-stone-100 mt-auto">
+                    <div>
+                        <span class="text-[10px] text-slate-400 block uppercase font-bold tracking-wider">Price</span>
+                        <span class="text-xl font-extrabold text-slate-900">₹{{ product.price }}</span>
+                    </div>
+
+                    <a href="{% url 'add_to_cart' product.id %}" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 text-xs font-extrabold rounded-xl shadow-md shadow-amber-500/20 transition-all flex items-center gap-2 group/btn">
+                        <svg class="w-4 h-4 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                        <span>Add to Cart</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-16 text-center bg-white rounded-3xl border border-amber-200 shadow-sm">
+            <h3 class="text-lg font-bold text-slate-900 mb-1">No products found</h3>
+            <p class="text-sm text-slate-500 mb-6">Try selecting another category or clear search filter.</p>
+            <a href="{% url 'home' %}" class="inline-block px-5 py-2.5 bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 text-xs font-bold rounded-xl">View All Products</a>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- SEAMLESS INFINITE AUTO-LOOP CAROUSEL JAVASCRIPT -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slidesContainer = document.getElementById('carousel-slides');
+        const prevBtn = document.getElementById('prev-slide');
+        const nextBtn = document.getElementById('next-slide');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = 5;
+        let currentIndex = 0;
+        let slideInterval = null;
+
+        function updateCarousel(index) {
+            // Infinite loop wrapping calculation
+            currentIndex = (index + totalSlides) % totalSlides;
+            slidesContainer.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            // Update dots styling
+            dots.forEach((dot, i) => {
+                if (i === currentIndex) {
+                    dot.classList.add('bg-amber-500', 'w-6');
+                    dot.classList.remove('bg-stone-300', 'w-3');
+                } else {
+                    dot.classList.remove('bg-amber-500', 'w-6');
+                    dot.classList.add('bg-stone-300', 'w-3');
+                }
+            });
+        }
+
+        function startAutoLoop() {
+            stopAutoLoop();
+            slideInterval = setInterval(() => {
+                updateCarousel(currentIndex + 1);
+            }, 3500); // Auto-slides seamlessly every 3.5 seconds
+        }
+
+        function stopAutoLoop() {
+            if (slideInterval) {
+                clearInterval(slideInterval);
+                slideInterval = null;
+            }
+        }
+
+        // Arrow Controls
+        nextBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            updateCarousel(currentIndex + 1);
+            startAutoLoop();
+        });
+
+        prevBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            updateCarousel(currentIndex - 1);
+            startAutoLoop();
+        });
+
+        // Dot indicators click
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                const index = parseInt(e.target.getAttribute('data-index'));
+                updateCarousel(index);
+                startAutoLoop();
+            });
+        });
+
+        // Pause on mouse hover & resume on mouse leave
+        const carousel = document.getElementById('hero-carousel');
+        carousel.addEventListener('mouseenter', stopAutoLoop);
+        carousel.addEventListener('mouseleave', startAutoLoop);
+
+        // Touch swipe support for mobile devices
+        let startX = 0;
+        carousel.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            stopAutoLoop();
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', (e) => {
+            const endX = e.changedTouches[0].clientX;
+            if (startX - endX > 50) {
+                updateCarousel(currentIndex + 1); // Swipe left
+            } else if (endX - startX > 50) {
+                updateCarousel(currentIndex - 1); // Swipe right
+            }
+            startAutoLoop();
+        }, { passive: true });
+
+        // Start Auto-Loop immediately
+        updateCarousel(0);
+        startAutoLoop();
+    });
+</script>
+{% endblock %}
