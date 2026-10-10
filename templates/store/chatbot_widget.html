@@ -1,0 +1,352 @@
+<!-- URBAN AI CHATBOT ASSISTANT WIDGET -->
+<div id="urban-ai-widget" class="relative z-50">
+
+    <!-- FLOATING LAUNCHER BUTTON -->
+    <button id="urban-ai-launcher" 
+            aria-label="Open Urban AI Shopping Assistant"
+            class="fixed bottom-20 md:bottom-6 right-4 md:right-6 z-50 flex items-center gap-2.5 bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-black px-4 py-3.5 rounded-full shadow-2xl shadow-amber-500/40 border-2 border-white hover:scale-105 active:scale-95 transition-all duration-300 group">
+        <div class="relative flex items-center justify-center">
+            <span class="text-xl group-hover:rotate-12 transition-transform">✨</span>
+            <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-slate-900 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-slate-950"></span>
+            </span>
+        </div>
+        <span class="text-xs sm:text-sm font-black tracking-tight hidden xs:inline">Ask Urban AI</span>
+        <span class="px-1.5 py-0.5 rounded-full text-[9px] font-extrabold bg-slate-950 text-amber-400 tracking-wider uppercase hidden sm:inline">
+            PRO
+        </span>
+    </button>
+
+    <!-- CHATBOT MODAL DIALOG -->
+    <div id="urban-ai-modal" 
+         class="fixed bottom-20 md:bottom-24 right-2 sm:right-6 left-2 sm:left-auto w-auto sm:w-[410px] h-[580px] max-h-[82vh] bg-white rounded-3xl shadow-2xl border border-amber-200/90 flex flex-col overflow-hidden z-50 transition-all duration-300 transform scale-90 opacity-0 pointer-events-none origin-bottom-right">
+        
+        <!-- HEADER -->
+        <div class="bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950 p-4 text-white flex items-center justify-between border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-500 text-slate-950 font-black text-lg flex items-center justify-center shadow-md shadow-amber-500/30 flex-shrink-0">
+                    AI
+                </div>
+                <div>
+                    <div class="flex items-center gap-1.5">
+                        <span class="font-black text-sm tracking-tight text-white">Urban AI Assistant</span>
+                        <span class="px-1.5 py-0.2 rounded-full text-[9px] font-extrabold bg-amber-400/20 text-amber-300 border border-amber-400/30">v2.0</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 text-[11px] text-amber-400 font-medium">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        <span>Online &bull; Live Catalog & Tracking</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Action Controls -->
+            <div class="flex items-center gap-1">
+                <button id="clear-ai-chat-btn" title="Clear conversation" class="p-2 text-slate-400 hover:text-amber-400 rounded-xl hover:bg-white/10 transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </button>
+                <button id="close-ai-chat-btn" title="Close AI Assistant" class="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-white/10 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- MESSAGES CONTAINER -->
+        <div id="ai-messages-list" class="flex-1 p-4 overflow-y-auto space-y-3.5 bg-stone-50/80 scroll-smooth">
+            
+            <!-- Welcome Bot Message -->
+            <div class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-xl bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                    AI
+                </div>
+                <div class="bg-white border border-amber-200/80 p-3.5 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-xs text-slate-800 leading-relaxed space-y-2">
+                    <p>
+                        Hey! 👋 I'm <strong>Urban AI</strong>, your personal shopping assistant. Ask me anything about our streetwear, sneakers, tech gadgets, or active orders!
+                    </p>
+                    <p class="text-[11px] text-slate-500 font-medium">
+                        Try tapping a quick prompt below:
+                    </p>
+                    
+                    <!-- Quick Prompt Buttons -->
+                    <div class="flex flex-wrap gap-1.5 pt-1">
+                        <button onclick="sendQuickPrompt('show me best hoodies')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-200 transition-colors">
+                            👕 Best Hoodies
+                        </button>
+                        <button onclick="sendQuickPrompt('shoes under 5000')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-200 transition-colors">
+                            👟 Shoes under ₹5,000
+                        </button>
+                        <button onclick="sendQuickPrompt('track my order')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-200 transition-colors">
+                            📦 Track Order
+                        </button>
+                        <button onclick="sendQuickPrompt('how do urbancoins work?')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-200 transition-colors">
+                            🪙 UrbanCoins Rewards
+                        </button>
+                        <button onclick="sendQuickPrompt('mechanical keyboard gaming')" class="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold text-[10px] border border-amber-200 transition-colors">
+                            🎮 Gaming Keyboards
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic messages injected here -->
+        </div>
+
+        <!-- TYPING INDICATOR -->
+        <div id="ai-typing-indicator" class="hidden px-4 py-2 bg-stone-50/80 flex items-center gap-2 text-xs text-slate-500 border-t border-stone-100">
+            <div class="w-6 h-6 rounded-lg bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center flex-shrink-0">
+                AI
+            </div>
+            <div class="flex items-center gap-1 bg-white px-3 py-1.5 rounded-full border border-amber-200 shadow-sm">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style="animation-delay: 0.15s"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style="animation-delay: 0.3s"></span>
+                <span class="text-[10px] font-bold text-slate-600 ml-1">Searching catalog...</span>
+            </div>
+        </div>
+
+        <!-- QUICK PROMPTS HORIZONTAL CHIP TRAY -->
+        <div class="px-3 pt-2 bg-white flex items-center gap-1.5 overflow-x-auto whitespace-nowrap scrollbar-none border-t border-stone-100">
+            <button onclick="sendQuickPrompt('recommend wireless headphones')" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-50 hover:text-amber-800 text-slate-700 font-bold text-[10px] border border-stone-200 transition-all">
+                🎧 ANC Audio
+            </button>
+            <button onclick="sendQuickPrompt('smartwatch pro')" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-50 hover:text-amber-800 text-slate-700 font-bold text-[10px] border border-stone-200 transition-all">
+                ⌚ Smartwatch
+            </button>
+            <button onclick="sendQuickPrompt('shipping charges & delivery time')" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-50 hover:text-amber-800 text-slate-700 font-bold text-[10px] border border-stone-200 transition-all">
+                🚚 Delivery Info
+            </button>
+            <button onclick="sendQuickPrompt('return policy')" class="px-2.5 py-1 rounded-full bg-stone-100 hover:bg-amber-50 hover:text-amber-800 text-slate-700 font-bold text-[10px] border border-stone-200 transition-all">
+                🔄 Return Policy
+            </button>
+        </div>
+
+        <!-- INPUT FORM AREA -->
+        <form id="ai-chat-form" class="p-3 bg-white flex items-center gap-2 border-t border-stone-100">
+            <input type="text" id="ai-chat-input" required autocomplete="off"
+                   placeholder="Ask about shoes, hoodies, track order..."
+                   class="flex-1 bg-stone-100 text-xs sm:text-sm text-slate-900 border border-stone-200 rounded-2xl px-4 py-2.5 focus:outline-none focus:border-amber-500 focus:bg-white focus:ring-2 focus:ring-amber-200/50 transition-all shadow-inner">
+            
+            <button type="submit" id="ai-chat-send-btn" aria-label="Send message"
+                    class="p-2.5 bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black rounded-2xl shadow-md shadow-amber-500/25 transition-all flex items-center justify-center flex-shrink-0">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- CHATBOT INTERACTION SCRIPT -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const launcher = document.getElementById('urban-ai-launcher');
+        const modal = document.getElementById('urban-ai-modal');
+        const closeBtn = document.getElementById('close-ai-chat-btn');
+        const clearBtn = document.getElementById('clear-ai-chat-btn');
+        const form = document.getElementById('ai-chat-form');
+        const input = document.getElementById('ai-chat-input');
+        const messagesList = document.getElementById('ai-messages-list');
+        const typingIndicator = document.getElementById('ai-typing-indicator');
+
+        let isModalOpen = false;
+
+        function toggleChatbot() {
+            isModalOpen = !isModalOpen;
+            if (isModalOpen) {
+                modal.classList.remove('scale-90', 'opacity-0', 'pointer-events-none');
+                modal.classList.add('scale-100', 'opacity-100');
+                setTimeout(() => input.focus(), 200);
+            } else {
+                modal.classList.remove('scale-100', 'opacity-100');
+                modal.classList.add('scale-90', 'opacity-0', 'pointer-events-none');
+            }
+        }
+
+        if (launcher) launcher.addEventListener('click', toggleChatbot);
+        if (closeBtn) closeBtn.addEventListener('click', toggleChatbot);
+
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Clear chat history?')) {
+                    const welcomeMsg = messagesList.firstElementChild;
+                    messagesList.innerHTML = '';
+                    if (welcomeMsg) messagesList.appendChild(welcomeMsg);
+                }
+            });
+        }
+
+        window.sendQuickPrompt = function(promptText) {
+            if (!isModalOpen) toggleChatbot();
+            input.value = promptText;
+            submitMessage(promptText);
+        };
+
+        function appendUserMessage(text) {
+            const userMsgDiv = document.createElement('div');
+            userMsgDiv.className = 'flex items-start justify-end gap-2';
+            userMsgDiv.innerHTML = `
+                <div class="bg-slate-950 text-white p-3 rounded-2xl rounded-tr-sm shadow-md max-w-[85%] text-xs font-medium leading-relaxed">
+                    ${escapeHtml(text)}
+                </div>
+            `;
+            messagesList.appendChild(userMsgDiv);
+            scrollToBottom();
+        }
+
+        function formatMarkdown(text) {
+            // Converts simple markdown bold and links to HTML safely
+            let formatted = text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" class="text-amber-700 underline font-bold hover:text-amber-900">$1</a>')
+                .replace(/\n/g, '<br>');
+            return formatted;
+        }
+
+        function appendBotMessage(replyText, products = []) {
+            const botMsgDiv = document.createElement('div');
+            botMsgDiv.className = 'flex items-start gap-2.5';
+
+            let productsHtml = '';
+            if (products && products.length > 0) {
+                productsHtml = `
+                    <div class="grid grid-cols-1 gap-2 pt-2 mt-1 border-t border-amber-200/60">
+                        ${products.map(p => `
+                            <div class="flex items-center justify-between p-2 rounded-xl bg-stone-50 border border-stone-200/80 gap-2 hover:border-amber-400 transition-all">
+                                <div class="flex items-center gap-2.5 overflow-hidden">
+                                    <img src="${p.image_url}" alt="${p.name}" class="w-11 h-11 rounded-lg object-cover bg-white flex-shrink-0">
+                                    <div class="overflow-hidden">
+                                        <div class="font-extrabold text-[11px] text-slate-900 truncate">${p.name}</div>
+                                        <div class="flex items-center gap-1.5 text-[10px]">
+                                            <span class="font-black text-slate-950">₹${p.price}</span>
+                                            <span class="text-amber-600 font-bold">★ ${p.rating}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button onclick="quickAddToCart(${p.id}, '${escapeHtml(p.name)}', this)" 
+                                        class="px-2.5 py-1.5 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-amber-500 text-slate-950 font-black text-[10px] rounded-lg shadow-sm whitespace-nowrap flex-shrink-0">
+                                    + Add
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            botMsgDiv.innerHTML = `
+                <div class="w-7 h-7 rounded-xl bg-amber-500 text-slate-950 font-black text-xs flex items-center justify-center flex-shrink-0 mt-0.5 shadow-sm">
+                    AI
+                </div>
+                <div class="bg-white border border-amber-200/80 p-3.5 rounded-2xl rounded-tl-sm shadow-sm max-w-[85%] text-xs text-slate-800 leading-relaxed space-y-1">
+                    <div>${formatMarkdown(replyText)}</div>
+                    ${productsHtml}
+                </div>
+            `;
+            messagesList.appendChild(botMsgDiv);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() {
+            setTimeout(() => {
+                messagesList.scrollTop = messagesList.scrollHeight;
+            }, 50);
+        }
+
+        function escapeHtml(string) {
+            return String(string)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function submitMessage(message) {
+            const query = message.trim();
+            if (!query) return;
+
+            appendUserMessage(query);
+            input.value = '';
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+
+            try {
+                const response = await fetch('/api/chatbot/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken') || ''
+                    },
+                    body: JSON.stringify({ message: query })
+                });
+
+                const data = await response.json();
+                typingIndicator.classList.add('hidden');
+
+                if (data.reply) {
+                    appendBotMessage(data.reply, data.products || []);
+                } else {
+                    appendBotMessage("I encountered an issue. Please try asking again!");
+                }
+            } catch (err) {
+                typingIndicator.classList.add('hidden');
+                appendBotMessage("Sorry, I'm having trouble connecting right now. Please try again in a moment.");
+            }
+        }
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            submitMessage(input.value);
+        });
+
+        // Instant Add to Cart without page reload
+        window.quickAddToCart = async function(productId, productName, btn) {
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '✔ Added';
+            btn.classList.add('bg-emerald-500', 'text-white');
+
+            try {
+                const resp = await fetch(`/add-to-cart/${productId}/?ajax=1`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await resp.json();
+
+                // Update cart badges in navbar & bottom bar
+                if (data && data.cart_count !== undefined) {
+                    document.querySelectorAll('a[href*="cart"] span').forEach(badge => {
+                        badge.textContent = data.cart_count;
+                        badge.classList.add('scale-125');
+                        setTimeout(() => badge.classList.remove('scale-125'), 300);
+                    });
+                }
+            } catch(e) {
+                // fallback to normal add
+                window.location.href = `/add-to-cart/${productId}/`;
+            }
+
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.classList.remove('bg-emerald-500', 'text-white');
+            }, 1800);
+        };
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>

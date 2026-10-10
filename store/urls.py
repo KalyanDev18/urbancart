@@ -34,4 +34,7 @@ urlpatterns = [
     path('checkout/', views.checkout, name='checkout'),
     path('process-payment/', views.process_payment, name='process_payment'),
     path('order-success/<int:order_id>/', views.order_success, name='order_success'),
+
+    # AI Chatbot Assistant API
+    path('api/chatbot/', views.ai_chatbot, name='ai_chatbot'),
 ]

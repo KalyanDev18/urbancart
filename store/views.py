@@ -1,6 +1,7 @@
 import uuid
 import json
 import random
+import re
 from decimal import Decimal
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -13,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Q
 
 from rest_framework import viewsets, permissions
 from rest_framework.decorators import action
@@ -95,6 +97,10 @@ def add_to_cart(request, product_id):
         cart_item.quantity += 1
         cart_item.save()
     
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax') == '1':
+        cart_count = sum(item.quantity for item in CartItem.objects.all())
+        return JsonResponse({'status': 'success', 'message': f'Added {product.name} to your cart!', 'cart_count': cart_count, 'product_name': product.name})
+
     messages.success(request, f"Added {product.name} to your cart!")
     return redirect('home')
 
@@ -515,3 +521,195 @@ def order_success(request, order_id):
     order = get_object_or_404(Order, id=order_id)
     context = {'order': order}
     return render(request, 'store/order_success.html', context)
+
+
+# --- AI CHATBOT ASSISTANT VIEW ---
+
+@csrf_exempt
+def ai_chatbot(request):
+    """
+    Intelligent E-Commerce AI Chatbot with natural language catalog search,
+    live shipment order tracking, policy assistance, and interactive product cards.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST method required'}, status=405)
+
+    try:
+        data = json.loads(request.body.decode('utf-8'))
+        message = data.get('message', '').strip()
+    except Exception:
+        message = request.POST.get('message', '').strip()
+
+    if not message:
+        return JsonResponse({
+            'reply': "Hey there! 👋 I'm your UrbanKart AI Assistant. How can I help you today? You can ask me to find hoodies, sneakers, gadgets, track your order, or learn about UrbanCoins!",
+            'products': []
+        })
+
+    msg_lower = message.lower()
+    reply = ""
+    suggested_products = []
+
+    # 1. ORDER TRACKING & SHIPMENT INQUIRIES
+    if any(k in msg_lower for k in ['order', 'track', 'status', 'kaha hai', 'kahan', 'parcel', 'delivery kab', 'dispatch']):
+        order_num_match = re.search(r'(?:#|order\s*(?:id\s*)?)(\d+)', msg_lower)
+        target_order = None
+
+        if order_num_match:
+            order_id = int(order_num_match.group(1))
+            if request.user.is_authenticated:
+                target_order = Order.objects.filter(id=order_id, user=request.user).first()
+            if not target_order:
+                target_order = Order.objects.filter(id=order_id).first()
+        elif request.user.is_authenticated:
+            target_order = Order.objects.filter(user=request.user).order_by('-created_at').first()
+
+        if target_order:
+            status_emoji = '🚚' if target_order.order_status == 'Shipped' else ('🎉' if target_order.order_status == 'Delivered' else '📦')
+            reply = (
+                f"{status_emoji} **Order #{target_order.id} Status:**\n\n"
+                f"• **Current Stage:** {target_order.order_status}\n"
+                f"• **Total Amount:** ₹{target_order.total_amount}\n"
+                f"• **Payment:** {target_order.payment_status} ({target_order.get_payment_method_display()})\n"
+                f"• **Destination:** {target_order.city} ({target_order.postal_code})\n"
+                f"• **Estimated Delivery:** 2 to 3 business days via Express Courier.\n\n"
+                f"View your digital invoice here: [Tax Invoice](/order-success/{target_order.id}/)"
+            )
+            return JsonResponse({'reply': reply, 'products': []})
+        elif not request.user.is_authenticated:
+            reply = (
+                "To track your orders instantly, please [Sign In with OTP](/login/) or tell me your specific Order ID (e.g. *'Track order #1'*)."
+            )
+            return JsonResponse({'reply': reply, 'products': []})
+        else:
+            reply = "You haven't placed any orders yet. Here are our top trending streetwear drops & electronics:"
+            products = Product.objects.filter(is_featured=True)[:3]
+            for p in products:
+                suggested_products.append({
+                    'id': p.id,
+                    'name': p.name,
+                    'price': float(p.price),
+                    'category': p.category,
+                    'image_url': p.image_url,
+                    'rating': float(p.rating),
+                })
+            return JsonResponse({'reply': reply, 'products': suggested_products})
+
+    # 2. URBANCOINS & LOYALTY PROGRAM
+    if any(k in msg_lower for k in ['coin', 'reward', 'points', 'loyalty', 'cashback', 'urbancoin', 'discount code', 'coupon']):
+        reply = (
+            "🪙 **UrbanCoins VIP Rewards Program:**\n\n"
+            "• **Earn 10% Back:** You receive 1 UrbanCoin for every ₹10 spent on any purchase.\n"
+            "• **Direct Value:** 1 UrbanCoin = ₹1 INR direct cash discount!\n"
+            "• **Auto-Applied:** Coins automatically discount your total during checkout.\n"
+            "• **Never Expires:** Your coins stay active indefinitely in your wallet!\n\n"
+            "Check your balance in the [Account Dashboard](/dashboard/)."
+        )
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # 3. SHIPPING, DELIVERY & COD POLICY
+    if any(k in msg_lower for k in ['shipping', 'delivery charge', 'charges kitna', 'kab aayega', 'cod', 'payment method', 'free delivery']):
+        reply = (
+            "⚡ **Shipping & Payment Options:**\n\n"
+            "• **Express Delivery:** Pan-India delivery within 2 to 4 business days.\n"
+            "• **Flat Fee:** Express shipping is ₹99.\n"
+            "• **Payment Modes:** UPI (Google Pay, PhonePe, Paytm, BHIM), Credit/Debit Cards (Visa/Mastercard/RuPay), and Cash on Delivery (COD) are all supported!"
+        )
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # 4. RETURNS & REFUNDS
+    if any(k in msg_lower for k in ['return', 'refund', 'exchange', 'replace', 'wapas', 'cancel']):
+        reply = (
+            "🔄 **UrbanKart 7-Day Hassle-Free Returns:**\n\n"
+            "• We offer a **7-Day Return & Replacement Policy** on all streetwear apparel, footwear, and tech accessories.\n"
+            "• Items must be unused in original packaging. Request returns directly from your [Dashboard](/dashboard/)."
+        )
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # 5. GREETING / CASUAL
+    if any(msg_lower.startswith(g) for g in ['hi', 'hello', 'hey', 'namaste', 'bhai', 'hola', 'yo', 'sup']) and len(msg_lower.split()) <= 4:
+        user_name = request.user.first_name or request.user.username if request.user.is_authenticated else "there"
+        reply = (
+            f"Hey {user_name}! 👋 Welcome to UrbanKart AI!\n\n"
+            "I'm your personal shopping assistant. You can ask me to:\n"
+            "• Find Hoodies, Sneakers, or Tech Gear 👟\n"
+            "• Filter by budget (e.g. *'shoes under 5000'*)\n"
+            "• Track your active orders 📦\n"
+            "• Check UrbanCoins rewards & delivery details ⚡\n\n"
+            "What can I help you find today?"
+        )
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # 6. PRODUCT SEARCH & RECOMMENDATION LOGIC
+    max_price = None
+    price_match = re.search(r'(?:under|below|less than|within|ke andar|upto|budget)\s*(?:₹|rs\.?|inr)?\s*(\d+)', msg_lower)
+    if price_match:
+        try:
+            max_price = int(price_match.group(1))
+        except ValueError:
+            pass
+
+    qs = Product.objects.all()
+
+    # Match Category keywords
+    category_target = None
+    if any(w in msg_lower for w in ['hoodie', 'hoodies', 'streetwear', 'jacket', 'shirt', 'clothing', 'apparel', 't-shirt', 'tshirt', 'sweatshirt']):
+        category_target = 'Clothing'
+    elif any(w in msg_lower for w in ['shoe', 'shoes', 'sneaker', 'sneakers', 'footwear', 'boot', 'boots', 'runner', 'runners']):
+        category_target = 'Footwear'
+    elif any(w in msg_lower for w in ['headphone', 'headphones', 'earbud', 'earbuds', 'audio', 'sound', 'speaker', 'anc', 'noise']):
+        category_target = 'Electronics'
+    elif any(w in msg_lower for w in ['watch', 'smartwatch', 'smart watch', 'wearable', 'band', 'fitness']):
+        category_target = 'Wearables'
+    elif any(w in msg_lower for w in ['keyboard', 'gaming', 'mechanical', 'mouse', 'rgb', 'cyberdeck']):
+        category_target = 'Gaming'
+
+    if category_target:
+        qs = qs.filter(category__iexact=category_target)
+
+    # Filter by budget if provided
+    if max_price:
+        qs = qs.filter(price__lte=max_price)
+
+    # Search by terms
+    search_terms = [w for w in msg_lower.split() if w not in ['show', 'me', 'the', 'under', 'below', 'bhai', 'kuch', 'accha', 'best', 'for', 'a', 'an', 'in', 'and', 'chahiye', 'dikhao', 'dikhana', 'recommend', 'suggest']]
+    if search_terms and not category_target:
+        q_obj = Q()
+        for term in search_terms:
+            q_obj |= Q(name__icontains=term) | Q(category__icontains=term) | Q(description__icontains=term)
+        qs = qs.filter(q_obj)
+
+    matched_products = list(qs.order_by('-rating', '-created_at')[:4])
+
+    if matched_products:
+        price_text = f" under ₹{max_price:,}" if max_price else ""
+        category_text = f" in {category_target}" if category_target else ""
+        reply = f"🔥 Here are the top recommended items{category_text}{price_text} from our catalog:"
+        for p in matched_products:
+            suggested_products.append({
+                'id': p.id,
+                'name': p.name,
+                'price': float(p.price),
+                'category': p.category,
+                'image_url': p.image_url,
+                'rating': float(p.rating),
+            })
+    else:
+        # Fallback to featured products
+        fallback = Product.objects.filter(is_featured=True)[:3]
+        if fallback.exists():
+            reply = f"I couldn't find exact items matching '{message}', but check out these trending bestsellers:"
+            for p in fallback:
+                suggested_products.append({
+                    'id': p.id,
+                    'name': p.name,
+                    'price': float(p.price),
+                    'category': p.category,
+                    'image_url': p.image_url,
+                    'rating': float(p.rating),
+                })
+        else:
+            reply = "I'm ready to help you shop! You can ask for streetwear hoodies, sneakers, audio gear, mechanical keyboards, or check your orders."
+
+    return JsonResponse({'reply': reply, 'products': suggested_products})
+
