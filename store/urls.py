@@ -22,7 +22,6 @@ urlpatterns = [
     path('login/', views.login_user, name='login'),
     path('send-otp/', views.send_email_otp, name='send_otp'),
     path('verify-otp/', views.verify_email_otp, name='verify_otp'),
-    path('google-login/', views.google_login, name='google_login'),
     path('logout/', views.logout_user, name='logout'),
     
     # Customer Dashboard & Address Management Routes

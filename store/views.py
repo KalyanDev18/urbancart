@@ -313,46 +313,6 @@ def login_user(request):
     return render(request, 'store/login.html', context)
 
 
-def google_login(request):
-    if request.user.is_authenticated:
-        return redirect('user_dashboard')
-
-    if request.method == 'POST':
-        gmail = request.POST.get('gmail', '').strip().lower()
-        
-        if not gmail or '@' not in gmail:
-            messages.error(request, "Please enter a valid Gmail address.")
-            return redirect('login')
-
-        username = gmail.split('@')[0]
-        username = ''.join(e for e in username if e.isalnum() or e in '_-')[:30]
-        if not username:
-            username = f"user_{uuid.uuid4().hex[:6]}"
-
-        user = User.objects.filter(email=gmail).first()
-        if not user:
-            user = User.objects.filter(username=username).first()
-
-        if not user:
-            user = User.objects.create_user(
-                username=username,
-                email=gmail,
-                first_name=username.capitalize()
-            )
-            user.set_unusable_password()
-            user.save()
-            messages.success(request, f"Google Account Connected! Welcome to UrbanCart, {user.first_name} ({gmail}).")
-        else:
-            messages.success(request, f"Signed in with Google as {user.email}!")
-
-        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        next_url = request.GET.get('next', 'user_dashboard')
-        return redirect(next_url)
-
-    context = {}
-    return render(request, 'store/google_login.html', context)
-
-
 def logout_user(request):
     logout(request)
     messages.info(request, "You have been logged out.")
