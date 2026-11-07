@@ -642,11 +642,51 @@ def ai_chatbot(request):
         )
         return JsonResponse({'reply': reply, 'products': []})
 
-    # 5. GREETING / CASUAL
-    if any(msg_lower.startswith(g) for g in ['hi', 'hello', 'hey', 'namaste', 'bhai', 'hola', 'yo', 'sup']) and len(msg_lower.split()) <= 4:
-        user_name = request.user.first_name or request.user.username if request.user.is_authenticated else "there"
+    # 5. GREETING & CASUAL CONVERSATION
+    user_name = request.user.first_name or request.user.username if request.user.is_authenticated else ""
+    name_str = f" {user_name}" if user_name else ""
+
+    # Morning
+    if any(k in msg_lower for k in ['good morning', 'good mornig', 'good morn', 'gm', 'subah bakhair', 'shubh prabhat']):
         reply = (
-            f"Hey {user_name}! 👋 Welcome to UrbanKart AI!\n\n"
+            f"Good morning{name_str}! ☀️ Wishing you a wonderful and stylish day ahead!\n\n"
+            "How can I assist your shopping today? You can ask me to:\n"
+            "• Find trending hoodies, sneakers, or gadgets 👟\n"
+            "• Search within your budget (e.g. *'shoes under 4000'*)\n"
+            "• Track existing orders or check UrbanCoins rewards ⚡"
+        )
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # Afternoon / Evening / Night
+    if any(k in msg_lower for k in ['good afternoon', 'ga', 'shubh dopahar']):
+        reply = f"Good afternoon{name_str}! 🌤️ Welcome to UrbanCart AI! How can I help you discover something fresh today?"
+        return JsonResponse({'reply': reply, 'products': []})
+
+    if any(k in msg_lower for k in ['good evening', 'ge', 'shubh sandhya']):
+        reply = f"Good evening{name_str}! 🌆 Looking for tonight's trending drops or need help with an order? Just ask!"
+        return JsonResponse({'reply': reply, 'products': []})
+
+    if any(k in msg_lower for k in ['good night', 'gn', 'shubh ratri']):
+        reply = f"Good night{name_str}! 🌙 Sleep tight! Feel free to bookmark your favorite drops or ask anything before you go."
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # How are you / Kya haal hai
+    if any(k in msg_lower for k in ['how are you', 'how r u', 'kaise ho', 'kaisa hai', 'kya haal', 'sab badhiya']):
+        reply = (
+            f"I'm doing great, thank you for asking{name_str}! 😊\n\n"
+            "Ready and energized to help you browse the best streetwear fashion, footwear, and tech accessories on UrbanCart. What are you looking to buy today?"
+        )
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # Thank you / Shukriya
+    if any(k in msg_lower for k in ['thank', 'thanks', 'thx', 'shukriya', 'dhanyawad', 'dhanyavad']):
+        reply = f"You're very welcome{name_str}! 😊 Always glad to help. Let me know whenever you need anything else. Happy shopping! 🛍️"
+        return JsonResponse({'reply': reply, 'products': []})
+
+    # Standard Hi/Hello
+    if any(msg_lower.strip().startswith(g) for g in ['hi', 'hello', 'hey', 'namaste', 'namaskar', 'bhai', 'bro', 'hola', 'yo', 'sup', 'wassup']) and len(msg_lower.split()) <= 4:
+        reply = (
+            f"Hey{name_str}! 👋 Welcome to UrbanCart AI!\n\n"
             "I'm your personal shopping assistant. You can ask me to:\n"
             "• Find Hoodies, Sneakers, or Tech Gear 👟\n"
             "• Filter by budget (e.g. *'shoes under 5000'*)\n"
@@ -688,7 +728,20 @@ def ai_chatbot(request):
         qs = qs.filter(price__lte=max_price)
 
     # Search by terms
-    search_terms = [w for w in msg_lower.split() if w not in ['show', 'me', 'the', 'under', 'below', 'bhai', 'kuch', 'accha', 'best', 'for', 'a', 'an', 'in', 'and', 'chahiye', 'dikhao', 'dikhana', 'recommend', 'suggest']]
+    stop_words = [
+        'show', 'me', 'the', 'under', 'below', 'bhai', 'kuch', 'accha', 'best', 'for', 'a', 'an', 
+        'in', 'and', 'chahiye', 'dikhao', 'dikhana', 'recommend', 'suggest', 'good', 'morning', 
+        'mornig', 'evening', 'night', 'today', 'please', 'pls', 'can', 'you', 'help', 'find', 
+        'want', 'i', 'need', 'buy', 'looking', 'item', 'items', 'product', 'products'
+    ]
+    search_terms = [w for w in msg_lower.split() if w not in stop_words and len(w) > 2]
+
+    if not category_target and not search_terms and not max_price:
+        return JsonResponse({
+            'reply': "I'm ready to help you shop! You can ask me to find hoodies, sneakers, gadgets, or track your orders.",
+            'products': []
+        })
+
     if search_terms and not category_target:
         q_obj = Q()
         for term in search_terms:
