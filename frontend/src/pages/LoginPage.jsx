@@ -33,9 +33,14 @@ export default function LoginPage({ onLoginSuccess, onBackToStore }) {
     setError('');
     setLoading(true);
     try {
-      await api.sendOtp(email);
+      const res = await api.sendOtp(email);
       setOtpStep('verify');
-      setInfoMessage(`Verification code sent to ${email}. Please check your inbox.`);
+      if (res.dev_otp) {
+        setInfoMessage(`Verification code sent! [Dev Mode OTP: ${res.dev_otp}]`);
+        setOtp(res.dev_otp);
+      } else {
+        setInfoMessage(`Verification code sent to ${email}. Please check your inbox.`);
+      }
     } catch (err) {
       setError(err.message || 'Failed to send OTP code.');
     } finally {

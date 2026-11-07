@@ -3,6 +3,20 @@ from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Auto-load .env file from backend or workspace root if present
+for env_candidate in [BASE_DIR / '.env', BASE_DIR.parent / '.env']:
+    if env_candidate.exists():
+        try:
+            with open(env_candidate, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#') and '=' in line:
+                        k, v = line.split('=', 1)
+                        os.environ.setdefault(k.strip(), v.strip().strip('"').strip("'"))
+            break
+        except Exception:
+            pass
+
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-urbancart-secret-key-super-safe-dev')
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'

@@ -18,6 +18,7 @@ from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer
 )
+from .utils import send_otp_email
 
 # --- PRODUCT & CATEGORY VIEWSETS ---
 
@@ -86,33 +87,25 @@ def send_email_otp_api(request):
     EmailOTP.objects.filter(email=email, is_verified=False).delete()
     EmailOTP.objects.create(email=email, otp=otp)
 
-    subject = f"Your UrbanCart Login OTP: {otp}"
-    message = (
-        f"Hello,\n\n"
-        f"Your 6-digit login verification code for UrbanCart is:\n\n"
-        f"    {otp}\n\n"
-        f"This code will expire in 10 minutes.\n"
-        f"Please do not share this OTP with anyone for your account security.\n\n"
-        f"Happy Shopping,\n"
-        f"Team UrbanCart\n"
-    )
-
-    email_sent = False
-    try:
-        from_email = getattr(settings, 'EMAIL_HOST_USER', '') or getattr(settings, 'DEFAULT_FROM_EMAIL', 'UrbanCart <noreply@urbancart.com>')
-        send_mail(subject, message, from_email, [email], fail_silently=False)
-        email_sent = True
-    except Exception as e:
-        print(f"[UrbanCart SMTP Error] {e}")
-
+    email_sent, error_msg = send_otp_email(email, otp)
+    if error_msg:
+        print(f"[UrbanCart SMTP Error] {error_msg}")
     print(f"[UrbanCart OTP API Log] Generated OTP for {email}: {otp} (Sent via SMTP: {email_sent})")
 
-    return Response({
+    res_data = {
         'status': 'success',
-        'message': f'OTP sent to {email}',
+        'message': f'Verification code sent to {email}. Please check your inbox.',
         'email': email,
-        'email_sent': email_sent
-    })
+        'email_sent': email_sent,
+    }
+
+    # If in local dev mode without live SMTP credentials, provide dev_otp so testing is instant
+    has_smtp = bool(getattr(settings, 'EMAIL_HOST_USER', None))
+    if settings.DEBUG and (not email_sent or not has_smtp):
+        res_data['dev_otp'] = otp
+        res_data['message'] = f'OTP sent! [Dev Mode Code: {otp}] (Set EMAIL_HOST_USER in .env for live inbox delivery)'
+
+    return Response(res_data)
 
 
 @api_view(['POST'])
