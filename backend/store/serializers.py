@@ -1,5 +1,11 @@
 from rest_framework import serializers
+from django.contrib.auth.models import User
 from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'is_staff']
 
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
@@ -7,9 +13,18 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductSerializer(serializers.ModelSerializer):
+    discount_percent = serializers.SerializerMethodField()
+    original_price = serializers.SerializerMethodField()
+
     class Meta:
         model = Product
         fields = '__all__'
+
+    def get_discount_percent(self, obj):
+        return obj.get_discount_percent()
+
+    def get_original_price(self, obj):
+        return str(obj.get_original_price())
 
 class CartItemSerializer(serializers.ModelSerializer):
     product_details = ProductSerializer(source='product', read_only=True)
@@ -21,10 +36,14 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.ReadOnlyField(source='product.name')
+    product_image = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_name', 'price', 'quantity', 'get_total_price']
+        fields = ['id', 'product', 'product_name', 'product_image', 'price', 'quantity', 'get_total_price']
+
+    def get_product_image(self, obj):
+        return obj.product.image_url if obj.product else ''
 
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
