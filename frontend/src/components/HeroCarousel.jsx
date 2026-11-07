@@ -10,13 +10,13 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
 
-  // Auto-play interval (4.5 seconds)
+  // Auto-play interval (1 second)
   useEffect(() => {
     if (carouselItems.length === 0 || isHovered) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
-    }, 4500);
+    }, 1000);
 
     return () => clearInterval(timer);
   }, [carouselItems.length, isHovered]);
