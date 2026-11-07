@@ -14,6 +14,7 @@ urlpatterns = [
     # Auth APIs
     path('api/auth/send-otp/', api_views.send_email_otp_api, name='api_send_otp'),
     path('api/auth/verify-otp/', api_views.verify_email_otp_api, name='api_verify_otp'),
+    path('api/auth/google/', api_views.google_auth_api, name='api_google_auth'),
     path('api/auth/login/', api_views.login_api, name='api_login'),
     path('api/auth/register/', api_views.register_api, name='api_register'),
     path('api/auth/me/', api_views.user_profile_api, name='api_user_me'),

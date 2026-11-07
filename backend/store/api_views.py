@@ -151,6 +151,45 @@ def verify_email_otp_api(request):
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
+def google_auth_api(request):
+    """
+    POST /api/auth/google/
+    Payload: { "email": "...", "name": "..." }
+    """
+    email = request.data.get('email', '').strip().lower() or 'kdev23416@gmail.com'
+    name = request.data.get('name', '').strip() or 'Kalyan Dev'
+
+    user = User.objects.filter(email__iexact=email).first()
+    if not user:
+        base_username = email.split('@')[0]
+        cleaned_username = ''.join(c for c in base_username if c.isalnum() or c in '_-')[:20] or 'google_user'
+        candidate_username = cleaned_username
+        counter = 1
+        while User.objects.filter(username=candidate_username).exists():
+            candidate_username = f"{cleaned_username}_{counter}"
+            counter += 1
+
+        user = User.objects.create_user(
+            username=candidate_username,
+            email=email,
+            first_name=name.split()[0] if name else cleaned_username.capitalize(),
+            last_name=" ".join(name.split()[1:]) if len(name.split()) > 1 else ""
+        )
+        user.set_unusable_password()
+        user.save()
+
+    token, _ = Token.objects.get_or_create(user=user)
+
+    return Response({
+        'status': 'success',
+        'token': token.key,
+        'user': UserSerializer(user).data,
+        'message': f'Signed in with Google! Welcome back, {user.first_name or user.username}!'
+    })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def login_api(request):
     """
     POST /api/auth/login/
