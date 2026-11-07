@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import CategoryBar from '../components/CategoryBar';
+import HeroCarousel from '../components/HeroCarousel';
 import SpotlightHero from '../components/SpotlightHero';
 import DealsScrollRow from '../components/DealsScrollRow';
 import ProductCard from '../components/ProductCard';
@@ -40,6 +41,11 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       .finally(() => setLoading(false));
   }, [selectedCategory, searchQuery]);
 
+  // Top 5 products for carousel
+  const carouselProducts = sections.spotlight?.length >= 5 
+    ? sections.spotlight.slice(0, 5) 
+    : (products.length >= 5 ? products.slice(0, 5) : sections.spotlight);
+
   return (
     <div>
       {/* 1. Flipkart-style Category Bar */}
@@ -48,7 +54,19 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
         onSelectCategory={(cat) => setSelectedCategory(cat)}
       />
 
-      {/* 2. Spotlight Hero Section (Shown when no search query and All category) */}
+      {/* 2. Top 5-Product Hero Carousel */}
+      {!searchQuery && selectedCategory === 'All' && carouselProducts.length > 0 && (
+        <HeroCarousel
+          products={carouselProducts}
+          onRequireAuth={onRequireAuth}
+          onShopNow={() => {
+            const el = document.getElementById('catalog-grid');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          }}
+        />
+      )}
+
+      {/* 3. Spotlight Hero Showcase Section */}
       {!searchQuery && selectedCategory === 'All' && (
         <SpotlightHero
           spotlightProducts={sections.spotlight}
