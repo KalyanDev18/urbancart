@@ -485,7 +485,7 @@ UNIQUE_PRODUCTS = [
         "description": "Automated smart vacuum cleaner with 4000Pa suction and auto-charging dock.",
         "price": Decimal("24999.00"),
         "category": "Home Tech",
-        "image_url": "https://images.unsplash.com/photo-1563161937-013063515437?auto=format&fit=crop&w=800&q=80",
+        "image_url": "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80",
         "stock": 12,
         "rating": Decimal("4.9")
     },
