@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, Bot, ShoppingBag, ArrowRight } from 'lucide-react';
+import { X, Send, Sparkles, Bot, ShoppingBag } from 'lucide-react';
 import { api } from '../api/client';
 import { useCart } from '../context/CartContext';
 
@@ -72,13 +72,13 @@ export default function ChatbotWidget({ onRequireAuth }) {
               height: 58,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              color: '#090d16',
-              boxShadow: '0 8px 30px rgba(245, 158, 11, 0.45)',
+              color: '#ffffff',
+              boxShadow: '0 8px 30px rgba(217, 119, 6, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              border: '2px solid rgba(255, 255, 255, 0.2)',
+              border: '2px solid #ffffff',
               transition: 'transform 0.25s ease',
             }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
@@ -92,7 +92,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
       {/* Chat Window Dialog */}
       {isOpen && (
         <div 
-          className="glass animate-fade-in"
+          className="animate-fade-in"
           style={{
             position: 'fixed',
             bottom: 24,
@@ -105,17 +105,17 @@ export default function ChatbotWidget({ onRequireAuth }) {
             display: 'flex',
             flexDirection: 'column',
             zIndex: 100,
-            background: '#0d1322',
-            border: '1px solid rgba(245, 158, 11, 0.3)',
-            boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7)',
+            background: '#ffffff',
+            border: '1px solid #e2e8f0',
+            boxShadow: '0 20px 50px rgba(15, 23, 42, 0.15)',
             overflow: 'hidden',
           }}
         >
           {/* Header */}
           <div style={{
             padding: '16px 20px',
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'linear-gradient(135deg, #fffdfa 0%, #fffbeb 50%, #fef3c7 100%)',
+            borderBottom: '1px solid #fde68a',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -125,20 +125,21 @@ export default function ChatbotWidget({ onRequireAuth }) {
                 width: 36,
                 height: 36,
                 borderRadius: 10,
-                background: '#f59e0b',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#090d16'
+                color: '#ffffff',
+                boxShadow: '0 4px 10px rgba(217, 119, 6, 0.25)'
               }}>
                 <Bot size={20} />
               </div>
               <div>
-                <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#f8fafc' }}>
+                <div style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0f172a' }}>
                   UrbanBot AI
                 </div>
-                <div style={{ fontSize: '0.72rem', color: '#10b981', display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
+                <div style={{ fontSize: '0.74rem', color: '#059669', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#059669' }} />
                   Online Shopping Assistant
                 </div>
               </div>
@@ -146,7 +147,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
 
             <button
               onClick={() => setIsOpen(false)}
-              style={{ background: 'none', color: '#94a3b8', cursor: 'pointer', padding: 4 }}
+              style={{ background: 'none', color: '#64748b', cursor: 'pointer', padding: 4 }}
             >
               <X size={20} />
             </button>
@@ -155,8 +156,8 @@ export default function ChatbotWidget({ onRequireAuth }) {
           {/* Quick Questions Pills */}
           <div style={{
             padding: '10px 14px',
-            background: '#090d16',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+            background: '#f8fafc',
+            borderBottom: '1px solid #e2e8f0',
             display: 'flex',
             gap: 8,
             overflowX: 'auto',
@@ -166,13 +167,15 @@ export default function ChatbotWidget({ onRequireAuth }) {
                 key={idx}
                 onClick={() => handleSend(chip)}
                 style={{
-                  background: '#1e293b',
-                  color: '#cbd5e1',
+                  background: '#ffffff',
+                  color: '#1e293b',
                   fontSize: '0.74rem',
-                  padding: '4px 10px',
+                  fontWeight: 600,
+                  padding: '5px 12px',
                   borderRadius: 9999,
                   whiteSpace: 'nowrap',
-                  border: '1px solid rgba(255, 255, 255, 0.06)'
+                  border: '1px solid #cbd5e1',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.03)'
                 }}
               >
                 {chip}
@@ -197,10 +200,11 @@ export default function ChatbotWidget({ onRequireAuth }) {
                     fontSize: '0.88rem',
                     lineHeight: 1.45,
                     whiteSpace: 'pre-wrap',
-                    background: m.sender === 'user' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#1e293b',
-                    color: m.sender === 'user' ? '#090d16' : '#f8fafc',
+                    background: m.sender === 'user' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#f1f5f9',
+                    color: m.sender === 'user' ? '#ffffff' : '#0f172a',
                     fontWeight: m.sender === 'user' ? 600 : 400,
-                    border: m.sender === 'user' ? 'none' : '1px solid rgba(255, 255, 255, 0.06)',
+                    border: m.sender === 'user' ? 'none' : '1px solid #e2e8f0',
+                    boxShadow: m.sender === 'user' ? '0 4px 12px rgba(217, 119, 6, 0.25)' : 'none'
                   }}
                 >
                   {m.text}
@@ -213,10 +217,11 @@ export default function ChatbotWidget({ onRequireAuth }) {
                       <div
                         key={p.id}
                         style={{
-                          background: '#090d16',
+                          background: '#ffffff',
                           borderRadius: 12,
                           padding: 10,
-                          border: '1px solid rgba(245, 158, 11, 0.2)',
+                          border: '1px solid #e2e8f0',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                           display: 'flex',
                           alignItems: 'center',
                           gap: 10,
@@ -228,10 +233,10 @@ export default function ChatbotWidget({ onRequireAuth }) {
                           style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {p.name}
                           </div>
-                          <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#fbbf24' }}>
+                          <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#b45309' }}>
                             ₹{Number(p.price).toLocaleString('en-IN')}
                           </div>
                         </div>
@@ -243,7 +248,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
                             }
                           }}
                           className="btn-gold"
-                          style={{ padding: '6px 10px', fontSize: '0.72rem', borderRadius: 8 }}
+                          style={{ padding: '6px 12px', fontSize: '0.74rem', borderRadius: 8 }}
                         >
                           Add
                         </button>
@@ -255,7 +260,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
             ))}
 
             {loading && (
-              <div style={{ alignSelf: 'flex-start', background: '#1e293b', padding: '10px 14px', borderRadius: 16, fontSize: '0.82rem', color: '#94a3b8' }}>
+              <div style={{ alignSelf: 'flex-start', background: '#f1f5f9', padding: '10px 14px', borderRadius: 16, fontSize: '0.82rem', color: '#64748b' }}>
                 UrbanBot is typing...
               </div>
             )}
@@ -270,8 +275,8 @@ export default function ChatbotWidget({ onRequireAuth }) {
             }}
             style={{
               padding: '12px 14px',
-              borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-              background: '#0f172a',
+              borderTop: '1px solid #e2e8f0',
+              background: '#f8fafc',
               display: 'flex',
               gap: 8,
             }}
@@ -283,11 +288,11 @@ export default function ChatbotWidget({ onRequireAuth }) {
               onChange={(e) => setInput(e.target.value)}
               style={{
                 flex: 1,
-                background: '#090d16',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
                 borderRadius: 12,
                 padding: '10px 14px',
-                color: '#f8fafc',
+                color: '#0f172a',
                 fontSize: '0.88rem',
                 outline: 'none',
               }}

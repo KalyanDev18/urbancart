@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, Package, ArrowRight, Home, FileText } from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, Home } from 'lucide-react';
 
 export default function OrderSuccessPage({ order, onContinueShopping, onViewOrders }) {
   if (!order) {
@@ -16,14 +16,13 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
   return (
     <div style={{ maxWidth: 760, margin: '50px auto', padding: '0 20px' }}>
       <div 
-        className="glass"
         style={{
           borderRadius: 28,
           padding: '48px 40px',
           textAlign: 'center',
-          border: '1px solid rgba(245, 158, 11, 0.3)',
-          background: 'linear-gradient(145deg, #0f172a 0%, #090d16 100%)',
-          boxShadow: '0 25px 60px rgba(0,0,0,0.6)'
+          border: '1px solid #e2e8f0',
+          background: '#ffffff',
+          boxShadow: '0 20px 50px rgba(15, 23, 42, 0.06)'
         }}
       >
         {/* Animated Check Circle */}
@@ -37,7 +36,7 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
           justifyContent: 'center',
           color: '#ffffff',
           margin: '0 auto 20px',
-          boxShadow: '0 0 30px rgba(16, 185, 129, 0.4)'
+          boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3)'
         }}>
           <CheckCircle2 size={46} strokeWidth={2.5} />
         </div>
@@ -46,20 +45,20 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
           Payment Confirmed
         </span>
 
-        <h1 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#f8fafc', marginBottom: 10 }}>
+        <h1 style={{ fontSize: '2.3rem', fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>
           Thank You For Your Order!
         </h1>
 
-        <p style={{ fontSize: '0.96rem', color: '#94a3b8', maxWidth: 500, margin: '0 auto 28px' }}>
-          Your order has been placed successfully and is being prepared for express delivery. We've sent a tax invoice to <strong style={{ color: '#f8fafc' }}>{order.email}</strong>.
+        <p style={{ fontSize: '0.96rem', color: '#64748b', maxWidth: 500, margin: '0 auto 28px' }}>
+          Your order has been placed successfully and is being prepared for express delivery. We've sent a tax invoice to <strong style={{ color: '#0f172a' }}>{order.email}</strong>.
         </p>
 
         {/* Invoice Summary Box */}
         <div style={{
-          background: '#090d16',
+          background: '#f8fafc',
           borderRadius: 20,
           padding: 24,
-          border: '1px solid rgba(255, 255, 255, 0.08)',
+          border: '1px solid #e2e8f0',
           textAlign: 'left',
           marginBottom: 32,
         }}>
@@ -68,38 +67,38 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
             gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
             gap: 16,
             paddingBottom: 20,
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid #e2e8f0',
           }}>
             <div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Order Number</div>
-              <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fbbf24' }}>#{order.id}</div>
+              <div style={{ fontSize: '1.2rem', fontWeight: 800, color: '#b45309' }}>#{order.id}</div>
             </div>
 
             <div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Transaction ID</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f8fafc' }}>{order.transaction_id || 'PAY-INR-SUCCESS'}</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>{order.transaction_id || 'PAY-INR-SUCCESS'}</div>
             </div>
 
             <div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Payment Method</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#f8fafc' }}>{order.payment_method} ({order.payment_status})</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a' }}>{order.payment_method} ({order.payment_status})</div>
             </div>
 
             <div>
               <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Estimated Delivery</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 600, color: '#10b981' }}>2 to 4 Business Days</div>
+              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#059669' }}>2 to 4 Business Days</div>
             </div>
           </div>
 
-          {/* Delivery To */}
+          {/* Delivery Destination */}
           <div style={{ paddingTop: 16 }}>
             <div style={{ fontSize: '0.78rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
               Delivery Destination
             </div>
-            <div style={{ fontSize: '0.92rem', color: '#f8fafc', fontWeight: 600 }}>
+            <div style={{ fontSize: '0.95rem', color: '#0f172a', fontWeight: 700 }}>
               {order.full_name}
             </div>
-            <div style={{ fontSize: '0.86rem', color: '#94a3b8' }}>
+            <div style={{ fontSize: '0.88rem', color: '#64748b' }}>
               {order.address}, {order.city} - {order.postal_code}
             </div>
           </div>
@@ -111,10 +110,10 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
             alignItems: 'center',
             marginTop: 20,
             paddingTop: 16,
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            borderTop: '1px solid #e2e8f0',
           }}>
-            <span style={{ fontSize: '1rem', fontWeight: 600, color: '#94a3b8' }}>Total Amount Paid</span>
-            <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#fbbf24' }}>
+            <span style={{ fontSize: '1rem', fontWeight: 700, color: '#64748b' }}>Total Amount Paid</span>
+            <span style={{ fontSize: '1.45rem', fontWeight: 800, color: '#b45309' }}>
               ₹{Number(order.total_amount).toLocaleString('en-IN')}
             </span>
           </div>
@@ -134,9 +133,9 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
           <button
             onClick={onViewOrders}
             className="btn-dark"
-            style={{ padding: '14px 24px', fontSize: '0.95rem' }}
+            style={{ padding: '14px 24px', fontSize: '0.95rem', background: '#ffffff' }}
           >
-            <Package size={18} color="#f59e0b" />
+            <Package size={18} color="#d97706" />
             View in Dashboard
           </button>
         </div>

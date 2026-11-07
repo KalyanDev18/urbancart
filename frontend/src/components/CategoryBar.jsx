@@ -15,10 +15,11 @@ const CATEGORIES = [
 export default function CategoryBar({ selectedCategory, onSelectCategory }) {
   return (
     <div style={{
-      background: 'rgba(15, 23, 42, 0.65)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
+      background: '#ffffff',
+      borderBottom: '1px solid #e2e8f0',
       padding: '16px 20px',
       overflowX: 'auto',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
     }} className="no-scrollbar">
       <div style={{
         maxWidth: 1280,
@@ -43,32 +44,32 @@ export default function CategoryBar({ selectedCategory, onSelectCategory }) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 8,
-                color: isSelected ? '#fbbf24' : '#94a3b8',
+                color: isSelected ? '#b45309' : '#64748b',
                 transition: 'all 0.2s ease',
                 flex: 1,
               }}
             >
               <div style={{
-                width: 50,
-                height: 50,
+                width: 52,
+                height: 52,
                 borderRadius: '50%',
                 background: isSelected 
-                  ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.15) 100%)' 
-                  : '#1e293b',
-                border: isSelected ? '2px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                  ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' 
+                  : '#f8fafc',
+                border: isSelected ? '2px solid #d97706' : '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isSelected ? '#fbbf24' : '#cbd5e1',
-                boxShadow: isSelected ? '0 0 16px rgba(245, 158, 11, 0.3)' : 'none',
+                color: isSelected ? '#b45309' : '#475569',
+                boxShadow: isSelected ? '0 4px 14px rgba(217, 119, 6, 0.2)' : 'none',
                 transform: isSelected ? 'scale(1.08)' : 'scale(1)',
                 transition: 'all 0.2s ease'
               }}>
-                <Icon size={22} strokeWidth={isSelected ? 2.5 : 1.8} />
+                <Icon size={22} strokeWidth={isSelected ? 2.5 : 1.9} />
               </div>
               <span style={{
-                fontSize: '0.82rem',
-                fontWeight: isSelected ? 700 : 500,
+                fontSize: '0.84rem',
+                fontWeight: isSelected ? 800 : 600,
                 letterSpacing: '0.01em',
               }}>
                 {cat.name}

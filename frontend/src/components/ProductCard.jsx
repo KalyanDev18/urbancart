@@ -32,25 +32,27 @@ export default function ProductCard({ product, onRequireAuth }) {
 
   return (
     <div 
-      className="glass"
       style={{
+        background: '#ffffff',
         borderRadius: 20,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        transition: 'transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease',
+        border: '1px solid #e2e8f0',
+        boxShadow: '0 4px 18px rgba(15, 23, 42, 0.04)',
+        transition: 'all 0.25s ease',
         position: 'relative',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = 'translateY(-6px)';
-        e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.4)';
-        e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.45)';
+        e.currentTarget.style.borderColor = '#cbd5e1';
+        e.currentTarget.style.boxShadow = '0 12px 30px rgba(15, 23, 42, 0.09)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
-        e.currentTarget.style.boxShadow = 'none';
+        e.currentTarget.style.borderColor = '#e2e8f0';
+        e.currentTarget.style.boxShadow = '0 4px 18px rgba(15, 23, 42, 0.04)';
       }}
     >
       {/* Discount Pill */}
@@ -61,12 +63,12 @@ export default function ProductCard({ product, onRequireAuth }) {
           left: 14,
           zIndex: 10,
           background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          color: '#090d16',
+          color: '#ffffff',
           fontWeight: 800,
           fontSize: '0.72rem',
           padding: '4px 10px',
           borderRadius: 9999,
-          boxShadow: '0 4px 12px rgba(245, 158, 11, 0.35)',
+          boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)',
           letterSpacing: '0.04em'
         }}>
           {discount}% OFF
@@ -78,7 +80,7 @@ export default function ProductCard({ product, onRequireAuth }) {
         position: 'relative',
         width: '100%',
         paddingTop: '90%',
-        background: '#0a0f1d',
+        background: '#f8fafc',
         overflow: 'hidden',
       }}>
         <img
@@ -102,13 +104,13 @@ export default function ProductCard({ product, onRequireAuth }) {
       {/* Product Details */}
       <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1, justifyContent: 'space-between' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
+            <span style={{ fontSize: '0.74rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
               {product.category}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#1e293b', padding: '2px 8px', borderRadius: 8 }}>
-              <Star size={13} fill="#f59e0b" color="#f59e0b" />
-              <span style={{ fontSize: '0.78rem', fontWeight: 700, color: '#f8fafc' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fef3c7', padding: '2px 8px', borderRadius: 8 }}>
+              <Star size={13} fill="#d97706" color="#d97706" />
+              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#92400e' }}>
                 {product.rating || '4.8'}
               </span>
             </div>
@@ -117,7 +119,7 @@ export default function ProductCard({ product, onRequireAuth }) {
           <h3 style={{
             fontSize: '1.02rem',
             fontWeight: 700,
-            color: '#f8fafc',
+            color: '#0f172a',
             lineHeight: 1.35,
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -129,13 +131,13 @@ export default function ProductCard({ product, onRequireAuth }) {
         </div>
 
         {/* Pricing & Add to Cart button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
           <div>
-            <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fbbf24', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#b45309', letterSpacing: '-0.02em' }}>
               ₹{Number(product.price).toLocaleString('en-IN')}
             </div>
             {originalPrice > product.price && (
-              <div style={{ fontSize: '0.8rem', color: '#64748b', textDecoration: 'line-through' }}>
+              <div style={{ fontSize: '0.8rem', color: '#94a3b8', textDecoration: 'line-through' }}>
                 ₹{Number(originalPrice).toLocaleString('en-IN')}
               </div>
             )}
@@ -146,14 +148,14 @@ export default function ProductCard({ product, onRequireAuth }) {
             disabled={adding}
             className={added ? 'btn-dark' : 'btn-gold'}
             style={{
-              padding: '9px 14px',
+              padding: '9px 16px',
               fontSize: '0.84rem',
               borderRadius: 12,
             }}
           >
             {added ? (
               <>
-                <Check size={16} color="#10b981" />
+                <Check size={16} color="#059669" />
                 Added
               </>
             ) : (

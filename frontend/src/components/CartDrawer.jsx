@@ -29,45 +29,45 @@ export default function CartDrawer({ onCheckout, onLogin }) {
           left: 0,
           width: '100%',
           height: '100%',
-          background: 'rgba(0, 0, 0, 0.65)',
+          background: 'rgba(15, 23, 42, 0.45)',
           backdropFilter: 'blur(4px)',
         }}
       />
 
       {/* Drawer Container */}
       <div 
-        className="glass animate-fade-in"
+        className="animate-fade-in"
         style={{
           position: 'relative',
           width: '100%',
           maxWidth: 440,
           height: '100%',
-          background: '#0d1322',
-          borderLeft: '1px solid rgba(255, 255, 255, 0.1)',
+          background: '#ffffff',
+          borderLeft: '1px solid #e2e8f0',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 1000,
-          boxShadow: '-10px 0 40px rgba(0, 0, 0, 0.6)'
+          boxShadow: '-10px 0 40px rgba(15, 23, 42, 0.15)'
         }}
       >
         {/* Header */}
         <div style={{
           padding: '20px 24px',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          borderBottom: '1px solid #e2e8f0',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <ShoppingBag size={20} color="#f59e0b" />
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#f8fafc' }}>
+            <ShoppingBag size={20} color="#d97706" />
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>
               Your Bag ({cartCount})
             </h3>
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
             style={{
-              background: '#1e293b',
+              background: '#f1f5f9',
               border: 'none',
               borderRadius: '50%',
               width: 32,
@@ -75,7 +75,7 @@ export default function CartDrawer({ onCheckout, onLogin }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#94a3b8',
+              color: '#64748b',
               cursor: 'pointer',
             }}
           >
@@ -91,19 +91,20 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                 width: 64,
                 height: 64,
                 borderRadius: '50%',
-                background: '#1e293b',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 16px',
-                color: '#64748b'
+                color: '#94a3b8'
               }}>
                 <ShoppingBag size={32} />
               </div>
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', marginBottom: 6 }}>
+              <h4 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
                 Your cart is empty
               </h4>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+              <p style={{ fontSize: '0.86rem', color: '#64748b' }}>
                 Explore our catalog to find exclusive streetwear, footwear, and tech accessories.
               </p>
             </div>
@@ -117,8 +118,8 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                     gap: 14,
                     padding: 12,
                     borderRadius: 16,
-                    background: '#131b2e',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
                   }}
                 >
                   <img
@@ -129,13 +130,14 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                       height: 72,
                       borderRadius: 12,
                       objectFit: 'cover',
-                      background: '#090d16',
+                      background: '#ffffff',
+                      border: '1px solid #e2e8f0'
                     }}
                   />
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <h4 style={{ fontSize: '0.92rem', fontWeight: 700, color: '#f8fafc', lineHeight: 1.25, maxWidth: 190 }}>
+                        <h4 style={{ fontSize: '0.94rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.25, maxWidth: 190 }}>
                           {item.product_details?.name}
                         </h4>
                         <button
@@ -145,7 +147,7 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                           <Trash2 size={16} />
                         </button>
                       </div>
-                      <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fbbf24', marginTop: 4 }}>
+                      <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#b45309', marginTop: 4 }}>
                         ₹{Number(item.product_details?.price || 0).toLocaleString('en-IN')}
                       </div>
                     </div>
@@ -155,22 +157,22 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        background: '#090d16',
+                        background: '#ffffff',
                         borderRadius: 8,
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        border: '1px solid #cbd5e1',
                       }}>
                         <button
                           onClick={() => updateQuantity(item.id, -1)}
-                          style={{ background: 'none', color: '#94a3b8', padding: '4px 8px' }}
+                          style={{ background: 'none', color: '#64748b', padding: '4px 8px' }}
                         >
                           <Minus size={13} />
                         </button>
-                        <span style={{ fontSize: '0.85rem', fontWeight: 700, padding: '0 6px', color: '#f8fafc' }}>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 700, padding: '0 6px', color: '#0f172a' }}>
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, 1)}
-                          style={{ background: 'none', color: '#94a3b8', padding: '4px 8px' }}
+                          style={{ background: 'none', color: '#64748b', padding: '4px 8px' }}
                         >
                           <Plus size={13} />
                         </button>
@@ -188,26 +190,26 @@ export default function CartDrawer({ onCheckout, onLogin }) {
         {cartItems.length > 0 && (
           <div style={{
             padding: '20px 24px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            background: '#090d16',
+            borderTop: '1px solid #e2e8f0',
+            background: '#f8fafc',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#94a3b8' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#64748b' }}>
                 <span>Subtotal</span>
-                <span style={{ color: '#f8fafc', fontWeight: 600 }}>₹{Number(subtotal).toLocaleString('en-IN')}</span>
+                <span style={{ color: '#0f172a', fontWeight: 700 }}>₹{Number(subtotal).toLocaleString('en-IN')}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#94a3b8' }}>
-                <span>Shipping</span>
-                <span style={{ color: '#f8fafc', fontWeight: 600 }}>₹{Number(shipping).toLocaleString('en-IN')}</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#64748b' }}>
+                <span>Express Delivery</span>
+                <span style={{ color: '#0f172a', fontWeight: 700 }}>₹{Number(shipping).toLocaleString('en-IN')}</span>
               </div>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                fontSize: '1.15rem',
+                fontSize: '1.25rem',
                 fontWeight: 800,
-                color: '#fbbf24',
+                color: '#b45309',
                 paddingTop: 8,
-                borderTop: '1px solid rgba(255, 255, 255, 0.08)'
+                borderTop: '1px solid #e2e8f0'
               }}>
                 <span>Total</span>
                 <span>₹{Number(grandTotal).toLocaleString('en-IN')}</span>

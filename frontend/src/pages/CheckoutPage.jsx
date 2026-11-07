@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { CreditCard, QrCode, Truck, ShieldCheck, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { CreditCard, QrCode, Truck, ShieldCheck, ArrowRight } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 
 export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
-  const { cartItems, subtotal, shipping, grandTotal, clearCart } = useCart();
+  const { cartItems, subtotal, shipping, grandTotal } = useCart();
   const { user } = useAuth();
 
   const [fullName, setFullName] = useState(user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username : '');
@@ -69,22 +69,23 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
       
       {/* Title */}
       <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc' }}>
+        <h1 style={{ fontSize: '2.1rem', fontWeight: 800, color: '#0f172a' }}>
           Secure Checkout
         </h1>
-        <p style={{ fontSize: '0.88rem', color: '#94a3b8' }}>
+        <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
           Complete your delivery details and choose a payment method
         </p>
       </div>
 
       {error && (
         <div style={{
-          background: 'rgba(239, 68, 68, 0.15)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          color: '#fca5a5',
+          background: '#fef2f2',
+          border: '1px solid #fecaca',
+          color: '#dc2626',
           padding: '14px 18px',
           borderRadius: 14,
           marginBottom: 24,
+          fontWeight: 500,
         }}>
           {error}
         </div>
@@ -101,14 +102,14 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             
             {/* 1. Contact & Address */}
-            <div className="glass" style={{ padding: 28, borderRadius: 24 }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc', marginBottom: 20 }}>
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)', padding: 28, borderRadius: 24 }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: 20 }}>
                 1. Shipping Address
               </h3>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', color: '#cbd5e1', fontWeight: 600, marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: '0.86rem', color: '#1e293b', fontWeight: 700, marginBottom: 6 }}>
                     Full Name *
                   </label>
                   <input
@@ -119,18 +120,18 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     onChange={(e) => setFullName(e.target.value)}
                     style={{
                       width: '100%',
-                      background: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
                       borderRadius: 12,
                       padding: '12px 14px',
-                      color: '#f8fafc',
+                      color: '#0f172a',
                       fontSize: '0.92rem',
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', color: '#cbd5e1', fontWeight: 600, marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: '0.86rem', color: '#1e293b', fontWeight: 700, marginBottom: 6 }}>
                     Email Address (for Invoice & Tracking) *
                   </label>
                   <input
@@ -141,18 +142,18 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     onChange={(e) => setEmail(e.target.value)}
                     style={{
                       width: '100%',
-                      background: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
                       borderRadius: 12,
                       padding: '12px 14px',
-                      color: '#f8fafc',
+                      color: '#0f172a',
                       fontSize: '0.92rem',
                     }}
                   />
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '0.84rem', color: '#cbd5e1', fontWeight: 600, marginBottom: 6 }}>
+                  <label style={{ display: 'block', fontSize: '0.86rem', color: '#1e293b', fontWeight: 700, marginBottom: 6 }}>
                     Street Address & House / Flat No. *
                   </label>
                   <textarea
@@ -163,11 +164,11 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     onChange={(e) => setAddress(e.target.value)}
                     style={{
                       width: '100%',
-                      background: '#090d16',
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      background: '#ffffff',
+                      border: '1px solid #cbd5e1',
                       borderRadius: 12,
                       padding: '12px 14px',
-                      color: '#f8fafc',
+                      color: '#0f172a',
                       fontSize: '0.92rem',
                       fontFamily: 'inherit',
                       resize: 'none',
@@ -177,7 +178,7 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.84rem', color: '#cbd5e1', fontWeight: 600, marginBottom: 6 }}>
+                    <label style={{ display: 'block', fontSize: '0.86rem', color: '#1e293b', fontWeight: 700, marginBottom: 6 }}>
                       City *
                     </label>
                     <input
@@ -188,18 +189,18 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                       onChange={(e) => setCity(e.target.value)}
                       style={{
                         width: '100%',
-                        background: '#090d16',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
                         borderRadius: 12,
                         padding: '12px 14px',
-                        color: '#f8fafc',
+                        color: '#0f172a',
                         fontSize: '0.92rem',
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '0.84rem', color: '#cbd5e1', fontWeight: 600, marginBottom: 6 }}>
+                    <label style={{ display: 'block', fontSize: '0.86rem', color: '#1e293b', fontWeight: 700, marginBottom: 6 }}>
                       Postal Code / PIN *
                     </label>
                     <input
@@ -210,11 +211,11 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                       onChange={(e) => setPostalCode(e.target.value)}
                       style={{
                         width: '100%',
-                        background: '#090d16',
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
                         borderRadius: 12,
                         padding: '12px 14px',
-                        color: '#f8fafc',
+                        color: '#0f172a',
                         fontSize: '0.92rem',
                       }}
                     />
@@ -225,8 +226,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
             </div>
 
             {/* 2. Payment Method */}
-            <div className="glass" style={{ padding: 28, borderRadius: 24 }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc', marginBottom: 20 }}>
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)', padding: 28, borderRadius: 24 }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: 20 }}>
                 2. Payment Method
               </h3>
 
@@ -240,8 +241,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     gap: 14,
                     padding: 16,
                     borderRadius: 14,
-                    background: paymentMethod === 'CARD' ? 'rgba(245, 158, 11, 0.1)' : '#090d16',
-                    border: paymentMethod === 'CARD' ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: paymentMethod === 'CARD' ? '#fffbeb' : '#ffffff',
+                    border: paymentMethod === 'CARD' ? '2px solid #d97706' : '1px solid #cbd5e1',
                     cursor: 'pointer',
                   }}
                 >
@@ -251,14 +252,14 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     value="CARD"
                     checked={paymentMethod === 'CARD'}
                     onChange={() => setPaymentMethod('CARD')}
-                    style={{ accentColor: '#f59e0b' }}
+                    style={{ accentColor: '#d97706' }}
                   />
-                  <CreditCard size={20} color="#f59e0b" />
+                  <CreditCard size={22} color="#d97706" />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#f8fafc' }}>
+                    <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#0f172a' }}>
                       Credit / Debit Card (Instant Simulation)
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                       Visa, Mastercard, RuPay & Amex accepted
                     </div>
                   </div>
@@ -272,8 +273,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     gap: 14,
                     padding: 16,
                     borderRadius: 14,
-                    background: paymentMethod === 'UPI' ? 'rgba(245, 158, 11, 0.1)' : '#090d16',
-                    border: paymentMethod === 'UPI' ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: paymentMethod === 'UPI' ? '#fffbeb' : '#ffffff',
+                    border: paymentMethod === 'UPI' ? '2px solid #d97706' : '1px solid #cbd5e1',
                     cursor: 'pointer',
                   }}
                 >
@@ -283,14 +284,14 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     value="UPI"
                     checked={paymentMethod === 'UPI'}
                     onChange={() => setPaymentMethod('UPI')}
-                    style={{ accentColor: '#f59e0b' }}
+                    style={{ accentColor: '#d97706' }}
                   />
-                  <QrCode size={20} color="#f59e0b" />
+                  <QrCode size={22} color="#d97706" />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#f8fafc' }}>
+                    <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#0f172a' }}>
                       UPI Payment (GPay / PhonePe / Paytm)
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                       Zero transaction fee with instant confirmation
                     </div>
                   </div>
@@ -304,8 +305,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     gap: 14,
                     padding: 16,
                     borderRadius: 14,
-                    background: paymentMethod === 'COD' ? 'rgba(245, 158, 11, 0.1)' : '#090d16',
-                    border: paymentMethod === 'COD' ? '1px solid #f59e0b' : '1px solid rgba(255, 255, 255, 0.08)',
+                    background: paymentMethod === 'COD' ? '#fffbeb' : '#ffffff',
+                    border: paymentMethod === 'COD' ? '2px solid #d97706' : '1px solid #cbd5e1',
                     cursor: 'pointer',
                   }}
                 >
@@ -315,14 +316,14 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     value="COD"
                     checked={paymentMethod === 'COD'}
                     onChange={() => setPaymentMethod('COD')}
-                    style={{ accentColor: '#f59e0b' }}
+                    style={{ accentColor: '#d97706' }}
                   />
-                  <Truck size={20} color="#f59e0b" />
+                  <Truck size={22} color="#d97706" />
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#f8fafc' }}>
+                    <div style={{ fontSize: '0.94rem', fontWeight: 700, color: '#0f172a' }}>
                       Cash on Delivery (COD)
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                       Pay at doorstep upon delivery
                     </div>
                   </div>
@@ -335,8 +336,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
 
           {/* Right: Order Summary */}
           <div>
-            <div className="glass" style={{ padding: 28, borderRadius: 24, position: 'sticky', top: 90 }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc', marginBottom: 20 }}>
+            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)', padding: 28, borderRadius: 24, position: 'sticky', top: 90 }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0f172a', marginBottom: 20 }}>
                 Order Summary
               </h3>
 
@@ -347,17 +348,17 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                     <img
                       src={item.product_details?.image_url}
                       alt={item.product_details?.name}
-                      style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', background: '#090d16' }}
+                      style={{ width: 48, height: 48, borderRadius: 8, objectFit: 'cover', background: '#f8fafc', border: '1px solid #e2e8f0' }}
                     />
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {item.product_details?.name}
                       </div>
-                      <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                      <div style={{ fontSize: '0.78rem', color: '#64748b' }}>
                         Qty: {item.quantity} × ₹{Number(item.product_details?.price || 0).toLocaleString('en-IN')}
                       </div>
                     </div>
-                    <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#fbbf24' }}>
+                    <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#b45309' }}>
                       ₹{Number(item.total_price || 0).toLocaleString('en-IN')}
                     </div>
                   </div>
@@ -365,24 +366,24 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
               </div>
 
               {/* Price Calculation */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 16, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#94a3b8' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, paddingTop: 16, borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#64748b' }}>
                   <span>Items Subtotal</span>
-                  <span style={{ color: '#f8fafc', fontWeight: 600 }}>₹{Number(subtotal).toLocaleString('en-IN')}</span>
+                  <span style={{ color: '#0f172a', fontWeight: 700 }}>₹{Number(subtotal).toLocaleString('en-IN')}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#94a3b8' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem', color: '#64748b' }}>
                   <span>Express Delivery</span>
-                  <span style={{ color: '#f8fafc', fontWeight: 600 }}>₹{Number(shipping).toLocaleString('en-IN')}</span>
+                  <span style={{ color: '#0f172a', fontWeight: 700 }}>₹{Number(shipping).toLocaleString('en-IN')}</span>
                 </div>
                 <div style={{
                   display: 'flex',
                   justifyContent: 'space-between',
-                  fontSize: '1.25rem',
+                  fontSize: '1.3rem',
                   fontWeight: 800,
-                  color: '#fbbf24',
+                  color: '#b45309',
                   paddingTop: 12,
                   marginTop: 4,
-                  borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+                  borderTop: '1px solid #e2e8f0'
                 }}>
                   <span>Total Amount</span>
                   <span>₹{Number(grandTotal).toLocaleString('en-IN')}</span>
@@ -399,8 +400,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                 <ArrowRight size={18} />
               </button>
 
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16, color: '#64748b', fontSize: '0.78rem' }}>
-                <ShieldCheck size={14} color="#10b981" />
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 16, color: '#64748b', fontSize: '0.8rem' }}>
+                <ShieldCheck size={16} color="#059669" />
                 Guaranteed safe & secure checkout
               </div>
 

@@ -84,10 +84,10 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
         {/* Catalog Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <h2 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f8fafc' }}>
+            <h2 style={{ fontSize: '1.65rem', fontWeight: 800, color: '#0f172a' }}>
               {searchQuery ? `Search Results for "${searchQuery}"` : (selectedCategory === 'All' ? 'Complete Catalog & New Drops' : `${selectedCategory} Collection`)}
             </h2>
-            <p style={{ fontSize: '0.86rem', color: '#94a3b8' }}>
+            <p style={{ fontSize: '0.86rem', color: '#64748b' }}>
               Showing {products.length} luxury items available for express delivery
             </p>
           </div>
@@ -96,7 +96,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
             <button
               onClick={() => setSelectedCategory('All')}
               className="btn-dark"
-              style={{ fontSize: '0.82rem', padding: '8px 14px' }}
+              style={{ fontSize: '0.82rem', padding: '8px 16px', background: '#ffffff' }}
             >
               Reset to All
             </button>
@@ -109,15 +109,14 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
               <div 
                 key={n} 
-                className="glass" 
-                style={{ height: 380, borderRadius: 20, opacity: 0.5, animation: 'pulseSubtle 1.5s infinite' }} 
+                style={{ height: 380, borderRadius: 20, background: '#ffffff', border: '1px solid #e2e8f0', opacity: 0.6, animation: 'pulseSubtle 1.5s infinite' }} 
               />
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="glass" style={{ textAlign: 'center', padding: '60px 20px', borderRadius: 24 }}>
-            <h3 style={{ fontSize: '1.2rem', color: '#f8fafc', marginBottom: 8 }}>No products found</h3>
-            <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
+          <div style={{ textAlign: 'center', padding: '60px 20px', borderRadius: 24, background: '#ffffff', border: '1px solid #e2e8f0' }}>
+            <h3 style={{ fontSize: '1.25rem', color: '#0f172a', marginBottom: 8 }}>No products found</h3>
+            <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
               Try searching for different terms or reset your category filter.
             </p>
           </div>
@@ -141,8 +140,8 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
       {/* 6. Brand Perks & Assurance Row */}
       <div style={{
-        background: 'linear-gradient(180deg, transparent 0%, rgba(15, 23, 42, 0.95) 100%)',
-        borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+        background: '#ffffff',
+        borderTop: '1px solid #e2e8f0',
         padding: '50px 20px',
         marginTop: 60,
       }}>
@@ -155,24 +154,24 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
         }}>
           <div style={{ display: 'flex', gap: 14 }}>
             <div style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: 'rgba(245, 158, 11, 0.15)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fbbf24',
+              color: '#d97706',
               flexShrink: 0
             }}>
               <Truck size={22} />
             </div>
             <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc', marginBottom: 4 }}>
+              <h4 style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
                 Express Delivery
               </h4>
-              <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
                 Pan-India rapid air dispatch within 2-4 business days.
               </p>
             </div>
@@ -180,24 +179,24 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
           <div style={{ display: 'flex', gap: 14 }}>
             <div style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: 'rgba(245, 158, 11, 0.15)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fbbf24',
+              color: '#d97706',
               flexShrink: 0
             }}>
               <ShieldCheck size={22} />
             </div>
             <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc', marginBottom: 4 }}>
+              <h4 style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
                 100% Authentic Drops
               </h4>
-              <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
                 Direct sourcing guarantee with individual serial verification.
               </p>
             </div>
@@ -205,24 +204,24 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
           <div style={{ display: 'flex', gap: 14 }}>
             <div style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: 'rgba(245, 158, 11, 0.15)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fbbf24',
+              color: '#d97706',
               flexShrink: 0
             }}>
               <RefreshCw size={22} />
             </div>
             <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc', marginBottom: 4 }}>
-                7-Day Hassle-Free Returns
+              <h4 style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
+                7-Day Easy Returns
               </h4>
-              <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
                 Doorstep pickup with instant refunds & replacements.
               </p>
             </div>
@@ -230,24 +229,24 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
           <div style={{ display: 'flex', gap: 14 }}>
             <div style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: 'rgba(245, 158, 11, 0.15)',
-              border: '1px solid rgba(245, 158, 11, 0.3)',
+              width: 46,
+              height: 46,
+              borderRadius: 14,
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#fbbf24',
+              color: '#d97706',
               flexShrink: 0
             }}>
               <Zap size={22} />
             </div>
             <div>
-              <h4 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc', marginBottom: 4 }}>
+              <h4 style={{ fontSize: '1.02rem', fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>
                 UrbanCoins Rewards
               </h4>
-              <p style={{ fontSize: '0.84rem', color: '#94a3b8', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.86rem', color: '#64748b', lineHeight: 1.5 }}>
                 Earn 10% instant cashback on every single order.
               </p>
             </div>

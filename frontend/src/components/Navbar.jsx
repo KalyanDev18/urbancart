@@ -26,23 +26,23 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
           style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', flexShrink: 0 }}
         >
           <div style={{
-            width: 40,
-            height: 40,
+            width: 42,
+            height: 42,
             borderRadius: 12,
-            background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
+            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#090d16',
-            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
+            color: '#ffffff',
+            boxShadow: '0 4px 14px rgba(217, 119, 6, 0.3)'
           }}>
             <ShoppingBag size={22} strokeWidth={2.4} />
           </div>
           <div>
-            <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#f8fafc', display: 'block', lineHeight: 1.1 }}>
-              Urban<span style={{ color: '#f59e0b' }}>Cart</span>
+            <span style={{ fontSize: '1.45rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#0f172a', display: 'block', lineHeight: 1.1 }}>
+              Urban<span style={{ color: '#d97706' }}>Cart</span>
             </span>
-            <span style={{ fontSize: '0.68rem', letterSpacing: '0.12em', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 600 }}>
+            <span style={{ fontSize: '0.68rem', letterSpacing: '0.12em', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>
               Curated Luxury
             </span>
           </div>
@@ -53,13 +53,13 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            background: '#0f172a',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#f1f5f9',
+            border: '1px solid #e2e8f0',
             borderRadius: 9999,
-            padding: '8px 16px',
-            transition: 'border-color 0.2s',
+            padding: '9px 18px',
+            transition: 'border-color 0.2s, background-color 0.2s',
           }}>
-            <Search size={18} color="#94a3b8" style={{ marginRight: 10 }} />
+            <Search size={18} color="#64748b" style={{ marginRight: 10 }} />
             <input
               type="text"
               placeholder="Search sneakers, hoodies, luxury audio, gaming gear..."
@@ -68,7 +68,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#f8fafc',
+                color: '#0f172a',
                 outline: 'none',
                 width: '100%',
                 fontSize: '0.9rem',
@@ -78,7 +78,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
             {searchQuery && (
               <button 
                 onClick={() => onSearch('')}
-                style={{ background: 'none', color: '#64748b', fontSize: '0.85rem', cursor: 'pointer', padding: '0 4px' }}
+                style={{ background: 'none', color: '#94a3b8', fontSize: '0.85rem', cursor: 'pointer', padding: '0 4px' }}
               >
                 ✕
               </button>
@@ -94,23 +94,23 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
             onClick={() => setIsCartOpen(true)}
             style={{
               position: 'relative',
-              background: '#0f172a',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              background: '#f8fafc',
+              border: '1px solid #cbd5e1',
               borderRadius: 12,
-              padding: '10px 14px',
+              padding: '9px 16px',
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              color: '#f8fafc',
+              color: '#0f172a',
               transition: 'all 0.2s ease',
             }}
           >
-            <ShoppingBag size={19} color="#f59e0b" />
-            <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>Cart</span>
+            <ShoppingBag size={19} color="#d97706" />
+            <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>Cart</span>
             {cartCount > 0 && (
               <span style={{
-                background: '#f59e0b',
-                color: '#090d16',
+                background: '#d97706',
+                color: '#ffffff',
                 fontWeight: 800,
                 fontSize: '0.72rem',
                 padding: '2px 7px',
@@ -131,19 +131,19 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                   display: 'flex',
                   alignItems: 'center',
                   gap: 10,
-                  background: '#0f172a',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: 12,
-                  padding: '8px 14px',
-                  color: '#f8fafc',
+                  padding: '7px 14px',
+                  color: '#0f172a',
                 }}
               >
                 <div style={{
-                  width: 28,
-                  height: 28,
+                  width: 30,
+                  height: 30,
                   borderRadius: '50%',
-                  background: '#f59e0b',
-                  color: '#090d16',
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                  color: '#ffffff',
                   fontWeight: 800,
                   fontSize: '0.82rem',
                   display: 'flex',
@@ -152,7 +152,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                 }}>
                   {user?.first_name ? user.first_name[0].toUpperCase() : 'U'}
                 </div>
-                <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>
+                <span style={{ fontSize: '0.88rem', fontWeight: 700 }}>
                   {user?.first_name || user?.username}
                 </span>
               </button>
@@ -165,16 +165,18 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                     position: 'absolute',
                     top: 'calc(100% + 8px)',
                     right: 0,
-                    width: 210,
-                    borderRadius: 14,
+                    width: 220,
+                    borderRadius: 16,
                     padding: 8,
                     zIndex: 100,
-                    boxShadow: '0 12px 30px rgba(0,0,0,0.5)',
+                    boxShadow: '0 10px 30px rgba(15, 23, 42, 0.12)',
+                    border: '1px solid #e2e8f0',
+                    background: '#ffffff'
                   }}
                 >
-                  <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 6 }}>
-                    <div style={{ fontSize: '0.82rem', color: '#94a3b8' }}>Signed in as</div>
-                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#f8fafc', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <div style={{ padding: '10px 12px', borderBottom: '1px solid #f1f5f9', marginBottom: 6 }}>
+                    <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Signed in as</div>
+                    <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {user?.email || user?.username}
                     </div>
                   </div>
@@ -187,14 +189,15 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                       alignItems: 'center',
                       gap: 10,
                       padding: '10px 12px',
-                      borderRadius: 8,
+                      borderRadius: 10,
                       background: 'none',
-                      color: '#f8fafc',
+                      color: '#0f172a',
                       fontSize: '0.88rem',
+                      fontWeight: 600,
                       textAlign: 'left',
                     }}
                   >
-                    <Package size={16} color="#f59e0b" />
+                    <Package size={16} color="#d97706" />
                     My Orders & Account
                   </button>
 
@@ -206,10 +209,11 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                       alignItems: 'center',
                       gap: 10,
                       padding: '10px 12px',
-                      borderRadius: 8,
+                      borderRadius: 10,
                       background: 'none',
-                      color: '#ef4444',
+                      color: '#dc2626',
                       fontSize: '0.88rem',
+                      fontWeight: 600,
                       textAlign: 'left',
                     }}
                   >
@@ -223,7 +227,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
             <button
               onClick={() => onNavigate('login')}
               className="btn-gold"
-              style={{ padding: '9px 18px', fontSize: '0.88rem' }}
+              style={{ padding: '9px 20px', fontSize: '0.88rem' }}
             >
               <UserIcon size={16} />
               Sign In
