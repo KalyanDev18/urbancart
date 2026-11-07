@@ -35,6 +35,7 @@ body {
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
   overflow-x: hidden;
+  width: 100%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -54,12 +55,13 @@ button {
   font-family: inherit;
   border: none;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Custom Scrollbar for Light Theme */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: #f1f5f9;
@@ -88,7 +90,7 @@ button {
 }
 
 .glass-nav {
-  background: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid #e2e8f0;
@@ -158,6 +160,114 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+/* Responsive Catalog Grid */
+.responsive-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 1100px) {
+  .responsive-product-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .responsive-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .responsive-product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+}
+
+/* Responsive Spotlight Layout */
+.spotlight-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.spotlight-hero-card {
+  grid-column: 1 / 2;
+  min-height: 340px;
+}
+
+.spotlight-side-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .spotlight-grid {
+    grid-template-columns: 1fr;
+  }
+  .spotlight-hero-card {
+    grid-column: 1 / -1;
+  }
+  .spotlight-side-cards {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .spotlight-side-cards > div {
+    flex: 1 1 260px;
+  }
+}
+
+/* Responsive Navbar */
+.nav-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.nav-search-desktop {
+  display: block;
+  flex: 1;
+  max-width: 520px;
+}
+
+.nav-search-mobile {
+  display: none;
+  width: 100%;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .nav-search-desktop {
+    display: none;
+  }
+  .nav-search-mobile {
+    display: block;
+  }
+  .nav-container {
+    gap: 12px;
+  }
+}
+
+/* Responsive Login Page */
+.login-split-card {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+}
+
+@media (max-width: 860px) {
+  .login-split-card {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* Animations */

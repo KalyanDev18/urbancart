@@ -34,41 +34,42 @@ export default function ProductCard({ product, onRequireAuth }) {
     <div 
       style={{
         background: '#ffffff',
-        borderRadius: 20,
+        borderRadius: 18,
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
         border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 18px rgba(15, 23, 42, 0.04)',
+        boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)',
         transition: 'all 0.25s ease',
         position: 'relative',
+        width: '100%',
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-6px)';
+        e.currentTarget.style.transform = 'translateY(-4px)';
         e.currentTarget.style.borderColor = '#cbd5e1';
-        e.currentTarget.style.boxShadow = '0 12px 30px rgba(15, 23, 42, 0.09)';
+        e.currentTarget.style.boxShadow = '0 10px 24px rgba(15, 23, 42, 0.08)';
       }}
       onMouseLeave={(e) => {
         e.currentTarget.style.transform = 'translateY(0)';
         e.currentTarget.style.borderColor = '#e2e8f0';
-        e.currentTarget.style.boxShadow = '0 4px 18px rgba(15, 23, 42, 0.04)';
+        e.currentTarget.style.boxShadow = '0 4px 16px rgba(15, 23, 42, 0.04)';
       }}
     >
       {/* Discount Pill */}
       {discount > 0 && (
         <div style={{
           position: 'absolute',
-          top: 14,
-          left: 14,
+          top: 10,
+          left: 10,
           zIndex: 10,
           background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
           color: '#ffffff',
           fontWeight: 800,
-          fontSize: '0.72rem',
-          padding: '4px 10px',
+          fontSize: '0.68rem',
+          padding: '3px 8px',
           borderRadius: 9999,
-          boxShadow: '0 4px 12px rgba(217, 119, 6, 0.25)',
+          boxShadow: '0 2px 8px rgba(217, 119, 6, 0.25)',
           letterSpacing: '0.04em'
         }}>
           {discount}% OFF
@@ -79,7 +80,7 @@ export default function ProductCard({ product, onRequireAuth }) {
       <div style={{
         position: 'relative',
         width: '100%',
-        paddingTop: '90%',
+        paddingTop: '92%',
         background: '#f8fafc',
         overflow: 'hidden',
       }}>
@@ -102,25 +103,25 @@ export default function ProductCard({ product, onRequireAuth }) {
       </div>
 
       {/* Product Details */}
-      <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 10, flex: 1, justifyContent: 'space-between' }}>
+      <div style={{ padding: 'clamp(10px, 2.5vw, 16px)', display: 'flex', flexDirection: 'column', gap: 8, flex: 1, justifyContent: 'space-between' }}>
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-            <span style={{ fontSize: '0.74rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', fontWeight: 700 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
               {product.category}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fef3c7', padding: '2px 8px', borderRadius: 8 }}>
-              <Star size={13} fill="#d97706" color="#d97706" />
-              <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#92400e' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#fef3c7', padding: '2px 6px', borderRadius: 6 }}>
+              <Star size={11} fill="#d97706" color="#d97706" />
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#92400e' }}>
                 {product.rating || '4.8'}
               </span>
             </div>
           </div>
 
           <h3 style={{
-            fontSize: '1.02rem',
+            fontSize: 'clamp(0.85rem, 2.4vw, 0.98rem)',
             fontWeight: 700,
             color: '#0f172a',
-            lineHeight: 1.35,
+            lineHeight: 1.3,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -131,13 +132,13 @@ export default function ProductCard({ product, onRequireAuth }) {
         </div>
 
         {/* Pricing & Add to Cart button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 12, paddingTop: 12, borderTop: '1px solid #f1f5f9' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px solid #f1f5f9', gap: 6 }}>
           <div>
-            <div style={{ fontSize: '1.3rem', fontWeight: 800, color: '#b45309', letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: 'clamp(0.95rem, 2.8vw, 1.2rem)', fontWeight: 800, color: '#b45309', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               ₹{Number(product.price).toLocaleString('en-IN')}
             </div>
             {originalPrice > product.price && (
-              <div style={{ fontSize: '0.8rem', color: '#94a3b8', textDecoration: 'line-through' }}>
+              <div style={{ fontSize: '0.74rem', color: '#94a3b8', textDecoration: 'line-through' }}>
                 ₹{Number(originalPrice).toLocaleString('en-IN')}
               </div>
             )}
@@ -148,19 +149,20 @@ export default function ProductCard({ product, onRequireAuth }) {
             disabled={adding}
             className={added ? 'btn-dark' : 'btn-gold'}
             style={{
-              padding: '9px 16px',
-              fontSize: '0.84rem',
-              borderRadius: 12,
+              padding: '6px 12px',
+              fontSize: '0.78rem',
+              borderRadius: 10,
+              flexShrink: 0,
             }}
           >
             {added ? (
               <>
-                <Check size={16} color="#059669" />
-                Added
+                <Check size={14} color="#059669" />
+                Done
               </>
             ) : (
               <>
-                <ShoppingBag size={15} />
+                <ShoppingBag size={13} />
                 Add
               </>
             )}

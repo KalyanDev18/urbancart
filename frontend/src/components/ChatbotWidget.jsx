@@ -63,17 +63,17 @@ export default function ChatbotWidget({ onRequireAuth }) {
   return (
     <>
       {/* Floating Launcher Button */}
-      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 90 }}>
+      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 90 }}>
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
             style={{
-              width: 58,
-              height: 58,
+              width: 54,
+              height: 54,
               borderRadius: '50%',
               background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
               color: '#ffffff',
-              boxShadow: '0 8px 30px rgba(217, 119, 6, 0.35)',
+              boxShadow: '0 6px 24px rgba(217, 119, 6, 0.35)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -84,7 +84,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
-            <Sparkles size={26} strokeWidth={2.4} />
+            <Sparkles size={24} strokeWidth={2.4} />
           </button>
         )}
       </div>
@@ -95,12 +95,12 @@ export default function ChatbotWidget({ onRequireAuth }) {
           className="animate-fade-in"
           style={{
             position: 'fixed',
-            bottom: 24,
-            right: 24,
-            width: 380,
-            maxWidth: 'calc(100vw - 32px)',
-            height: 560,
-            maxHeight: 'calc(100vh - 48px)',
+            bottom: 16,
+            right: 16,
+            width: 'calc(100vw - 32px)',
+            maxWidth: 380,
+            height: 'calc(100vh - 40px)',
+            maxHeight: 560,
             borderRadius: 24,
             display: 'flex',
             flexDirection: 'column',
@@ -113,7 +113,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
         >
           {/* Header */}
           <div style={{
-            padding: '16px 20px',
+            padding: '14px 18px',
             background: 'linear-gradient(135deg, #fffdfa 0%, #fffbeb 50%, #fef3c7 100%)',
             borderBottom: '1px solid #fde68a',
             display: 'flex',
@@ -122,8 +122,8 @@ export default function ChatbotWidget({ onRequireAuth }) {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <div style={{
-                width: 36,
-                height: 36,
+                width: 34,
+                height: 34,
                 borderRadius: 10,
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 display: 'flex',
@@ -132,15 +132,15 @@ export default function ChatbotWidget({ onRequireAuth }) {
                 color: '#ffffff',
                 boxShadow: '0 4px 10px rgba(217, 119, 6, 0.25)'
               }}>
-                <Bot size={20} />
+                <Bot size={18} />
               </div>
               <div>
-                <div style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0f172a' }}>
+                <div style={{ fontSize: '0.94rem', fontWeight: 800, color: '#0f172a' }}>
                   UrbanBot AI
                 </div>
-                <div style={{ fontSize: '0.74rem', color: '#059669', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
+                <div style={{ fontSize: '0.72rem', color: '#059669', display: 'flex', alignItems: 'center', gap: 4, fontWeight: 700 }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#059669' }} />
-                  Online Shopping Assistant
+                  Online Assistant
                 </div>
               </div>
             </div>
@@ -149,13 +149,13 @@ export default function ChatbotWidget({ onRequireAuth }) {
               onClick={() => setIsOpen(false)}
               style={{ background: 'none', color: '#64748b', cursor: 'pointer', padding: 4 }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
 
           {/* Quick Questions Pills */}
           <div style={{
-            padding: '10px 14px',
+            padding: '8px 12px',
             background: '#f8fafc',
             borderBottom: '1px solid #e2e8f0',
             display: 'flex',
@@ -169,9 +169,9 @@ export default function ChatbotWidget({ onRequireAuth }) {
                 style={{
                   background: '#ffffff',
                   color: '#1e293b',
-                  fontSize: '0.74rem',
+                  fontSize: '0.72rem',
                   fontWeight: 600,
-                  padding: '5px 12px',
+                  padding: '4px 10px',
                   borderRadius: 9999,
                   whiteSpace: 'nowrap',
                   border: '1px solid #cbd5e1',
@@ -184,7 +184,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
           </div>
 
           {/* Messages Scroll Area */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div style={{ flex: 1, overflowY: 'auto', padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
             {messages.map((m, idx) => (
               <div
                 key={idx}
@@ -195,10 +195,10 @@ export default function ChatbotWidget({ onRequireAuth }) {
               >
                 <div
                   style={{
-                    padding: '12px 16px',
-                    borderRadius: 16,
-                    fontSize: '0.88rem',
-                    lineHeight: 1.45,
+                    padding: '10px 14px',
+                    borderRadius: 14,
+                    fontSize: '0.86rem',
+                    lineHeight: 1.4,
                     whiteSpace: 'pre-wrap',
                     background: m.sender === 'user' ? 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' : '#f1f5f9',
                     color: m.sender === 'user' ? '#ffffff' : '#0f172a',
@@ -212,31 +212,31 @@ export default function ChatbotWidget({ onRequireAuth }) {
 
                 {/* Suggested Product Cards */}
                 {m.products && m.products.length > 0 && (
-                  <div style={{ marginTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 6 }}>
                     {m.products.map((p) => (
                       <div
                         key={p.id}
                         style={{
                           background: '#ffffff',
-                          borderRadius: 12,
-                          padding: 10,
+                          borderRadius: 10,
+                          padding: 8,
                           border: '1px solid #e2e8f0',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          boxShadow: '0 2px 6px rgba(0,0,0,0.04)',
                           display: 'flex',
                           alignItems: 'center',
-                          gap: 10,
+                          gap: 8,
                         }}
                       >
                         <img
                           src={p.image_url}
                           alt={p.name}
-                          style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover' }}
+                          style={{ width: 38, height: 38, borderRadius: 6, objectFit: 'cover' }}
                         />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                             {p.name}
                           </div>
-                          <div style={{ fontSize: '0.84rem', fontWeight: 800, color: '#b45309' }}>
+                          <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#b45309' }}>
                             ₹{Number(p.price).toLocaleString('en-IN')}
                           </div>
                         </div>
@@ -248,7 +248,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
                             }
                           }}
                           className="btn-gold"
-                          style={{ padding: '6px 12px', fontSize: '0.74rem', borderRadius: 8 }}
+                          style={{ padding: '4px 10px', fontSize: '0.72rem', borderRadius: 6 }}
                         >
                           Add
                         </button>
@@ -260,7 +260,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
             ))}
 
             {loading && (
-              <div style={{ alignSelf: 'flex-start', background: '#f1f5f9', padding: '10px 14px', borderRadius: 16, fontSize: '0.82rem', color: '#64748b' }}>
+              <div style={{ alignSelf: 'flex-start', background: '#f1f5f9', padding: '8px 12px', borderRadius: 14, fontSize: '0.8rem', color: '#64748b' }}>
                 UrbanBot is typing...
               </div>
             )}
@@ -274,7 +274,7 @@ export default function ChatbotWidget({ onRequireAuth }) {
               handleSend();
             }}
             style={{
-              padding: '12px 14px',
+              padding: '10px 12px',
               borderTop: '1px solid #e2e8f0',
               background: '#f8fafc',
               display: 'flex',
@@ -290,10 +290,10 @@ export default function ChatbotWidget({ onRequireAuth }) {
                 flex: 1,
                 background: '#ffffff',
                 border: '1px solid #cbd5e1',
-                borderRadius: 12,
-                padding: '10px 14px',
+                borderRadius: 10,
+                padding: '8px 12px',
                 color: '#0f172a',
-                fontSize: '0.88rem',
+                fontSize: '0.86rem',
                 outline: 'none',
               }}
             />
@@ -301,9 +301,9 @@ export default function ChatbotWidget({ onRequireAuth }) {
               type="submit"
               disabled={loading || !input.trim()}
               className="btn-gold"
-              style={{ width: 42, height: 42, padding: 0, borderRadius: 12 }}
+              style={{ width: 38, height: 38, padding: 0, borderRadius: 10 }}
             >
-              <Send size={16} />
+              <Send size={15} />
             </button>
           </form>
 
