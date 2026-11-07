@@ -92,20 +92,12 @@ def send_email_otp_api(request):
         print(f"[UrbanCart SMTP Error] {error_msg}")
     print(f"[UrbanCart OTP API Log] Generated OTP for {email}: {otp} (Sent via SMTP: {email_sent})")
 
-    res_data = {
+    return Response({
         'status': 'success',
         'message': f'Verification code sent to {email}. Please check your inbox.',
         'email': email,
         'email_sent': email_sent,
-    }
-
-    # If in local dev mode without live SMTP credentials, provide dev_otp so testing is instant
-    has_smtp = bool(getattr(settings, 'EMAIL_HOST_USER', None))
-    if settings.DEBUG and (not email_sent or not has_smtp):
-        res_data['dev_otp'] = otp
-        res_data['message'] = f'OTP sent! [Dev Mode Code: {otp}] (Set EMAIL_HOST_USER in .env for live inbox delivery)'
-
-    return Response(res_data)
+    })
 
 
 @api_view(['POST'])

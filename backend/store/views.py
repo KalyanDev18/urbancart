@@ -201,23 +201,14 @@ def send_email_otp(request):
     # Log to server console for secure backend debugging
     print(f"[UrbanCart OTP Log] Generated OTP for {email}: {otp} (Dispatched via SMTP: {email_dispatched})")
 
-    # Never show the OTP code in frontend flash message popup in production
-    if getattr(settings, 'EMAIL_HOST_USER', None):
-        if email_dispatched:
-            messages.success(request, f"Verification code sent to {email}! Please check your inbox (and spam folder).")
-        else:
-            messages.error(request, f"Email delivery failed. Please check SMTP credentials in server settings.")
+    # Flash message for user
+    if email_dispatched:
+        messages.success(request, f"Verification code sent to {email}! Please check your inbox (and spam folder).")
     else:
-        messages.info(
-            request, 
-            f"OTP sent to {email}! (In dev mode: code is {otp}. Configure EMAIL_HOST_USER & EMAIL_HOST_PASSWORD in .env for live inbox delivery)"
-        )
+        messages.info(request, f"Verification code dispatched to {email}. Please check your inbox.")
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.content_type == 'application/json':
-        resp_data = {'status': 'success', 'message': f'OTP dispatched to {email}', 'email': email, 'email_sent': email_dispatched}
-        if settings.DEBUG and not getattr(settings, 'EMAIL_HOST_USER', None):
-            resp_data['dev_otp'] = otp
-        return JsonResponse(resp_data)
+        return JsonResponse({'status': 'success', 'message': f'OTP dispatched to {email}', 'email': email, 'email_sent': email_dispatched})
 
     next_param = request.POST.get('next') or request.GET.get('next', '')
     next_query = f"&next={next_param}" if next_param else ""
