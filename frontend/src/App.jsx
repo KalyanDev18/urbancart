@@ -40,18 +40,16 @@ function MainApp() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
-      {/* Navbar (Hidden on split-screen login page for immersive focus) */}
-      {currentPage !== 'login' && (
-        <Navbar
-          currentPage={currentPage}
-          onNavigate={(page) => navigateTo(page)}
-          searchQuery={searchQuery}
-          onSearch={(q) => {
-            setSearchQuery(q);
-            if (currentPage !== 'home') navigateTo('home');
-          }}
-        />
-      )}
+      {/* Top Navbar */}
+      <Navbar
+        currentPage={currentPage}
+        onNavigate={(page) => navigateTo(page)}
+        searchQuery={searchQuery}
+        onSearch={(q) => {
+          setSearchQuery(q);
+          if (currentPage !== 'home') navigateTo('home');
+        }}
+      />
 
       {/* Main View Router */}
       <main style={{ flex: 1 }}>

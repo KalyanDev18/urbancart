@@ -232,8 +232,20 @@ def register_api(request):
     password = request.data.get('password', '')
     full_name = request.data.get('full_name', '').strip()
 
-    if not username or not password:
-        return Response({'error': 'Username and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if not email:
+        return Response({'error': 'Email address is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not password:
+        return Response({'error': 'Password is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    if not username and email:
+        base_username = ''.join(c for c in email.split('@')[0] if c.isalnum() or c in '_-')[:20] or 'user'
+        candidate = base_username
+        counter = 1
+        while User.objects.filter(username=candidate).exists():
+            candidate = f"{base_username}_{counter}"
+            counter += 1
+        username = candidate
 
     if User.objects.filter(username=username).exists():
         return Response({'error': 'A user with this username already exists.'}, status=status.HTTP_400_BAD_REQUEST)
