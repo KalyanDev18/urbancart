@@ -75,10 +75,11 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
           position: 'relative',
           borderRadius: 24,
           overflow: 'hidden',
-          background: 'linear-gradient(135deg, #fffdfa 0%, #fffbeb 40%, #fef3c7 100%)',
-          border: '1px solid #fde68a',
+          background: 'var(--bg-hero)',
+          border: '1px solid var(--border-hero)',
           boxShadow: '0 10px 35px rgba(217, 119, 6, 0.1)',
           minHeight: 380,
+          transition: 'background 0.25s ease, border-color 0.25s ease',
         }}
       >
         {/* Navigation Arrows */}
@@ -136,7 +137,7 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                       <Sparkles size={13} />
                       DROP 0{idx + 1} OF 05
                     </span>
-                    <span style={{ fontSize: '0.82rem', color: '#b45309', fontWeight: 700, textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.82rem', color: 'var(--price-color)', fontWeight: 700, textTransform: 'uppercase' }}>
                       {product.category}
                     </span>
                   </div>
@@ -144,7 +145,7 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                   <h2 style={{
                     fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                     fontWeight: 800,
-                    color: '#0f172a',
+                    color: 'var(--text-main)',
                     lineHeight: 1.15,
                     marginBottom: 12,
                   }}>
@@ -153,7 +154,7 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
 
                   <p style={{
                     fontSize: 'clamp(0.86rem, 2vw, 1rem)',
-                    color: '#475569',
+                    color: 'var(--text-muted)',
                     lineHeight: 1.55,
                     marginBottom: 18,
                     maxWidth: 480,
@@ -163,20 +164,20 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
 
                   {/* Price & Rating */}
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-                    <div style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.1rem)', fontWeight: 800, color: '#b45309' }}>
+                    <div style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.1rem)', fontWeight: 800, color: 'var(--price-color)' }}>
                       ₹{Number(product.price).toLocaleString('en-IN')}
                     </div>
                     {originalPrice > product.price && (
-                      <div style={{ fontSize: '1rem', color: '#94a3b8', textDecoration: 'line-through' }}>
+                      <div style={{ fontSize: '1rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                         ₹{Number(originalPrice).toLocaleString('en-IN')}
                       </div>
                     )}
                     <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.74rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
                       {discount}% OFF
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fef3c7', padding: '3px 8px', borderRadius: 8 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '3px 8px', borderRadius: 8 }}>
                       <Star size={13} fill="#d97706" color="#d97706" />
-                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#92400e' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--badge-text)' }}>
                         {product.rating || '4.9'}
                       </span>
                     </div>
@@ -197,7 +198,7 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                     <button
                       onClick={onShopNow}
                       className="btn-dark"
-                      style={{ padding: '11px 18px', fontSize: '0.92rem', background: '#ffffff', border: '1px solid #cbd5e1' }}
+                      style={{ padding: '11px 18px', fontSize: '0.92rem' }}
                     >
                       Browse All Drops
                       <ArrowRight size={16} />
@@ -221,8 +222,8 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                     borderRadius: 24,
                     overflow: 'hidden',
                     boxShadow: '0 16px 40px rgba(217, 119, 6, 0.18)',
-                    background: '#ffffff',
-                    border: '2px solid #ffffff'
+                    background: 'var(--bg-card)',
+                    border: '2px solid var(--border-hero)'
                   }}>
                     <img
                       src={optimizeImageUrl(product.image_url, 640)}
@@ -265,7 +266,7 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                 width: currentIndex === idx ? 28 : 9,
                 height: 9,
                 borderRadius: 9999,
-                background: currentIndex === idx ? '#d97706' : '#cbd5e1',
+                background: currentIndex === idx ? '#d97706' : 'var(--border-strong)',
                 transition: 'all 0.3s ease',
                 border: 'none',
                 cursor: 'pointer',

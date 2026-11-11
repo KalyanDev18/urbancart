@@ -58,7 +58,7 @@ function ProductCard({ product, onRequireAuth }) {
         position: 'relative',
         width: '100%',
         paddingTop: '92%',
-        background: '#f8fafc',
+        background: 'var(--bg-surface)',
         overflow: 'hidden',
       }}>
         <img
@@ -85,12 +85,12 @@ function ProductCard({ product, onRequireAuth }) {
       <div style={{ padding: 'clamp(10px, 2.5vw, 16px)', display: 'flex', flexDirection: 'column', gap: 8, flex: 1, justifyContent: 'space-between' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
+            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
               {product.category}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: '#fef3c7', padding: '2px 6px', borderRadius: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '2px 6px', borderRadius: 6 }}>
               <Star size={11} fill="#d97706" color="#d97706" />
-              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: '#92400e' }}>
+              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--badge-text)' }}>
                 {product.rating || '4.8'}
               </span>
             </div>
@@ -99,7 +99,7 @@ function ProductCard({ product, onRequireAuth }) {
           <h3 style={{
             fontSize: 'clamp(0.85rem, 2.4vw, 0.98rem)',
             fontWeight: 700,
-            color: '#0f172a',
+            color: 'var(--text-main)',
             lineHeight: 1.3,
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -111,13 +111,13 @@ function ProductCard({ product, onRequireAuth }) {
         </div>
 
         {/* Pricing & Add to Cart button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px solid #f1f5f9', gap: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-subtle)', gap: 6 }}>
           <div>
-            <div style={{ fontSize: 'clamp(0.95rem, 2.8vw, 1.2rem)', fontWeight: 800, color: '#b45309', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+            <div style={{ fontSize: 'clamp(0.95rem, 2.8vw, 1.2rem)', fontWeight: 800, color: 'var(--price-color)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               ₹{Number(product.price).toLocaleString('en-IN')}
             </div>
             {originalPrice > product.price && (
-              <div style={{ fontSize: '0.74rem', color: '#94a3b8', textDecoration: 'line-through' }}>
+              <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                 ₹{Number(originalPrice).toLocaleString('en-IN')}
               </div>
             )}

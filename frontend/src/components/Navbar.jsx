@@ -1,12 +1,50 @@
-import React, { useState } from 'react';
-import { ShoppingBag, User as UserIcon, Search, Sparkles, LogOut, Package, MapPin } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ShoppingBag, User as UserIcon, Search, LogOut, Package, Sun, Moon, Smartphone, Download, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { useTheme } from '../context/ThemeContext';
 
 export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery }) {
   const { user, isAuthenticated, logoutUser } = useAuth();
   const { cartCount, setIsCartOpen } = useCart();
+  const { isDark, toggleTheme } = useTheme();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [isInstalled, setIsInstalled] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
+
+  useEffect(() => {
+    if (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) {
+      setIsInstalled(true);
+    }
+    const handleBeforeInstall = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    const handleAppInstalled = () => {
+      setIsInstalled(true);
+      setDeferredPrompt(null);
+      setShowInstallHelp(false);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+    window.addEventListener('appinstalled', handleAppInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice.outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      setShowInstallHelp(true);
+    }
+  };
 
   const handleLogout = async () => {
     setShowUserMenu(false);
@@ -17,6 +55,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
   };
 
   return (
+    <>
     <header style={{
       position: 'sticky',
       top: 0,
@@ -96,8 +135,57 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
         </div>
 
         {/* Right Action Icons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+
+          {/* PWA Install App Button */}
+          {!isInstalled && (
+            <button
+              onClick={handleInstallClick}
+              title="Install UrbanCart App"
+              aria-label="Install UrbanCart App"
+              style={{
+                background: 'rgba(245, 158, 11, 0.14)',
+                border: '1px solid rgba(245, 158, 11, 0.45)',
+                borderRadius: 12,
+                padding: '8px 11px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                color: '#fbbf24',
+                fontSize: '0.78rem',
+                fontWeight: 800,
+                letterSpacing: '0.04em',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <Smartphone size={15} />
+              <span className="hide-xs">INSTALL</span>
+              <Download size={14} />
+            </button>
+          )}
+
+          {/* Dark / Light Theme Switcher */}
+          <button
+            onClick={toggleTheme}
+            title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            aria-label={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
+            style={{
+              background: '#131b2e',
+              border: '1px solid rgba(255, 255, 255, 0.14)',
+              borderRadius: 12,
+              width: 38,
+              height: 38,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: isDark ? '#fbbf24' : '#cbd5e1',
+              flexShrink: 0,
+              transition: 'all 0.2s ease',
+            }}
+          >
+            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+          </button>
+
           {/* Cart Icon & Badge */}
           <button
             onClick={() => setIsCartOpen(true)}
@@ -106,7 +194,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
               background: '#131b2e',
               border: '1px solid rgba(255, 255, 255, 0.12)',
               borderRadius: 12,
-              padding: '8px 14px',
+              padding: '8px 12px',
               display: 'flex',
               alignItems: 'center',
               gap: 6,
@@ -115,7 +203,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
             }}
           >
             <ShoppingBag size={18} color="#f59e0b" />
-            <span style={{ fontSize: '0.86rem', fontWeight: 700 }}>Bag</span>
+            <span className="hide-xs" style={{ fontSize: '0.86rem', fontWeight: 700 }}>Bag</span>
             {cartCount > 0 && (
               <span style={{
                 background: '#f59e0b',
@@ -284,5 +372,79 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
       </div>
 
     </header>
+
+    {showInstallHelp && (
+      <div
+        onClick={() => setShowInstallHelp(false)}
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 9999,
+          background: 'rgba(7, 11, 19, 0.72)',
+          backdropFilter: 'blur(6px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 16,
+        }}
+      >
+        <div
+          onClick={(e) => e.stopPropagation()}
+          className="animate-fade-in"
+          style={{
+            width: '100%',
+            maxWidth: 400,
+            borderRadius: 22,
+            padding: 24,
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border-subtle)',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.45)',
+            color: 'var(--text-main)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{
+                width: 38,
+                height: 38,
+                borderRadius: 10,
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#090d16',
+              }}>
+                <Smartphone size={20} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: '1.02rem' }}>Install UrbanCart App</div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>Fast native app experience</div>
+              </div>
+            </div>
+            <button onClick={() => setShowInstallHelp(false)} style={{ background: 'none', color: 'var(--text-dim)' }}>
+              <X size={18} />
+            </button>
+          </div>
+
+          <div style={{ fontSize: '0.86rem', color: 'var(--text-muted)', lineHeight: 1.6, marginBottom: 18 }}>
+            <p style={{ marginBottom: 8 }}>
+              • <strong>Chrome / Edge (Desktop):</strong> Click the <strong>Install icon</strong> in the right side of the URL bar (or Menu ➔ <em>Cast, save, and share ➔ Install UrbanCart</em>).
+            </p>
+            <p>
+              • <strong>Android / iPhone:</strong> Tap browser <strong>Menu / Share</strong> ➔ select <strong>Add to Home Screen</strong> or <strong>Install App</strong>.
+            </p>
+          </div>
+
+          <button
+            onClick={() => setShowInstallHelp(false)}
+            className="btn-gold"
+            style={{ width: '100%', padding: '10px' }}
+          >
+            Got it!
+          </button>
+        </div>
+      </div>
+    )}
+    </>
   );
 }

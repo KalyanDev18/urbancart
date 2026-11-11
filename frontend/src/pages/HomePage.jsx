@@ -159,10 +159,10 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
         {/* Catalog Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
           <div>
-            <h2 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.65rem)', fontWeight: 800, color: '#0f172a' }}>
+            <h2 style={{ fontSize: 'clamp(1.25rem, 3vw, 1.65rem)', fontWeight: 800, color: 'var(--text-main)' }}>
               {searchQuery ? `Search Results for "${searchQuery}"` : (selectedCategory === 'All' ? 'Complete Catalog & New Drops' : `${selectedCategory} Collection`)}
             </h2>
-            <p style={{ fontSize: '0.82rem', color: '#64748b' }}>
+            <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)' }}>
               Showing {safeProducts.length} luxury items available for express delivery
             </p>
           </div>
@@ -171,7 +171,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
             <button
               onClick={() => setSelectedCategory('All')}
               className="btn-dark"
-              style={{ fontSize: '0.8rem', padding: '6px 14px', background: '#ffffff' }}
+              style={{ fontSize: '0.8rem', padding: '6px 14px' }}
             >
               Reset to All
             </button>
@@ -184,17 +184,17 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
             {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
               <div 
                 key={n} 
-                style={{ height: 320, borderRadius: 20, background: '#ffffff', border: '1px solid #e2e8f0', opacity: 0.6, animation: 'pulseSubtle 1.5s infinite' }} 
+                style={{ height: 320, borderRadius: 20, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', opacity: 0.6, animation: 'pulseSubtle 1.5s infinite' }} 
               />
             ))}
           </div>
         ) : apiError ? (
-          <div style={{ textAlign: 'center', padding: '44px 20px', borderRadius: 24, background: '#fffbeb', border: '1px solid #fde68a' }}>
+          <div style={{ textAlign: 'center', padding: '44px 20px', borderRadius: 24, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)' }}>
             <AlertTriangle size={36} color="#d97706" style={{ margin: '0 auto 12px' }} />
-            <h3 style={{ fontSize: '1.15rem', color: '#0f172a', fontWeight: 800, marginBottom: 8 }}>
+            <h3 style={{ fontSize: '1.15rem', color: 'var(--text-main)', fontWeight: 800, marginBottom: 8 }}>
               {!HAS_BACKEND_URL ? 'Backend URL Not Linked Yet' : 'Connecting to UrbanCart Server...'}
             </h3>
-            <p style={{ fontSize: '0.88rem', color: '#475569', maxWidth: 520, margin: '0 auto 18px', lineHeight: 1.5 }}>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', maxWidth: 520, margin: '0 auto 18px', lineHeight: 1.5 }}>
               {apiError}
             </p>
             <button
@@ -207,9 +207,9 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
             </button>
           </div>
         ) : safeProducts.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '50px 20px', borderRadius: 24, background: '#ffffff', border: '1px solid #e2e8f0' }}>
-            <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: 8 }}>No products found</h3>
-            <p style={{ fontSize: '0.88rem', color: '#64748b' }}>
+          <div style={{ textAlign: 'center', padding: '50px 20px', borderRadius: 24, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+            <h3 style={{ fontSize: '1.2rem', color: 'var(--text-main)', marginBottom: 8 }}>No products found</h3>
+            <p style={{ fontSize: '0.88rem', color: 'var(--text-dim)' }}>
               Try searching for different terms or reset your category filter.
             </p>
           </div>
@@ -229,10 +229,11 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
       {/* 6. Brand Perks & Assurance Row */}
       <div style={{
-        background: '#ffffff',
-        borderTop: '1px solid #e2e8f0',
+        background: 'var(--bg-secondary)',
+        borderTop: '1px solid var(--border-subtle)',
         padding: '40px 16px',
         marginTop: 50,
+        transition: 'background-color 0.25s ease, border-color 0.25s ease',
       }}>
         <div style={{
           maxWidth: 1280,
@@ -246,21 +247,21 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               width: 42,
               height: 42,
               borderRadius: 12,
-              background: '#fffbeb',
-              border: '1px solid #fde68a',
+              background: 'var(--badge-bg)',
+              border: '1px solid var(--badge-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#d97706',
+              color: 'var(--price-color)',
               flexShrink: 0
             }}>
               <Truck size={20} />
             </div>
             <div>
-              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 2 }}>
                 Express Delivery
               </h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
                 Pan-India rapid air dispatch in 2-4 days.
               </p>
             </div>
@@ -271,21 +272,21 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               width: 42,
               height: 42,
               borderRadius: 12,
-              background: '#fffbeb',
-              border: '1px solid #fde68a',
+              background: 'var(--badge-bg)',
+              border: '1px solid var(--badge-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#d97706',
+              color: 'var(--price-color)',
               flexShrink: 0
             }}>
               <ShieldCheck size={20} />
             </div>
             <div>
-              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 2 }}>
                 100% Authentic
               </h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
                 Direct sourcing with serial verification.
               </p>
             </div>
@@ -296,21 +297,21 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               width: 42,
               height: 42,
               borderRadius: 12,
-              background: '#fffbeb',
-              border: '1px solid #fde68a',
+              background: 'var(--badge-bg)',
+              border: '1px solid var(--badge-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#d97706',
+              color: 'var(--price-color)',
               flexShrink: 0
             }}>
               <RefreshCw size={20} />
             </div>
             <div>
-              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 2 }}>
                 7-Day Easy Returns
               </h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
                 Doorstep pickup with instant refunds.
               </p>
             </div>
@@ -321,21 +322,21 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               width: 42,
               height: 42,
               borderRadius: 12,
-              background: '#fffbeb',
-              border: '1px solid #fde68a',
+              background: 'var(--badge-bg)',
+              border: '1px solid var(--badge-border)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#d97706',
+              color: 'var(--price-color)',
               flexShrink: 0
             }}>
               <Zap size={20} />
             </div>
             <div>
-              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>
+              <h4 style={{ fontSize: '0.96rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 2 }}>
                 UrbanCoins Rewards
               </h4>
-              <p style={{ fontSize: '0.82rem', color: '#64748b', lineHeight: 1.4 }}>
+              <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', lineHeight: 1.4 }}>
                 Earn 10% instant cashback on all orders.
               </p>
             </div>

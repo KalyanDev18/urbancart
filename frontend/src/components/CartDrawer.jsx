@@ -42,32 +42,32 @@ export default function CartDrawer({ onCheckout, onLogin }) {
           width: '100%',
           maxWidth: 'min(440px, 100vw)',
           height: '100%',
-          background: '#ffffff',
-          borderLeft: '1px solid #e2e8f0',
+          background: 'var(--bg-card)',
+          borderLeft: '1px solid var(--border-subtle)',
           display: 'flex',
           flexDirection: 'column',
           zIndex: 1000,
-          boxShadow: '-10px 0 40px rgba(15, 23, 42, 0.15)'
+          boxShadow: '-10px 0 40px rgba(15, 23, 42, 0.25)'
         }}
       >
         {/* Header */}
         <div style={{
           padding: '16px 20px',
-          borderBottom: '1px solid #e2e8f0',
+          borderBottom: '1px solid var(--border-subtle)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <ShoppingBag size={20} color="#d97706" />
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-main)' }}>
               Your Bag ({cartCount})
             </h3>
           </div>
           <button
             onClick={() => setIsCartOpen(false)}
             style={{
-              background: '#f1f5f9',
+              background: 'var(--bg-surface)',
               border: 'none',
               borderRadius: '50%',
               width: 32,
@@ -75,7 +75,7 @@ export default function CartDrawer({ onCheckout, onLogin }) {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#64748b',
+              color: 'var(--text-dim)',
               cursor: 'pointer',
             }}
           >
@@ -91,20 +91,20 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                 width: 60,
                 height: 60,
                 borderRadius: '50%',
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-subtle)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 14px',
-                color: '#94a3b8'
+                color: 'var(--text-dim)'
               }}>
                 <ShoppingBag size={28} />
               </div>
-              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>
+              <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 6 }}>
                 Your cart is empty
               </h4>
-              <p style={{ fontSize: '0.84rem', color: '#64748b' }}>
+              <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)' }}>
                 Explore our catalog to find exclusive streetwear, footwear, and tech accessories.
               </p>
             </div>
@@ -118,26 +118,27 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                     gap: 12,
                     padding: 10,
                     borderRadius: 14,
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
+                    background: 'var(--bg-surface)',
+                    border: '1px solid var(--border-subtle)',
                   }}
                 >
                   <img
                     src={item.product_details?.image_url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=200'}
                     alt={item.product_details?.name}
+                    loading="lazy"
                     style={{
                       width: 64,
                       height: 64,
                       borderRadius: 10,
                       objectFit: 'cover',
-                      background: '#ffffff',
-                      border: '1px solid #e2e8f0'
+                      background: 'var(--bg-card)',
+                      border: '1px solid var(--border-subtle)'
                     }}
                   />
                   <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
-                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#0f172a', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <h4 style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)', lineHeight: 1.25, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {item.product_details?.name}
                         </h4>
                         <button
@@ -147,7 +148,7 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                           <Trash2 size={15} />
                         </button>
                       </div>
-                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#b45309', marginTop: 3 }}>
+                      <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--price-color)', marginTop: 3 }}>
                         ₹{Number(item.product_details?.price || 0).toLocaleString('en-IN')}
                       </div>
                     </div>
@@ -157,22 +158,22 @@ export default function CartDrawer({ onCheckout, onLogin }) {
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        background: '#ffffff',
+                        background: 'var(--bg-card)',
                         borderRadius: 6,
-                        border: '1px solid #cbd5e1',
+                        border: '1px solid var(--border-strong)',
                       }}>
                         <button
                           onClick={() => updateQuantity(item.id, -1)}
-                          style={{ background: 'none', color: '#64748b', padding: '3px 7px' }}
+                          style={{ background: 'none', color: 'var(--text-dim)', padding: '3px 7px' }}
                         >
                           <Minus size={12} />
                         </button>
-                        <span style={{ fontSize: '0.82rem', fontWeight: 700, padding: '0 6px', color: '#0f172a' }}>
+                        <span style={{ fontSize: '0.82rem', fontWeight: 700, padding: '0 6px', color: 'var(--text-main)' }}>
                           {item.quantity}
                         </span>
                         <button
                           onClick={() => updateQuantity(item.id, 1)}
-                          style={{ background: 'none', color: '#64748b', padding: '3px 7px' }}
+                          style={{ background: 'none', color: 'var(--text-dim)', padding: '3px 7px' }}
                         >
                           <Plus size={12} />
                         </button>
@@ -190,26 +191,26 @@ export default function CartDrawer({ onCheckout, onLogin }) {
         {cartItems.length > 0 && (
           <div style={{
             padding: '16px 20px',
-            borderTop: '1px solid #e2e8f0',
-            background: '#f8fafc',
+            borderTop: '1px solid var(--border-subtle)',
+            background: 'var(--bg-surface)',
           }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 14 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem', color: '#64748b' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem', color: 'var(--text-dim)' }}>
                 <span>Subtotal</span>
-                <span style={{ color: '#0f172a', fontWeight: 700 }}>₹{Number(subtotal).toLocaleString('en-IN')}</span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>₹{Number(subtotal).toLocaleString('en-IN')}</span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem', color: '#64748b' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.86rem', color: 'var(--text-dim)' }}>
                 <span>Express Delivery</span>
-                <span style={{ color: '#0f172a', fontWeight: 700 }}>₹{Number(shipping).toLocaleString('en-IN')}</span>
+                <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>₹{Number(shipping).toLocaleString('en-IN')}</span>
               </div>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 fontSize: '1.2rem',
                 fontWeight: 800,
-                color: '#b45309',
+                color: 'var(--price-color)',
                 paddingTop: 8,
-                borderTop: '1px solid #e2e8f0'
+                borderTop: '1px solid var(--border-subtle)'
               }}>
                 <span>Total</span>
                 <span>₹{Number(grandTotal).toLocaleString('en-IN')}</span>

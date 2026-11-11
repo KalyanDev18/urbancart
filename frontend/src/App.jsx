@@ -1,10 +1,12 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
+import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import ChatbotWidget from './components/ChatbotWidget';
+import WelcomeSplash from './components/WelcomeSplash';
 
 import HomePage from './pages/HomePage';
 
@@ -14,12 +16,13 @@ const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
 
 const PageLoader = () => (
-  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '0.92rem', fontWeight: 600 }}>
+  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontSize: '0.92rem', fontWeight: 600 }}>
     Loading UrbanCart...
   </div>
 );
 
 function MainApp() {
+  const [showSplash, setShowSplash] = useState(true);
   const [currentPage, setCurrentPage] = useState('home');
   const [searchQuery, setSearchQuery] = useState('');
   const [completedOrder, setCompletedOrder] = useState(null);
@@ -45,8 +48,11 @@ function MainApp() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', color: 'var(--text-main)' }}>
       
+      {/* 1-Second Luxury Animated Landing Screen */}
+      {showSplash && <WelcomeSplash onDone={() => setShowSplash(false)} />}
+
       {/* Top Navbar */}
       <Navbar
         currentPage={currentPage}
@@ -121,10 +127,12 @@ function MainApp() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <CartProvider>
-        <MainApp />
-      </CartProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <CartProvider>
+          <MainApp />
+        </CartProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

@@ -39,10 +39,10 @@ export default function DealsScrollRow({ title = 'Deals on your favourites! ✨'
             <Zap size={20} strokeWidth={2.4} />
           </div>
           <div>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-main)' }}>
               {title}
             </h2>
-            <p style={{ fontSize: '0.84rem', color: '#64748b' }}>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)' }}>
               Exclusive price drops and bestselling items
             </p>
           </div>
@@ -53,18 +53,18 @@ export default function DealsScrollRow({ title = 'Deals on your favourites! ✨'
           <button
             onClick={() => scroll('left')}
             className="btn-dark"
-            style={{ width: 40, height: 40, padding: 0, borderRadius: '50%', background: '#ffffff', border: '1px solid #cbd5e1' }}
+            style={{ width: 40, height: 40, padding: 0, borderRadius: '50%', background: 'var(--bg-card)', border: '1px solid var(--border-strong)' }}
             aria-label="Scroll left"
           >
-            <ChevronLeft size={20} color="#0f172a" />
+            <ChevronLeft size={20} color="var(--text-main)" />
           </button>
           <button
             onClick={() => scroll('right')}
             className="btn-dark"
-            style={{ width: 40, height: 40, padding: 0, borderRadius: '50%', background: '#ffffff', border: '1px solid #cbd5e1' }}
+            style={{ width: 40, height: 40, padding: 0, borderRadius: '50%', background: 'var(--bg-card)', border: '1px solid var(--border-strong)' }}
             aria-label="Scroll right"
           >
-            <ChevronRight size={20} color="#0f172a" />
+            <ChevronRight size={20} color="var(--text-main)" />
           </button>
         </div>
       </div>

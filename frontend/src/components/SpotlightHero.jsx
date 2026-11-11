@@ -17,7 +17,7 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
           <Sparkles size={12} />
           In The Spotlight
         </span>
-        <span style={{ fontSize: '0.82rem', color: '#64748b', fontWeight: 500 }}>
+        <span style={{ fontSize: '0.82rem', color: 'var(--text-dim)', fontWeight: 500 }}>
           Exclusive seasonal drops curated for trendsetters
         </span>
       </div>
@@ -33,12 +33,13 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
               borderRadius: 24,
               overflow: 'hidden',
               position: 'relative',
-              background: 'linear-gradient(135deg, #fffdfa 0%, #fffbeb 40%, #fef3c7 100%)',
-              border: '1px solid #fde68a',
+              background: 'var(--bg-hero)',
+              border: '1px solid var(--border-hero)',
               boxShadow: '0 8px 30px rgba(217, 119, 6, 0.08)',
               display: 'flex',
               flexDirection: 'row',
               flexWrap: 'wrap',
+              transition: 'background 0.25s ease, border-color 0.25s ease',
             }}
           >
             {/* Left Content */}
@@ -48,21 +49,21 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
                   <span style={{ background: '#d97706', color: '#ffffff', padding: '3px 8px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 800 }}>
                     FEATURED DROP
                   </span>
-                  <span style={{ fontSize: '0.8rem', color: '#92400e', fontWeight: 600 }}>Limited Edition</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--price-color)', fontWeight: 600 }}>Limited Edition</span>
                 </div>
 
-                <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.2rem)', fontWeight: 800, color: '#0f172a', lineHeight: 1.15, marginBottom: 12 }}>
+                <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.2rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginBottom: 12 }}>
                   {mainFeature.name}
                 </h2>
-                <p style={{ fontSize: '0.9rem', color: '#475569', lineHeight: 1.5, maxWidth: 420 }}>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5, maxWidth: 420 }}>
                   {mainFeature.description || 'Engineered with premium materials and avant-garde craftsmanship.'}
                 </p>
               </div>
 
               <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontSize: '0.76rem', color: '#64748b', fontWeight: 600 }}>Special Price</div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#b45309' }}>
+                  <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', fontWeight: 600 }}>Special Price</div>
+                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--price-color)' }}>
                     ₹{Number(mainFeature.price).toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -117,23 +118,24 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
                 justifyContent: 'space-between',
                 position: 'relative',
                 overflow: 'hidden',
-                background: '#ffffff',
-                border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 20px rgba(15, 23, 42, 0.04)',
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-subtle)',
+                boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)',
                 minHeight: 180,
+                transition: 'background-color 0.25s ease, border-color 0.25s ease',
               }}
             >
               <div>
                 <span className="badge-gold" style={{ fontSize: '0.68rem', marginBottom: 8 }}>
                   {card.category}
                 </span>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a', marginTop: 6, lineHeight: 1.3 }}>
+                <h3 style={{ fontSize: '1.15rem', fontWeight: 700, color: 'var(--text-main)', marginTop: 6, lineHeight: 1.3 }}>
                   {card.name}
                 </h3>
               </div>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 14 }}>
-                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#b45309' }}>
+                <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--price-color)' }}>
                   ₹{Number(card.price).toLocaleString('en-IN')}
                 </div>
                 <button

@@ -15,11 +15,12 @@ const CATEGORIES = [
 export default function CategoryBar({ selectedCategory, onSelectCategory }) {
   return (
     <div style={{
-      background: '#ffffff',
-      borderBottom: '1px solid #e2e8f0',
+      background: 'var(--bg-secondary)',
+      borderBottom: '1px solid var(--border-subtle)',
       padding: '16px 20px',
       overflowX: 'auto',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)',
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
+      transition: 'background-color 0.25s ease, border-color 0.25s ease',
     }} className="no-scrollbar">
       <div style={{
         maxWidth: 1280,
@@ -44,7 +45,7 @@ export default function CategoryBar({ selectedCategory, onSelectCategory }) {
                 flexDirection: 'column',
                 alignItems: 'center',
                 gap: 8,
-                color: isSelected ? '#b45309' : '#64748b',
+                color: isSelected ? 'var(--price-color)' : 'var(--text-dim)',
                 transition: 'all 0.2s ease',
                 flex: 1,
               }}
@@ -54,13 +55,13 @@ export default function CategoryBar({ selectedCategory, onSelectCategory }) {
                 height: 52,
                 borderRadius: '50%',
                 background: isSelected 
-                  ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' 
-                  : '#f8fafc',
-                border: isSelected ? '2px solid #d97706' : '1px solid #e2e8f0',
+                  ? 'var(--badge-bg)' 
+                  : 'var(--bg-surface)',
+                border: isSelected ? '2px solid var(--amber-dark)' : '1px solid var(--border-subtle)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: isSelected ? '#b45309' : '#475569',
+                color: isSelected ? 'var(--price-color)' : 'var(--text-muted)',
                 boxShadow: isSelected ? '0 4px 14px rgba(217, 119, 6, 0.2)' : 'none',
                 transform: isSelected ? 'scale(1.08)' : 'scale(1)',
                 transition: 'all 0.2s ease'
