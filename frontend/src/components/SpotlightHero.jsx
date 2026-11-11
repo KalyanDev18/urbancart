@@ -9,10 +9,10 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
   const sideCards = safeSpotlight.slice(1, 3);
 
   return (
-    <div style={{ maxWidth: 1280, margin: '20px auto', padding: '0 16px' }}>
+    <div className="section-shell">
       
       {/* Top Banner Tag */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, flexWrap: 'wrap' }}>
         <span className="badge-gold">
           <Sparkles size={12} />
           In The Spotlight
@@ -27,43 +27,29 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
         
         {/* Main Hero Card */}
         {mainFeature && (
-          <div 
-            className="spotlight-hero-card"
-            style={{
-              borderRadius: 24,
-              overflow: 'hidden',
-              position: 'relative',
-              background: 'var(--bg-hero)',
-              border: '1px solid var(--border-hero)',
-              boxShadow: '0 8px 30px rgba(217, 119, 6, 0.08)',
-              display: 'flex',
-              flexDirection: 'row',
-              flexWrap: 'wrap',
-              transition: 'background 0.25s ease, border-color 0.25s ease',
-            }}
-          >
+          <div className="spotlight-hero-card">
             {/* Left Content */}
-            <div style={{ flex: '1 1 280px', padding: 'clamp(20px, 4vw, 36px)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', zIndex: 2 }}>
+            <div className="spotlight-hero-content">
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
                   <span style={{ background: '#d97706', color: '#ffffff', padding: '3px 8px', borderRadius: 8, fontSize: '0.72rem', fontWeight: 800 }}>
                     FEATURED DROP
                   </span>
                   <span style={{ fontSize: '0.8rem', color: 'var(--price-color)', fontWeight: 600 }}>Limited Edition</span>
                 </div>
 
-                <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.2rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginBottom: 12 }}>
+                <h2 style={{ fontSize: 'clamp(1.35rem, 3.8vw, 2.2rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginBottom: 10 }}>
                   {mainFeature.name}
                 </h2>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', lineHeight: 1.5, maxWidth: 420 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5, maxWidth: 420 }}>
                   {mainFeature.description || 'Engineered with premium materials and avant-garde craftsmanship.'}
                 </p>
               </div>
 
-              <div style={{ marginTop: 20, display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+              <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', fontWeight: 600 }}>Special Price</div>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--price-color)' }}>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>Special Price</div>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--price-color)' }}>
                     ₹{Number(mainFeature.price).toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -71,7 +57,7 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
                 <button
                   onClick={onShopNow}
                   className="btn-gold"
-                  style={{ padding: '10px 22px', fontSize: '0.9rem' }}
+                  style={{ padding: '10px 20px', fontSize: '0.88rem' }}
                 >
                   Explore Collection
                   <ArrowRight size={16} />
@@ -80,22 +66,13 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
             </div>
 
             {/* Right Image */}
-            <div style={{ flex: '1 1 240px', position: 'relative', minHeight: 220 }}>
+            <div className="spotlight-hero-media">
               <img
                 src={optimizeImageUrl(mainFeature.image_url, 640)}
                 alt={mainFeature.name}
                 loading="lazy"
                 decoding="async"
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  maskImage: 'linear-gradient(to right, transparent, black 25%)',
-                  WebkitMaskImage: 'linear-gradient(to right, transparent, black 25%)',
-                }}
+                className="spotlight-hero-img"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = optimizeImageUrl('', 640);

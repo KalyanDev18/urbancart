@@ -64,24 +64,13 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
 
   return (
     <div 
-      style={{ maxWidth: 1280, margin: '16px auto 24px', padding: '0 16px' }}
+      className="hero-carousel-wrap"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      <div 
-        style={{
-          position: 'relative',
-          borderRadius: 24,
-          overflow: 'hidden',
-          background: 'var(--bg-hero)',
-          border: '1px solid var(--border-hero)',
-          boxShadow: '0 10px 35px rgba(217, 119, 6, 0.1)',
-          minHeight: 380,
-          transition: 'background 0.25s ease, border-color 0.25s ease',
-        }}
-      >
+      <div className="hero-card-outer">
         {/* Navigation Arrows */}
         <button
           onClick={handlePrev}
@@ -116,115 +105,93 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
             return (
               <div 
                 key={product.id || idx}
+                className="hero-slide-inner"
                 style={{
                   flex: `0 0 ${100 / carouselItems.length}%`,
                   width: `${100 / carouselItems.length}%`,
-                  minHeight: 380,
-                  display: 'flex',
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  alignItems: 'center',
-                  gap: 20,
-                  padding: '24px clamp(18px, 5vw, 60px) 52px',
-                  boxSizing: 'border-box',
                 }}
               >
                 {/* Left Text Column */}
-                <div style={{ flex: '1 1 280px', zIndex: 10 }}>
+                <div className="hero-text-col">
                   
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
                     <span className="badge-gold">
                       <Sparkles size={13} />
                       DROP 0{idx + 1} OF 05
                     </span>
-                    <span style={{ fontSize: '0.82rem', color: 'var(--price-color)', fontWeight: 700, textTransform: 'uppercase' }}>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--price-color)', fontWeight: 700, textTransform: 'uppercase' }}>
                       {product.category}
                     </span>
                   </div>
 
                   <h2 style={{
-                    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                    fontSize: 'clamp(1.3rem, 3.8vw, 2.45rem)',
                     fontWeight: 800,
                     color: 'var(--text-main)',
                     lineHeight: 1.15,
-                    marginBottom: 12,
+                    marginBottom: 10,
                   }}>
                     {product.name}
                   </h2>
 
-                  <p style={{
-                    fontSize: 'clamp(0.86rem, 2vw, 1rem)',
+                  <p className="hero-desc" style={{
+                    fontSize: 'clamp(0.84rem, 2vw, 0.98rem)',
                     color: 'var(--text-muted)',
-                    lineHeight: 1.55,
-                    marginBottom: 18,
+                    lineHeight: 1.5,
+                    marginBottom: 14,
                     maxWidth: 480,
                   }}>
                     {product.description || 'Precision crafted with premier materials, limited stock drop available for priority express delivery.'}
                   </p>
 
                   {/* Price & Rating */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
-                    <div style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.1rem)', fontWeight: 800, color: 'var(--price-color)' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 'clamp(1.35rem, 3.5vw, 2.05rem)', fontWeight: 800, color: 'var(--price-color)' }}>
                       ₹{Number(product.price).toLocaleString('en-IN')}
                     </div>
                     {originalPrice > product.price && (
-                      <div style={{ fontSize: '1rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
+                      <div style={{ fontSize: '0.94rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                         ₹{Number(originalPrice).toLocaleString('en-IN')}
                       </div>
                     )}
-                    <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.74rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
+                    <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
                       {discount}% OFF
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '3px 8px', borderRadius: 8 }}>
                       <Star size={13} fill="#d97706" color="#d97706" />
-                      <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--badge-text)' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--badge-text)' }}>
                         {product.rating || '4.9'}
                       </span>
                     </div>
                   </div>
 
                   {/* Call to Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                  <div className="hero-cta-row" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                     <button
                       onClick={() => handleAddToCart(product)}
                       disabled={addingId === product.id}
                       className="btn-gold"
-                      style={{ padding: '11px 22px', fontSize: '0.92rem' }}
+                      style={{ padding: '11px 20px', fontSize: '0.9rem' }}
                     >
-                      <ShoppingBag size={17} />
+                      <ShoppingBag size={16} />
                       {addingId === product.id ? 'Adding...' : 'Add to Bag'}
                     </button>
 
                     <button
                       onClick={onShopNow}
                       className="btn-dark"
-                      style={{ padding: '11px 18px', fontSize: '0.92rem' }}
+                      style={{ padding: '11px 16px', fontSize: '0.9rem' }}
                     >
                       Browse All Drops
-                      <ArrowRight size={16} />
+                      <ArrowRight size={15} />
                     </button>
                   </div>
 
                 </div>
 
                 {/* Right Product Image Column */}
-                <div style={{
-                  flex: '1 1 260px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  position: 'relative',
-                }}>
-                  <div style={{
-                    position: 'relative',
-                    width: 'clamp(210px, 32vw, 350px)',
-                    height: 'clamp(210px, 32vw, 350px)',
-                    borderRadius: 24,
-                    overflow: 'hidden',
-                    boxShadow: '0 16px 40px rgba(217, 119, 6, 0.18)',
-                    background: 'var(--bg-card)',
-                    border: '2px solid var(--border-hero)'
-                  }}>
+                <div className="hero-img-col">
+                  <div className="hero-img-box">
                     <img
                       src={optimizeImageUrl(product.image_url, 640)}
                       alt={product.name}

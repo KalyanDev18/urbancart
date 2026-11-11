@@ -14,23 +14,8 @@ const CATEGORIES = [
 
 export default function CategoryBar({ selectedCategory, onSelectCategory }) {
   return (
-    <div style={{
-      background: 'var(--bg-secondary)',
-      borderBottom: '1px solid var(--border-subtle)',
-      padding: '16px 20px',
-      overflowX: 'auto',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04)',
-      transition: 'background-color 0.25s ease, border-color 0.25s ease',
-    }} className="no-scrollbar">
-      <div style={{
-        maxWidth: 1280,
-        margin: '0 auto',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 24,
-        minWidth: 700,
-      }}>
+    <div className="category-strip-wrap no-scrollbar">
+      <div className="category-strip-inner">
         {CATEGORIES.map((cat) => {
           const Icon = cat.icon;
           const isSelected = selectedCategory === cat.name;
@@ -39,39 +24,30 @@ export default function CategoryBar({ selectedCategory, onSelectCategory }) {
             <button
               key={cat.name}
               onClick={() => onSelectCategory(cat.name)}
+              className="category-item-btn"
               style={{
-                background: 'none',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 8,
                 color: isSelected ? 'var(--price-color)' : 'var(--text-dim)',
-                transition: 'all 0.2s ease',
-                flex: 1,
               }}
             >
-              <div style={{
-                width: 52,
-                height: 52,
-                borderRadius: '50%',
-                background: isSelected 
-                  ? 'var(--badge-bg)' 
-                  : 'var(--bg-surface)',
-                border: isSelected ? '2px solid var(--amber-dark)' : '1px solid var(--border-subtle)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: isSelected ? 'var(--price-color)' : 'var(--text-muted)',
-                boxShadow: isSelected ? '0 4px 14px rgba(217, 119, 6, 0.2)' : 'none',
-                transform: isSelected ? 'scale(1.08)' : 'scale(1)',
-                transition: 'all 0.2s ease'
-              }}>
-                <Icon size={22} strokeWidth={isSelected ? 2.5 : 1.9} />
+              <div
+                className="category-circle"
+                style={{
+                  background: isSelected 
+                    ? 'var(--badge-bg)' 
+                    : 'var(--bg-surface)',
+                  border: isSelected ? '2px solid var(--amber-dark)' : '1px solid var(--border-subtle)',
+                  color: isSelected ? 'var(--price-color)' : 'var(--text-muted)',
+                  boxShadow: isSelected ? '0 4px 14px rgba(217, 119, 6, 0.2)' : 'none',
+                  transform: isSelected ? 'scale(1.06)' : 'scale(1)',
+                }}
+              >
+                <Icon size={20} strokeWidth={isSelected ? 2.5 : 1.9} />
               </div>
               <span style={{
-                fontSize: '0.84rem',
+                fontSize: '0.78rem',
                 fontWeight: isSelected ? 800 : 600,
                 letterSpacing: '0.01em',
+                whiteSpace: 'nowrap',
               }}>
                 {cat.name}
               </span>

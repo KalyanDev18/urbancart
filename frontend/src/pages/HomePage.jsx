@@ -154,7 +154,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       )}
 
       {/* 5. Main Catalog Grid */}
-      <div id="catalog-grid" style={{ maxWidth: 1280, margin: '30px auto', padding: '0 16px' }}>
+      <div id="catalog-grid" className="section-shell">
         
         {/* Catalog Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
@@ -231,16 +231,16 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       <div style={{
         background: 'var(--bg-secondary)',
         borderTop: '1px solid var(--border-subtle)',
-        padding: '40px 16px',
-        marginTop: 50,
+        padding: '36px 16px',
+        marginTop: 44,
         transition: 'background-color 0.25s ease, border-color 0.25s ease',
       }}>
         <div style={{
           maxWidth: 1280,
           margin: '0 auto',
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: 24,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+          gap: 20,
         }}>
           <div style={{ display: 'flex', gap: 12 }}>
             <div style={{

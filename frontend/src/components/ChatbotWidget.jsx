@@ -63,28 +63,16 @@ export default function ChatbotWidget({ onRequireAuth }) {
   return (
     <>
       {/* Floating Launcher Button */}
-      <div style={{ position: 'fixed', bottom: 20, right: 20, zIndex: 90 }}>
+      <div className="chatbot-launcher-wrap">
         {!isOpen && (
           <button
             onClick={() => setIsOpen(true)}
-            style={{
-              width: 54,
-              height: 54,
-              borderRadius: '50%',
-              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              color: '#ffffff',
-              boxShadow: '0 6px 24px rgba(217, 119, 6, 0.35)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              border: '2px solid #ffffff',
-              transition: 'transform 0.25s ease',
-            }}
+            className="chatbot-fab"
+            aria-label="Open UrbanBot AI"
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           >
-            <Sparkles size={24} strokeWidth={2.4} />
+            <Sparkles size={21} strokeWidth={2.4} />
           </button>
         )}
       </div>
@@ -97,11 +85,10 @@ export default function ChatbotWidget({ onRequireAuth }) {
             position: 'fixed',
             bottom: 16,
             right: 16,
-            width: 'calc(100vw - 32px)',
+            width: 'calc(100vw - 24px)',
             maxWidth: 380,
-            height: 'calc(100vh - 40px)',
-            maxHeight: 560,
-            borderRadius: 24,
+            height: 'min(560px, calc(100dvh - 32px))',
+            borderRadius: 22,
             display: 'flex',
             flexDirection: 'column',
             zIndex: 100,

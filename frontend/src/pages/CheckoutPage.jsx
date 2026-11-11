@@ -65,14 +65,14 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
   };
 
   return (
-    <div style={{ maxWidth: 1100, margin: '40px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 1100, margin: 'clamp(18px, 4vw, 40px) auto', padding: '0 14px' }}>
       
       {/* Title */}
-      <div style={{ marginBottom: 32 }}>
-        <h1 style={{ fontSize: '2.1rem', fontWeight: 800, color: 'var(--text-main)' }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2.1rem)', fontWeight: 800, color: 'var(--text-main)' }}>
           Secure Checkout
         </h1>
-        <p style={{ fontSize: '0.9rem', color: 'var(--text-dim)' }}>
+        <p style={{ fontSize: '0.88rem', color: 'var(--text-dim)' }}>
           Complete your delivery details and choose a payment method
         </p>
       </div>
@@ -94,16 +94,16 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
       <form onSubmit={handleSubmit}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: 32,
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+          gap: 24,
         }}>
           
           {/* Left: Shipping & Payment Details */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             
             {/* 1. Contact & Address */}
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)', padding: 28, borderRadius: 24 }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 20 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)', padding: 'clamp(16px, 4vw, 28px)', borderRadius: 24 }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 18 }}>
                 1. Shipping Address
               </h3>
 
@@ -176,7 +176,7 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 14 }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '0.86rem', color: 'var(--text-muted)', fontWeight: 700, marginBottom: 6 }}>
                       City *
@@ -226,8 +226,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
             </div>
 
             {/* 2. Payment Method */}
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)', padding: 28, borderRadius: 24 }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 20 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)', padding: 'clamp(16px, 4vw, 28px)', borderRadius: 24 }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 18 }}>
                 2. Payment Method
               </h3>
 
@@ -336,8 +336,8 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
 
           {/* Right: Order Summary */}
           <div>
-            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)', padding: 28, borderRadius: 24, position: 'sticky', top: 90 }}>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 20 }}>
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', boxShadow: '0 4px 20px rgba(15, 23, 42, 0.06)', padding: 'clamp(16px, 4vw, 28px)', borderRadius: 24, position: 'sticky', top: 90 }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 18 }}>
                 Order Summary
               </h3>
 

@@ -82,22 +82,22 @@ function ProductCard({ product, onRequireAuth }) {
       </div>
 
       {/* Product Details */}
-      <div style={{ padding: 'clamp(10px, 2.5vw, 16px)', display: 'flex', flexDirection: 'column', gap: 8, flex: 1, justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.06em', fontWeight: 700 }}>
+      <div className="product-card-body">
+        <div style={{ minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4, gap: 6 }}>
+            <span className="product-card-cat">
               {product.category}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '2px 6px', borderRadius: 6 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '2px 6px', borderRadius: 6, flexShrink: 0 }}>
               <Star size={11} fill="#d97706" color="#d97706" />
-              <span style={{ fontSize: '0.74rem', fontWeight: 800, color: 'var(--badge-text)' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--badge-text)' }}>
                 {product.rating || '4.8'}
               </span>
             </div>
           </div>
 
           <h3 style={{
-            fontSize: 'clamp(0.85rem, 2.4vw, 0.98rem)',
+            fontSize: 'clamp(0.84rem, 2.4vw, 0.96rem)',
             fontWeight: 700,
             color: 'var(--text-main)',
             lineHeight: 1.3,
@@ -111,13 +111,13 @@ function ProductCard({ product, onRequireAuth }) {
         </div>
 
         {/* Pricing & Add to Cart button */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-subtle)', gap: 6 }}>
-          <div>
-            <div style={{ fontSize: 'clamp(0.95rem, 2.8vw, 1.2rem)', fontWeight: 800, color: 'var(--price-color)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
+        <div className="product-card-footer">
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 'clamp(0.95rem, 2.8vw, 1.18rem)', fontWeight: 800, color: 'var(--price-color)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               ₹{Number(product.price).toLocaleString('en-IN')}
             </div>
             {originalPrice > product.price && (
-              <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                 ₹{Number(originalPrice).toLocaleString('en-IN')}
               </div>
             )}
@@ -128,15 +128,15 @@ function ProductCard({ product, onRequireAuth }) {
             disabled={adding}
             className={added ? 'btn-dark' : 'btn-gold'}
             style={{
-              padding: '6px 12px',
-              fontSize: '0.78rem',
+              padding: '6px 11px',
+              fontSize: '0.76rem',
               borderRadius: 10,
               flexShrink: 0,
             }}
           >
             {added ? (
               <>
-                <Check size={14} color="#059669" />
+                <Check size={13} color="#059669" />
                 Done
               </>
             ) : (

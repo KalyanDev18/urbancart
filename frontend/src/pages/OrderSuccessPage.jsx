@@ -14,11 +14,11 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
   }
 
   return (
-    <div style={{ maxWidth: 760, margin: '50px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 760, margin: 'clamp(20px, 5vw, 50px) auto', padding: '0 14px' }}>
       <div 
         style={{
-          borderRadius: 28,
-          padding: '48px 40px',
+          borderRadius: 24,
+          padding: 'clamp(24px, 5vw, 48px) clamp(16px, 4vw, 40px)',
           textAlign: 'center',
           border: '1px solid var(--border-subtle)',
           background: 'var(--bg-card)',

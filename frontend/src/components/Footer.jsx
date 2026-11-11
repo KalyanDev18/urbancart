@@ -6,16 +6,16 @@ export default function Footer({ onNavigate }) {
     <footer style={{
       background: '#070b12',
       borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-      padding: '60px 20px 30px',
-      marginTop: 60,
+      padding: '44px 16px 28px',
+      marginTop: 52,
     }}>
       <div style={{
         maxWidth: 1280,
         margin: '0 auto',
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 40,
-        marginBottom: 40,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
+        gap: 32,
+        marginBottom: 32,
       }}>
         {/* Brand Col */}
         <div>

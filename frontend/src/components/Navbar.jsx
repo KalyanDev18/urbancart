@@ -56,42 +56,22 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
 
   return (
     <>
-    <header style={{
-      position: 'sticky',
-      top: 0,
-      zIndex: 50,
-      padding: '12px 16px',
-      background: 'rgba(9, 13, 22, 0.96)',
-      backdropFilter: 'blur(16px)',
-      WebkitBackdropFilter: 'blur(16px)',
-      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.4)',
-    }}>
+    <header className="site-header">
       <div className="nav-container">
         
         {/* Brand Logo */}
         <div 
           onClick={() => onNavigate('home')}
-          style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', flexShrink: 0 }}
+          className="nav-brand"
         >
-          <div style={{
-            width: 40,
-            height: 40,
-            borderRadius: 12,
-            background: 'linear-gradient(135deg, #f59e0b 0%, #b45309 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#090d16',
-            boxShadow: '0 4px 14px rgba(245, 158, 11, 0.35)'
-          }}>
-            <ShoppingBag size={22} strokeWidth={2.4} />
+          <div className="nav-brand-logo">
+            <ShoppingBag size={20} strokeWidth={2.4} />
           </div>
           <div>
-            <span style={{ fontSize: '1.4rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#f8fafc', display: 'block', lineHeight: 1.1 }}>
+            <span className="nav-brand-title">
               Urban<span style={{ color: '#f59e0b' }}>Cart</span>
             </span>
-            <span style={{ fontSize: '0.65rem', letterSpacing: '0.12em', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>
+            <span className="nav-brand-sub">
               Curated Luxury
             </span>
           </div>
@@ -135,7 +115,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
         </div>
 
         {/* Right Action Icons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+        <div className="nav-actions">
 
           {/* PWA Install App Button */}
           {!isInstalled && (
@@ -143,22 +123,11 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
               onClick={handleInstallClick}
               title="Install UrbanCart App"
               aria-label="Install UrbanCart App"
-              style={{
-                background: 'rgba(245, 158, 11, 0.14)',
-                border: '1px solid rgba(245, 158, 11, 0.45)',
-                borderRadius: 12,
-                padding: '8px 11px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                color: '#fbbf24',
-                fontSize: '0.78rem',
-                fontWeight: 800,
-                letterSpacing: '0.04em',
-                transition: 'all 0.2s ease',
-              }}
+              className="nav-install-btn"
             >
-              <Smartphone size={15} />
+              <span className="hide-xs" style={{ display: 'inline-flex' }}>
+                <Smartphone size={14} />
+              </span>
               <span className="hide-xs">INSTALL</span>
               <Download size={14} />
             </button>
@@ -169,51 +138,22 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
             onClick={toggleTheme}
             title={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
             aria-label={isDark ? 'Switch to Light Theme' : 'Switch to Dark Theme'}
-            style={{
-              background: '#131b2e',
-              border: '1px solid rgba(255, 255, 255, 0.14)',
-              borderRadius: 12,
-              width: 38,
-              height: 38,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: isDark ? '#fbbf24' : '#cbd5e1',
-              flexShrink: 0,
-              transition: 'all 0.2s ease',
-            }}
+            className="nav-theme-btn"
+            style={{ color: isDark ? '#fbbf24' : '#cbd5e1' }}
           >
-            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+            {isDark ? <Sun size={16} /> : <Moon size={16} />}
           </button>
 
           {/* Cart Icon & Badge */}
           <button
             onClick={() => setIsCartOpen(true)}
-            style={{
-              position: 'relative',
-              background: '#131b2e',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              borderRadius: 12,
-              padding: '8px 12px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 6,
-              color: '#f8fafc',
-              transition: 'all 0.2s ease',
-            }}
+            className="nav-cart-btn"
+            aria-label="Open Bag"
           >
-            <ShoppingBag size={18} color="#f59e0b" />
-            <span className="hide-xs" style={{ fontSize: '0.86rem', fontWeight: 700 }}>Bag</span>
+            <ShoppingBag size={16} color="#f59e0b" />
+            <span className="hide-xs" style={{ fontSize: '0.84rem', fontWeight: 700 }}>Bag</span>
             {cartCount > 0 && (
-              <span style={{
-                background: '#f59e0b',
-                color: '#090d16',
-                fontWeight: 800,
-                fontSize: '0.72rem',
-                padding: '2px 7px',
-                borderRadius: 9999,
-                lineHeight: 1,
-              }}>
+              <span className="nav-cart-badge">
                 {cartCount}
               </span>
             )}
@@ -224,32 +164,12 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
             <div style={{ position: 'relative' }}>
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 8,
-                  background: '#131b2e',
-                  border: '1px solid rgba(245, 158, 11, 0.3)',
-                  borderRadius: 12,
-                  padding: '6px 12px',
-                  color: '#f8fafc',
-                }}
+                className="nav-user-btn"
               >
-                <div style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '50%',
-                  background: '#f59e0b',
-                  color: '#090d16',
-                  fontWeight: 800,
-                  fontSize: '0.82rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
+                <div className="nav-user-avatar">
                   {user?.first_name ? user.first_name[0].toUpperCase() : 'U'}
                 </div>
-                <span style={{ fontSize: '0.86rem', fontWeight: 700, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                <span className="nav-user-name">
                   {user?.first_name || user?.username}
                 </span>
               </button>
@@ -262,6 +182,7 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                     top: 'calc(100% + 8px)',
                     right: 0,
                     width: 220,
+                    maxWidth: 'calc(100vw - 24px)',
                     borderRadius: 16,
                     padding: 8,
                     zIndex: 100,
@@ -322,10 +243,11 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
           ) : (
             <button
               onClick={() => onNavigate('login')}
-              className="btn-gold"
-              style={{ padding: '8px 18px', fontSize: '0.85rem' }}
+              className="btn-gold nav-signin-btn"
             >
-              <UserIcon size={15} />
+              <span className="hide-xs" style={{ display: 'inline-flex' }}>
+                <UserIcon size={14} />
+              </span>
               Sign In
             </button>
           )}

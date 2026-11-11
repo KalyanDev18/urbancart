@@ -589,11 +589,11 @@ export default function LoginPage({ onLoginSuccess, onBackToStore }) {
 
 const styles = {
   pageBackdrop: {
-    minHeight: 'calc(100vh - 120px)',
+    minHeight: 'calc(100dvh - 110px)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: '32px 16px 48px',
+    padding: '24px 14px 80px',
     background: '#070b13',
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
@@ -603,7 +603,7 @@ const styles = {
     background: '#0c1322',
     border: '1px solid rgba(255, 255, 255, 0.08)',
     borderRadius: '24px',
-    padding: '36px 32px',
+    padding: 'clamp(22px, 5vw, 36px) clamp(16px, 4.5vw, 32px)',
     boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.8)',
   },
   tabContainer: {
@@ -617,10 +617,11 @@ const styles = {
   },
   tabBtn: {
     flex: 1,
-    padding: '8px 10px',
+    padding: '8px 6px',
     borderRadius: '10px',
     border: 'none',
-    fontSize: '0.8rem',
+    fontSize: 'clamp(0.72rem, 2.5vw, 0.8rem)',
+    whiteSpace: 'nowrap',
     cursor: 'pointer',
     transition: 'all 0.2s',
   },

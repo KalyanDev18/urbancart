@@ -94,14 +94,14 @@ export default function DashboardPage({ onContinueShopping }) {
   const activeShipmentsCount = orders.filter((o) => o.order_status === 'Processing' || o.order_status === 'Shipped').length;
 
   return (
-    <div style={{ maxWidth: 1200, margin: '40px auto', padding: '0 20px' }}>
+    <div style={{ maxWidth: 1200, margin: 'clamp(18px, 4vw, 40px) auto', padding: '0 14px' }}>
       
       {/* Header Profile Badge */}
       <div 
         style={{
           borderRadius: 24,
-          padding: '32px 36px',
-          marginBottom: 32,
+          padding: 'clamp(18px, 4vw, 32px) clamp(16px, 4vw, 36px)',
+          marginBottom: 24,
           background: 'var(--bg-hero)',
           border: '1px solid var(--border-hero)',
           boxShadow: '0 8px 30px rgba(217, 119, 6, 0.08)',
@@ -109,39 +109,40 @@ export default function DashboardPage({ onContinueShopping }) {
           alignItems: 'center',
           justifyContent: 'space-between',
           flexWrap: 'wrap',
-          gap: 20,
+          gap: 16,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
           <div style={{
-            width: 68,
-            height: 68,
-            borderRadius: 20,
+            width: 'clamp(50px, 10vw, 68px)',
+            height: 'clamp(50px, 10vw, 68px)',
+            borderRadius: 18,
             background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '1.8rem',
+            fontSize: 'clamp(1.35rem, 4vw, 1.8rem)',
             fontWeight: 800,
             color: '#ffffff',
-            boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)'
+            boxShadow: '0 6px 20px rgba(217, 119, 6, 0.3)',
+            flexShrink: 0,
           }}>
             {user?.first_name ? user.first_name[0].toUpperCase() : 'U'}
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <h1 style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <h1 style={{ fontSize: 'clamp(1.25rem, 4vw, 1.8rem)', fontWeight: 800, color: 'var(--text-main)' }}>
                 {user?.first_name ? `${user.first_name} ${user.last_name || ''}` : user?.username}
               </h1>
               <span className="badge-gold">VIP Member</span>
             </div>
-            <p style={{ fontSize: '0.88rem', color: 'var(--text-dim)', marginTop: 4, fontWeight: 500 }}>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginTop: 4, fontWeight: 500, wordBreak: 'break-word' }}>
               {user?.email || 'Customer Account'}
             </p>
           </div>
         </div>
 
-        <button onClick={onContinueShopping} className="btn-gold" style={{ padding: '10px 22px', fontSize: '0.9rem' }}>
+        <button onClick={onContinueShopping} className="btn-gold" style={{ padding: '10px 20px', fontSize: '0.88rem' }}>
           Explore Store ➔
         </button>
       </div>
@@ -149,78 +150,80 @@ export default function DashboardPage({ onContinueShopping }) {
       {/* 4 Stat Metric Cards */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        gap: 20,
-        marginBottom: 36,
+        gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 155px), 1fr))',
+        gap: 14,
+        marginBottom: 28,
       }}>
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: 22, boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.86rem', fontWeight: 700 }}>Total Orders</span>
-            <Package size={20} color="#d97706" />
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 18, padding: 'clamp(14px, 3vw, 22px)', boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 10 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>Total Orders</span>
+            <Package size={18} color="#d97706" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
+          <div style={{ fontSize: 'clamp(1.4rem, 4vw, 1.8rem)', fontWeight: 800, color: 'var(--text-main)' }}>
             {orders.length}
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: 22, boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.86rem', fontWeight: 700 }}>Total Spent</span>
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 18, padding: 'clamp(14px, 3vw, 22px)', boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 10 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>Total Spent</span>
             <span style={{ color: 'var(--price-color)', fontWeight: 800 }}>INR</span>
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--price-color)' }}>
+          <div style={{ fontSize: 'clamp(1.4rem, 4vw, 1.8rem)', fontWeight: 800, color: 'var(--price-color)' }}>
             ₹{Number(totalSpent).toLocaleString('en-IN')}
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: 22, boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.86rem', fontWeight: 700 }}>Active Shipments</span>
-            <Truck size={20} color="#3b82f6" />
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 18, padding: 'clamp(14px, 3vw, 22px)', boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 10 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>Active Shipments</span>
+            <Truck size={18} color="#3b82f6" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--text-main)' }}>
+          <div style={{ fontSize: 'clamp(1.4rem, 4vw, 1.8rem)', fontWeight: 800, color: 'var(--text-main)' }}>
             {activeShipmentsCount}
           </div>
         </div>
 
-        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: 22, boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 12 }}>
-            <span style={{ fontSize: '0.86rem', fontWeight: 700 }}>UrbanCoins</span>
-            <Coins size={20} color="#10b981" />
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 18, padding: 'clamp(14px, 3vw, 22px)', boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-dim)', marginBottom: 10 }}>
+            <span style={{ fontSize: '0.82rem', fontWeight: 700 }}>UrbanCoins</span>
+            <Coins size={18} color="#10b981" />
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#10b981' }}>
+          <div style={{ fontSize: 'clamp(1.4rem, 4vw, 1.8rem)', fontWeight: 800, color: '#10b981' }}>
             {rewardPoints}
           </div>
-          <div style={{ fontSize: '0.76rem', color: 'var(--text-dim)', marginTop: 4 }}>
+          <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', marginTop: 4 }}>
             1 Coin = ₹1 instant discount
           </div>
         </div>
       </div>
 
       {/* Tabs Menu */}
-      <div style={{
+      <div className="no-scrollbar" style={{
         display: 'flex',
-        gap: 12,
+        gap: 6,
         borderBottom: '1px solid var(--border-subtle)',
-        marginBottom: 28,
+        marginBottom: 24,
         paddingBottom: 4,
-        flexWrap: 'wrap',
+        overflowX: 'auto',
       }}>
         <button
           onClick={() => setActiveTab('orders')}
           style={{
             background: 'none',
-            padding: '12px 18px',
-            fontSize: '0.94rem',
+            padding: '10px 14px',
+            fontSize: '0.88rem',
             fontWeight: 800,
             color: activeTab === 'orders' ? 'var(--price-color)' : 'var(--text-dim)',
             borderBottom: activeTab === 'orders' ? '2px solid #d97706' : 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 6,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
-          <Package size={17} />
+          <Package size={16} />
           Order History ({orders.length})
         </button>
 
@@ -228,17 +231,19 @@ export default function DashboardPage({ onContinueShopping }) {
           onClick={() => setActiveTab('addresses')}
           style={{
             background: 'none',
-            padding: '12px 18px',
-            fontSize: '0.94rem',
+            padding: '10px 14px',
+            fontSize: '0.88rem',
             fontWeight: 800,
             color: activeTab === 'addresses' ? 'var(--price-color)' : 'var(--text-dim)',
             borderBottom: activeTab === 'addresses' ? '2px solid #d97706' : 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 6,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
-          <MapPin size={17} />
+          <MapPin size={16} />
           Address Book ({addresses.length})
         </button>
 
@@ -246,17 +251,19 @@ export default function DashboardPage({ onContinueShopping }) {
           onClick={() => setActiveTab('profile')}
           style={{
             background: 'none',
-            padding: '12px 18px',
-            fontSize: '0.94rem',
+            padding: '10px 14px',
+            fontSize: '0.88rem',
             fontWeight: 800,
             color: activeTab === 'profile' ? 'var(--price-color)' : 'var(--text-dim)',
             borderBottom: activeTab === 'profile' ? '2px solid #d97706' : 'none',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            gap: 6,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}
         >
-          <User size={17} />
+          <User size={16} />
           Profile Settings
         </button>
       </div>
@@ -390,14 +397,14 @@ export default function DashboardPage({ onContinueShopping }) {
       {/* TAB 2: ADDRESS BOOK */}
       {activeTab === 'addresses' && (
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)' }}>
               Saved Shipping Addresses
             </h3>
             <button
               onClick={() => setShowAddAddress(!showAddAddress)}
               className="btn-gold"
-              style={{ padding: '8px 18px', fontSize: '0.84rem' }}
+              style={{ padding: '8px 16px', fontSize: '0.84rem' }}
             >
               <Plus size={16} />
               Add New Address
@@ -406,9 +413,9 @@ export default function DashboardPage({ onContinueShopping }) {
 
           {/* Add Address Form */}
           {showAddAddress && (
-            <form onSubmit={handleAddAddress} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 24, borderRadius: 20, marginBottom: 24, boxShadow: '0 4px 18px rgba(15,23,42,0.06)' }}>
+            <form onSubmit={handleAddAddress} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 'clamp(16px, 4vw, 24px)', borderRadius: 20, marginBottom: 24, boxShadow: '0 4px 18px rgba(15,23,42,0.06)' }}>
               <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 16 }}>New Address Details</h4>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))', gap: 14 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 4 }}>Full Name</label>
                   <input
@@ -459,7 +466,7 @@ export default function DashboardPage({ onContinueShopping }) {
                   />
                 </div>
               </div>
-              <div style={{ marginTop: 20, display: 'flex', gap: 12 }}>
+              <div style={{ marginTop: 20, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                 <button type="submit" className="btn-gold" style={{ padding: '10px 20px', fontSize: '0.88rem' }}>Save Address</button>
                 <button type="button" onClick={() => setShowAddAddress(false)} className="btn-dark" style={{ padding: '10px 18px', fontSize: '0.88rem' }}>Cancel</button>
               </div>
@@ -467,11 +474,11 @@ export default function DashboardPage({ onContinueShopping }) {
           )}
 
           {/* Saved Addresses List */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 260px), 1fr))', gap: 16 }}>
             {addresses.map((addr) => (
-              <div key={addr.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 22, borderRadius: 20, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 18px rgba(15,23,42,0.05)' }}>
+              <div key={addr.id} style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 20, borderRadius: 20, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', boxShadow: '0 4px 18px rgba(15,23,42,0.05)' }}>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, gap: 8 }}>
                     <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-main)' }}>{addr.full_name}</div>
                     {addr.is_default && <span className="badge-gold">Default</span>}
                   </div>
@@ -493,8 +500,8 @@ export default function DashboardPage({ onContinueShopping }) {
 
       {/* TAB 3: PROFILE SETTINGS */}
       {activeTab === 'profile' && (
-        <div style={{ maxWidth: 600, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 32, borderRadius: 24, boxShadow: '0 4px 18px rgba(15,23,42,0.06)' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 20 }}>
+        <div style={{ maxWidth: 600, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 'clamp(18px, 4vw, 32px)', borderRadius: 24, boxShadow: '0 4px 18px rgba(15,23,42,0.06)' }}>
+          <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 18 }}>
             Personal Details
           </h3>
 
