@@ -1,13 +1,16 @@
 services:
   - type: web
-    name: urbancart
+    name: urbancart-api
     runtime: python
-    buildCommand: "./build.sh"
+    plan: free
+    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python seed_diverse_products.py"
     startCommand: "gunicorn urbancart.wsgi:application"
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: DEBUG
         value: "False"
-      - key: PYTHON_VERSION
-        value: "3.13.1"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
