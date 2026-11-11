@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, User as UserIcon, Search, LogOut, Package, Sun, Moon, Smartphone, Download, X } from 'lucide-react';
+import { ShoppingBag, User as UserIcon, Search, LogOut, Package, ShieldCheck, Sun, Moon, Smartphone, Download, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useTheme } from '../context/ThemeContext';
@@ -197,6 +197,36 @@ export default function Navbar({ onNavigate, currentPage, onSearch, searchQuery 
                       {user?.email || user?.username}
                     </div>
                   </div>
+
+                  {user?.is_staff && (
+                    <button
+                      onClick={() => { setShowUserMenu(false); onNavigate('admin'); }}
+                      style={{
+                        width: '100%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 10,
+                        padding: '10px 12px',
+                        borderRadius: 10,
+                        background: 'rgba(245, 158, 11, 0.14)',
+                        border: '1px solid rgba(245, 158, 11, 0.28)',
+                        color: '#fbbf24',
+                        fontSize: '0.88rem',
+                        fontWeight: 700,
+                        textAlign: 'left',
+                        marginBottom: 4,
+                      }}
+                    >
+                      <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <ShieldCheck size={16} color="#fbbf24" />
+                        Admin Panel
+                      </span>
+                      <span style={{ fontSize: '0.66rem', padding: '2px 6px', borderRadius: 999, background: '#f59e0b', color: '#0b0f19', fontWeight: 800 }}>
+                        STAFF
+                      </span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => { setShowUserMenu(false); onNavigate('dashboard'); }}

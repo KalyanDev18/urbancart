@@ -42,6 +42,13 @@ urlpatterns = [
     path('api/chatbot/', api_views.ai_chatbot_api, name='api_chatbot'),
     path('api/support/tickets/', api_views.support_tickets_api, name='api_support_tickets'),
 
+    # Admin Control Center APIs (Staff Only)
+    path('api/admin/overview/', api_views.admin_overview_api, name='api_admin_overview'),
+    path('api/admin/orders/<int:order_id>/', api_views.admin_update_order_api, name='api_admin_order_update'),
+    path('api/admin/products/', api_views.admin_create_product_api, name='api_admin_product_create'),
+    path('api/admin/products/<int:product_id>/', api_views.admin_product_detail_api, name='api_admin_product_detail'),
+    path('api/admin/tickets/<int:ticket_id>/', api_views.admin_update_ticket_api, name='api_admin_ticket_update'),
+
     # Web Template Fallback Routes (for backward compatibility)
     path('', views.home, name='home'),
     path('welcome/', views.welcome_landing, name='welcome'),

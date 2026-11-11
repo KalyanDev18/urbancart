@@ -517,5 +517,8 @@ def seed_diverse():
     Product.objects.bulk_create(products)
     print(f"Successfully populated {Product.objects.count()} UNIQUE, distinct products in database!")
 
+    from django.core.management import call_command
+    call_command('ensure_admin')
+
 if __name__ == '__main__':
     seed_diverse()

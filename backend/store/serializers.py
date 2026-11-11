@@ -64,9 +64,21 @@ class ShippingAddressSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SupportTicketSerializer(serializers.ModelSerializer):
+    customer_name = serializers.SerializerMethodField()
+    customer_email = serializers.SerializerMethodField()
+
     class Meta:
         model = SupportTicket
         fields = [
             'id', 'order', 'issue_type', 'subject', 'message',
-            'admin_reply', 'status', 'created_at', 'updated_at'
+            'admin_reply', 'status', 'customer_name', 'customer_email',
+            'created_at', 'updated_at'
         ]
+
+    def get_customer_name(self, obj):
+        if obj.user:
+            return obj.user.first_name or obj.user.username
+        return 'Customer'
+
+    def get_customer_email(self, obj):
+        return obj.user.email if obj.user else ''

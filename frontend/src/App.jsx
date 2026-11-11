@@ -14,6 +14,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
 const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const AdminPage = lazy(() => import('./pages/AdminPage'));
 
 const PageLoader = () => (
   <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-dim)', fontSize: '0.92rem', fontWeight: 600 }}>
@@ -102,6 +103,13 @@ function MainApp() {
           {currentPage === 'dashboard' && (
             <DashboardPage
               initialTab={dashboardTab}
+              onContinueShopping={() => navigateTo('home')}
+            />
+          )}
+
+          {currentPage === 'admin' && (
+            <AdminPage
+              onRequireAuth={() => handleRequireAuth('admin')}
               onContinueShopping={() => navigateTo('home')}
             />
           )}

@@ -201,4 +201,26 @@ export const api = {
     method: 'POST',
     body: JSON.stringify(data),
   }),
+
+  // Admin Control Center (Staff Only)
+  getAdminOverview: () => request('/api/admin/overview/'),
+  adminUpdateOrder: (orderId, data) => request(`/api/admin/orders/${orderId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  adminCreateProduct: (data) => request('/api/admin/products/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  adminUpdateProduct: (productId, data) => request(`/api/admin/products/${productId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  adminDeleteProduct: (productId) => request(`/api/admin/products/${productId}/`, {
+    method: 'DELETE',
+  }),
+  adminUpdateTicket: (ticketId, data) => request(`/api/admin/tickets/${ticketId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
 };

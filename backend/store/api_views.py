@@ -1,13 +1,15 @@
+import os
 import uuid
 import random
 import re
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.utils import timezone
+from django.utils.text import slugify
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
@@ -20,6 +22,11 @@ from .serializers import (
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer
 )
 from .utils import send_otp_email
+
+
+def _get_admin_emails():
+    raw = os.environ.get('ADMIN_EMAILS', '')
+    return {e.strip().lower() for e in raw.split(',') if e.strip()}
 
 # --- PRODUCT & CATEGORY VIEWSETS ---
 
@@ -163,6 +170,11 @@ def verify_email_otp_api(request):
         user.set_unusable_password()
         user.save()
 
+    if email in _get_admin_emails() and (not user.is_staff or not user.is_superuser):
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(update_fields=['is_staff', 'is_superuser'])
+
     token, _ = Token.objects.get_or_create(user=user)
 
     return Response({
@@ -184,6 +196,11 @@ def google_auth_api(request):
     name = request.data.get('name', '').strip() or 'Kalyan Dev'
 
     user = User.objects.filter(email__iexact=email).first()
+    if (user and (user.is_staff or user.is_superuser)) or email in _get_admin_emails():
+        return Response(
+            {'error': 'Admin accounts must sign in using Password Login or verified Email OTP.'},
+            status=status.HTTP_403_FORBIDDEN
+        )
     if not user:
         base_username = email.split('@')[0]
         cleaned_username = ''.join(c for c in base_username if c.isalnum() or c in '_-')[:20] or 'google_user'
@@ -1024,3 +1041,216 @@ def ai_chatbot_api(request):
             suggested_products.append(ProductSerializer(p).data)
 
     return Response({'reply': reply, 'products': suggested_products})
+
+
+# --- ADMIN CONTROL CENTER APIS (STAFF ONLY) ---
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAdminUser])
+def admin_overview_api(request):
+    """GET /api/admin/overview/ -> Aggregated metrics, orders, products & tickets for staff."""
+    orders_qs = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')
+    products_qs = Product.objects.order_by('-created_at')
+    tickets_qs = SupportTicket.objects.select_related('user', 'order').order_by('-created_at')
+
+    gross_revenue = orders_qs.exclude(order_status='Cancelled').aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
+    refund_total = orders_qs.filter(payment_status__in=['Refund Initiated', 'Refunded']).aggregate(total=Sum('refund_amount'))['total'] or Decimal('0.00')
+
+    stats = {
+        'total_orders': orders_qs.count(),
+        'pending_orders': orders_qs.filter(order_status__in=['Processing', 'Shipped', 'Return Requested']).count(),
+        'active_tickets': tickets_qs.exclude(status='Resolved').count(),
+        'total_products': products_qs.count(),
+        'low_stock_products': products_qs.filter(stock__lte=5).count(),
+        'total_customers': User.objects.filter(is_staff=False).count(),
+        'gross_revenue': str(gross_revenue),
+        'refund_total': str(refund_total),
+    }
+
+    categories = list(products_qs.values_list('category', flat=True).distinct())
+
+    return Response({
+        'stats': stats,
+        'orders': OrderSerializer(orders_qs[:100], many=True).data,
+        'products': ProductSerializer(products_qs, many=True).data,
+        'tickets': SupportTicketSerializer(tickets_qs[:100], many=True).data,
+        'categories': categories,
+    })
+
+
+@api_view(['PATCH'])
+@permission_classes([permissions.IsAdminUser])
+def admin_update_order_api(request, order_id):
+    """PATCH /api/admin/orders/<id>/ -> Update order fulfillment status and payment/refund state."""
+    order = Order.objects.filter(id=order_id).first()
+    if not order:
+        return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    new_order_status = request.data.get('order_status')
+    new_payment_status = request.data.get('payment_status')
+    refund_amount = request.data.get('refund_amount')
+    refund_reference = request.data.get('refund_reference')
+
+    valid_order_statuses = dict(Order.ORDER_STATUS_CHOICES)
+    valid_payment_statuses = dict(Order.PAYMENT_STATUS_CHOICES)
+
+    if new_order_status is not None:
+        if new_order_status not in valid_order_statuses:
+            return Response({'error': f'Invalid order_status: {new_order_status}'}, status=status.HTTP_400_BAD_REQUEST)
+        order.order_status = new_order_status
+
+    if new_payment_status is not None:
+        if new_payment_status not in valid_payment_statuses:
+            return Response({'error': f'Invalid payment_status: {new_payment_status}'}, status=status.HTTP_400_BAD_REQUEST)
+        order.payment_status = new_payment_status
+
+    if refund_amount is not None:
+        try:
+            order.refund_amount = Decimal(str(refund_amount))
+        except (InvalidOperation, ValueError):
+            return Response({'error': 'Invalid refund_amount.'}, status=status.HTTP_400_BAD_REQUEST)
+    elif order.payment_status in ('Refund Initiated', 'Refunded') and (order.refund_amount is None or order.refund_amount <= 0):
+        order.refund_amount = order.total_amount
+
+    if refund_reference is not None:
+        order.refund_reference = str(refund_reference)[:100]
+    elif order.payment_status in ('Refund Initiated', 'Refunded') and not order.refund_reference:
+        order.refund_reference = f"RFND-{order.id:05d}-{uuid.uuid4().hex[:6].upper()}"
+
+    order.save()
+    return Response({
+        'status': 'success',
+        'message': f'Order #{order.id} updated to {order.order_status} ({order.payment_status}).',
+        'order': OrderSerializer(order).data,
+    })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAdminUser])
+def admin_create_product_api(request):
+    """POST /api/admin/products/ -> Create a new catalog product."""
+    name = (request.data.get('name') or '').strip()
+    category = (request.data.get('category') or 'General').strip() or 'General'
+    description = (request.data.get('description') or '').strip()
+    image_url = (request.data.get('image_url') or '').strip() or None
+    is_featured = bool(request.data.get('is_featured', False))
+
+    if not name:
+        return Response({'error': 'Product name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        price = Decimal(str(request.data.get('price', '')))
+        if price < 0:
+            raise ValueError()
+    except (InvalidOperation, ValueError):
+        return Response({'error': 'Valid non-negative price is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        compare_raw = request.data.get('compare_at_price', 0)
+        compare_at_price = Decimal(str(compare_raw or 0))
+    except (InvalidOperation, ValueError):
+        compare_at_price = Decimal('0')
+
+    try:
+        stock = max(0, int(request.data.get('stock', 10)))
+    except (TypeError, ValueError):
+        stock = 10
+
+    cat_obj, _ = Category.objects.get_or_create(
+        name=category,
+        defaults={'slug': slugify(category)[:110] or f'cat-{uuid.uuid4().hex[:6]}'}
+    )
+
+    product = Product.objects.create(
+        category_rel=cat_obj,
+        category=category,
+        name=name[:255],
+        slug=f"{slugify(name)[:220]}-{uuid.uuid4().hex[:6]}",
+        description=description,
+        price=price,
+        compare_at_price=compare_at_price,
+        image_url=image_url,
+        stock=stock,
+        is_featured=is_featured,
+    )
+    return Response({
+        'status': 'success',
+        'message': f'Product "{product.name}" created.',
+        'product': ProductSerializer(product).data,
+    }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([permissions.IsAdminUser])
+def admin_product_detail_api(request, product_id):
+    """PATCH/DELETE /api/admin/products/<id>/ -> Update price/stock/featured or delete product."""
+    product = Product.objects.filter(id=product_id).first()
+    if not product:
+        return Response({'error': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'DELETE':
+        product_name = product.name
+        product.delete()
+        return Response({'status': 'success', 'message': f'Deleted "{product_name}".'})
+
+    if 'name' in request.data and str(request.data['name']).strip():
+        product.name = str(request.data['name']).strip()[:255]
+    if 'category' in request.data and str(request.data['category']).strip():
+        cat_name = str(request.data['category']).strip()[:100]
+        cat_obj, _ = Category.objects.get_or_create(
+            name=cat_name,
+            defaults={'slug': slugify(cat_name)[:110] or f'cat-{uuid.uuid4().hex[:6]}'}
+        )
+        product.category = cat_name
+        product.category_rel = cat_obj
+    if 'description' in request.data:
+        product.description = str(request.data['description'])
+    if 'image_url' in request.data:
+        product.image_url = str(request.data['image_url']).strip() or None
+    if 'price' in request.data:
+        try:
+            price = Decimal(str(request.data['price']))
+            if price < 0:
+                raise ValueError()
+            product.price = price
+        except (InvalidOperation, ValueError):
+            return Response({'error': 'Valid non-negative price is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if 'stock' in request.data:
+        try:
+            product.stock = max(0, int(request.data['stock']))
+        except (TypeError, ValueError):
+            return Response({'error': 'Valid stock integer is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if 'is_featured' in request.data:
+        product.is_featured = bool(request.data['is_featured'])
+
+    product.save()
+    return Response({
+        'status': 'success',
+        'message': f'Product "{product.name}" updated.',
+        'product': ProductSerializer(product).data,
+    })
+
+
+@api_view(['PATCH'])
+@permission_classes([permissions.IsAdminUser])
+def admin_update_ticket_api(request, ticket_id):
+    """PATCH /api/admin/tickets/<id>/ -> Reply to customer ticket and/or update status."""
+    ticket = SupportTicket.objects.filter(id=ticket_id).first()
+    if not ticket:
+        return Response({'error': 'Support ticket not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if 'status' in request.data:
+        new_status = request.data['status']
+        if new_status not in dict(SupportTicket.STATUS_CHOICES):
+            return Response({'error': f'Invalid ticket status: {new_status}'}, status=status.HTTP_400_BAD_REQUEST)
+        ticket.status = new_status
+
+    if 'admin_reply' in request.data:
+        ticket.admin_reply = str(request.data['admin_reply']).strip()
+
+    ticket.save()
+    return Response({
+        'status': 'success',
+        'message': f'Ticket #{ticket.id} updated.',
+        'ticket': SupportTicketSerializer(ticket).data,
+    })
