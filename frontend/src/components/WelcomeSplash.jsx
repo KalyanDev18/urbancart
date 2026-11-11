@@ -9,6 +9,8 @@ import {
   Shirt,
   Watch,
   Laptop,
+  Truck,
+  ShieldCheck,
 } from 'lucide-react';
 import { getCachedHome, optimizeImageUrl } from '../api/client';
 
@@ -20,7 +22,7 @@ const FEATURED_FALLBACK = [
     price: 3999,
     discount: 32,
     rating: '4.9',
-    image_url: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=260&q=75',
+    image_url: 'https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=420&q=75',
   },
   {
     id: 'sp-2',
@@ -53,11 +55,11 @@ const FEATURED_FALLBACK = [
 
 function CategoryWatermark({ category }) {
   const cat = (category || '').toLowerCase();
-  if (cat.includes('foot')) return <Footprints size={34} strokeWidth={1.6} />;
-  if (cat.includes('cloth')) return <Shirt size={34} strokeWidth={1.6} />;
-  if (cat.includes('wear')) return <Watch size={34} strokeWidth={1.6} />;
-  if (cat.includes('tech') || cat.includes('elec') || cat.includes('gam')) return <Laptop size={34} strokeWidth={1.6} />;
-  return <ShoppingBag size={34} strokeWidth={1.6} />;
+  if (cat.includes('foot')) return <Footprints size={30} strokeWidth={1.6} />;
+  if (cat.includes('cloth')) return <Shirt size={30} strokeWidth={1.6} />;
+  if (cat.includes('wear')) return <Watch size={30} strokeWidth={1.6} />;
+  if (cat.includes('tech') || cat.includes('elec') || cat.includes('gam')) return <Laptop size={30} strokeWidth={1.6} />;
+  return <ShoppingBag size={30} strokeWidth={1.6} />;
 }
 
 export default function WelcomeSplash({ onDone }) {
@@ -74,13 +76,16 @@ export default function WelcomeSplash({ onDone }) {
           (p) => (p.category || '').toLowerCase() === cat.toLowerCase() && p.image_url
         );
         if (match) {
-          picks.push({ ...match, discount: match.discount_percent || 28 });
+          picks.push({ ...match, discount: match.discount_percent || 30 });
         }
       }
       if (picks.length === 4) return picks;
     }
     return FEATURED_FALLBACK;
   }, []);
+
+  const heroDeal = showcaseItems[0];
+  const miniDeals = showcaseItems.slice(1, 4);
 
   const handleSkip = () => {
     setFading(true);
@@ -90,11 +95,11 @@ export default function WelcomeSplash({ onDone }) {
   };
 
   useEffect(() => {
-    // Flipkart-style quick product showcase landing (~1.35s total)
-    const fadeTimer = setTimeout(() => setFading(true), 1150);
+    // 2-second Flipkart-style promotional poster landing screen
+    const fadeTimer = setTimeout(() => setFading(true), 1850);
     const doneTimer = setTimeout(() => {
       if (onDone) onDone();
-    }, 1400);
+    }, 2100);
 
     return () => {
       clearTimeout(fadeTimer);
@@ -108,113 +113,146 @@ export default function WelcomeSplash({ onDone }) {
       className="splash-overlay"
       style={{
         opacity: fading ? 0 : 1,
-        transform: fading ? 'scale(1.02)' : 'scale(1)',
+        transform: fading ? 'scale(1.015)' : 'scale(1)',
       }}
     >
-      {/* Top Action Bar */}
-      <div className="splash-topbar">
-        <div className="splash-live-pill">
-          <Zap size={13} fill="#fbbf24" color="#fbbf24" />
-          <span>FESTIVE DROPS LIVE</span>
-        </div>
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSkip();
-          }}
-          className="splash-skip-btn"
-        >
-          Skip
-          <ArrowRight size={13} />
-        </button>
-      </div>
-
-      {/* Center Content Container */}
-      <div className="splash-content">
-        {/* Brand Row */}
-        <div className="splash-brand-row splash-pop">
-          <div className="splash-brand-icon">
-            <ShoppingBag size={26} strokeWidth={2.4} />
-          </div>
-          <div style={{ textAlign: 'left' }}>
-            <h1 className="splash-brand-title">
+      <div className="poster-card splash-pop" onClick={(e) => e.stopPropagation()}>
+        {/* Poster Top Strip */}
+        <div className="poster-header">
+          <div className="poster-brand">
+            <div className="poster-brand-icon">
+              <ShoppingBag size={18} strokeWidth={2.5} />
+            </div>
+            <span className="poster-brand-name">
               Urban<span>Cart</span>
+            </span>
+            <span className="poster-live-pill">
+              <Zap size={11} fill="#fbbf24" color="#fbbf24" />
+              MEGA SALE LIVE
+            </span>
+          </div>
+
+          <button type="button" onClick={handleSkip} className="splash-skip-btn">
+            Skip
+            <ArrowRight size={13} />
+          </button>
+        </div>
+
+        {/* Poster Hero Split Layout */}
+        <div className="poster-body">
+          {/* Left Typography & Offer Column */}
+          <div className="poster-copy splash-fade-up">
+            <div className="poster-eyebrow">
+              <Sparkles size={12} />
+              CURATED FASHION • SNEAKERS • SMART TECH
+            </div>
+
+            <h1 className="poster-headline">
+              THE GRAND <span>URBAN</span> FEST
             </h1>
-            <div className="splash-brand-sub">
-              <Sparkles size={11} />
-              <span>Trending Fashion, Sneakers &amp; Tech</span>
+
+            <div className="poster-offer-box">
+              <div className="poster-offer-main">UP TO 40% OFF</div>
+              <div className="poster-offer-sub">+ 10% Extra UrbanCoins Cashback</div>
+            </div>
+
+            <div className="poster-perks-row">
+              <span>
+                <Truck size={13} color="#fbbf24" /> 2–4 Day Delivery
+              </span>
+              <span>
+                <ShieldCheck size={13} color="#10b981" /> 100% Authentic
+              </span>
+            </div>
+
+            <button type="button" onClick={handleSkip} className="btn-gold poster-cta-btn">
+              Explore All Deals Now
+              <ArrowRight size={16} />
+            </button>
+          </div>
+
+          {/* Right Product Collage */}
+          <div className="poster-collage splash-fade-up">
+            {/* Hero Spotlight Deal Banner Card */}
+            {heroDeal && (
+              <div className="poster-hero-tile" onClick={handleSkip}>
+                <div className="poster-hero-img-box">
+                  <div
+                    className="splash-img-placeholder"
+                    style={{ opacity: loadedMap[heroDeal.id] ? 0 : 1, transition: 'opacity 0.15s ease' }}
+                  >
+                    <CategoryWatermark category={heroDeal.category} />
+                  </div>
+                  <img
+                    src={optimizeImageUrl(heroDeal.image_url, 420)}
+                    alt={heroDeal.name}
+                    loading="eager"
+                    decoding="async"
+                    onLoad={() => setLoadedMap((m) => ({ ...m, [heroDeal.id]: true }))}
+                    style={{ opacity: loadedMap[heroDeal.id] ? 1 : 0, transition: 'opacity 0.15s ease' }}
+                  />
+                  <span className="poster-star-badge">STAR DEAL</span>
+                </div>
+
+                <div className="poster-hero-info">
+                  <span className="poster-cat-tag">{heroDeal.category}</span>
+                  <div className="poster-hero-title">{heroDeal.name}</div>
+                  <div className="poster-hero-pricing">
+                    <span className="poster-price-now">
+                      ₹{Number(heroDeal.price).toLocaleString('en-IN')}
+                    </span>
+                    <span className="poster-discount-pill">
+                      {heroDeal.discount || 32}% OFF
+                    </span>
+                  </div>
+                  <div className="poster-hero-rating">
+                    <Star size={11} fill="#fbbf24" color="#fbbf24" />
+                    <span>{heroDeal.rating || '4.9'} Bestseller Drop</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Bottom 3 Mini Product Deal Posters */}
+            <div className="poster-mini-row">
+              {miniDeals.map((item, idx) => {
+                const key = item.id || idx;
+                const isLoaded = !!loadedMap[key];
+                return (
+                  <div key={key} className="poster-mini-tile" onClick={handleSkip}>
+                    <div className="poster-mini-img-wrap">
+                      <div
+                        className="splash-img-placeholder"
+                        style={{ opacity: isLoaded ? 0 : 1, transition: 'opacity 0.15s ease' }}
+                      >
+                        <CategoryWatermark category={item.category} />
+                      </div>
+                      <img
+                        src={optimizeImageUrl(item.image_url, 240)}
+                        alt={item.name}
+                        loading="eager"
+                        decoding="async"
+                        onLoad={() => setLoadedMap((m) => ({ ...m, [key]: true }))}
+                        style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 0.15s ease' }}
+                      />
+                      <span className="splash-discount-tag">{item.discount || 28}% OFF</span>
+                    </div>
+                    <div className="poster-mini-meta">
+                      <div className="poster-mini-name">{item.name}</div>
+                      <div className="poster-mini-price">
+                        ₹{Number(item.price).toLocaleString('en-IN')}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        {/* Highlight Banner Tagline */}
-        <div className="splash-deal-banner splash-fade-up">
-          Up to <strong>40% OFF</strong> • Flash Deals Ready Inside
-        </div>
-
-        {/* Flipkart-Style Product Showcase Grid */}
-        <div className="splash-product-grid splash-fade-up">
-          {showcaseItems.map((item, idx) => {
-            const isLoaded = !!loadedMap[item.id || idx];
-            return (
-              <div
-                key={item.id || idx}
-                className="splash-product-card"
-                style={{ animationDelay: `${idx * 55}ms` }}
-              >
-                <div className="splash-product-img-wrap">
-                  <div
-                    className="splash-img-placeholder"
-                    style={{ opacity: isLoaded ? 0 : 1, transition: 'opacity 0.15s ease' }}
-                  >
-                    <CategoryWatermark category={item.category} />
-                  </div>
-                  <img
-                    src={optimizeImageUrl(item.image_url, 260)}
-                    alt={item.name}
-                    loading="eager"
-                    decoding="async"
-                    onLoad={() => setLoadedMap((m) => ({ ...m, [item.id || idx]: true }))}
-                    style={{ opacity: isLoaded ? 1 : 0, transition: 'opacity 0.15s ease' }}
-                  />
-                  <span className="splash-discount-tag">{item.discount || 30}% OFF</span>
-                </div>
-                <div className="splash-product-meta">
-                  <div className="splash-product-cat">{item.category}</div>
-                  <div className="splash-product-name">{item.name}</div>
-                  <div className="splash-product-bottom">
-                    <span className="splash-product-price">
-                      ₹{Number(item.price).toLocaleString('en-IN')}
-                    </span>
-                    <span className="splash-product-rating">
-                      <Star size={10} fill="#d97706" color="#d97706" />
-                      {item.rating || '4.8'}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Enter CTA & Progress Indicator */}
-        <div className="splash-footer">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSkip();
-            }}
-            className="btn-gold splash-enter-btn"
-          >
-            Explore Deals Now
-            <ArrowRight size={16} />
-          </button>
-
-          <div className="splash-progress-track">
-            <div className="splash-progress" />
-          </div>
+        {/* Bottom 2-Second Progress Strip */}
+        <div className="poster-progress-bar">
+          <div className="splash-progress" />
         </div>
       </div>
     </div>
