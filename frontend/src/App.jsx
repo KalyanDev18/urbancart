@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import Navbar from './components/Navbar';
@@ -7,10 +7,17 @@ import CartDrawer from './components/CartDrawer';
 import ChatbotWidget from './components/ChatbotWidget';
 
 import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import CheckoutPage from './pages/CheckoutPage';
-import OrderSuccessPage from './pages/OrderSuccessPage';
-import DashboardPage from './pages/DashboardPage';
+
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
+const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+
+const PageLoader = () => (
+  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b', fontSize: '0.92rem', fontWeight: 600 }}>
+    Loading UrbanCart...
+  </div>
+);
 
 function MainApp() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -53,41 +60,43 @@ function MainApp() {
 
       {/* Main View Router */}
       <main style={{ flex: 1 }}>
-        {currentPage === 'home' && (
-          <HomePage
-            searchQuery={searchQuery}
-            onRequireAuth={() => handleRequireAuth('home')}
-            onSelectProduct={(p) => {}}
-          />
-        )}
+        <Suspense fallback={<PageLoader />}>
+          {currentPage === 'home' && (
+            <HomePage
+              searchQuery={searchQuery}
+              onRequireAuth={() => handleRequireAuth('home')}
+              onSelectProduct={(p) => {}}
+            />
+          )}
 
-        {currentPage === 'login' && (
-          <LoginPage
-            onLoginSuccess={handleLoginSuccess}
-            onBackToStore={() => navigateTo('home')}
-          />
-        )}
+          {currentPage === 'login' && (
+            <LoginPage
+              onLoginSuccess={handleLoginSuccess}
+              onBackToStore={() => navigateTo('home')}
+            />
+          )}
 
-        {currentPage === 'checkout' && (
-          <CheckoutPage
-            onOrderSuccess={handleOrderPlaced}
-            onBackToCart={() => navigateTo('home')}
-          />
-        )}
+          {currentPage === 'checkout' && (
+            <CheckoutPage
+              onOrderSuccess={handleOrderPlaced}
+              onBackToCart={() => navigateTo('home')}
+            />
+          )}
 
-        {currentPage === 'order-success' && (
-          <OrderSuccessPage
-            order={completedOrder}
-            onContinueShopping={() => navigateTo('home')}
-            onViewOrders={() => navigateTo('dashboard')}
-          />
-        )}
+          {currentPage === 'order-success' && (
+            <OrderSuccessPage
+              order={completedOrder}
+              onContinueShopping={() => navigateTo('home')}
+              onViewOrders={() => navigateTo('dashboard')}
+            />
+          )}
 
-        {currentPage === 'dashboard' && (
-          <DashboardPage
-            onContinueShopping={() => navigateTo('home')}
-          />
-        )}
+          {currentPage === 'dashboard' && (
+            <DashboardPage
+              onContinueShopping={() => navigateTo('home')}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Slide-out Cart Drawer */}

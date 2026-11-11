@@ -5,7 +5,7 @@ services:
     plan: free
     rootDir: backend
     buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python seed_diverse_products.py"
-    startCommand: "gunicorn urbancart.wsgi:application"
+    startCommand: "gunicorn urbancart.wsgi:application --workers 2 --threads 4 --timeout 30"
     envVars:
       - key: SECRET_KEY
         generateValue: true

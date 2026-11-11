@@ -84,11 +84,7 @@ export default function DealsScrollRow({ title = 'Deals on your favourites! ✨'
         {safeProducts.map((item) => (
           <div 
             key={item.id} 
-            style={{ 
-              flex: '0 0 280px', 
-              minWidth: 280, 
-              scrollSnapAlign: 'start' 
-            }}
+            className="deals-scroll-item"
           >
             <ProductCard product={item} onRequireAuth={onRequireAuth} />
           </div>

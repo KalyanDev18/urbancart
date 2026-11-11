@@ -18,15 +18,64 @@ function getHeaders(includeAuth = true) {
   return headers;
 }
 
+export function optimizeImageUrl(url, width = 420) {
+  const fallback = `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=${width}&auto=format&fit=crop&q=75`;
+  if (!url || typeof url !== 'string') return fallback;
+  if (url.includes('images.unsplash.com')) {
+    const clean = url.split('?')[0];
+    return `${clean}?auto=format&fit=crop&w=${width}&q=75`;
+  }
+  return url;
+}
+
+const HOME_CACHE_KEY = 'urbancart_home_cache_v1';
+
+export function getCachedHome() {
+  try {
+    const raw = sessionStorage.getItem(HOME_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed && Array.isArray(parsed.products)) return parsed;
+  } catch {
+    // Ignore storage errors
+  }
+  return null;
+}
+
+export function setCachedHome(data) {
+  try {
+    if (data && Array.isArray(data.products) && data.products.length > 0) {
+      sessionStorage.setItem(HOME_CACHE_KEY, JSON.stringify(data));
+    }
+  } catch {
+    // Ignore quota errors
+  }
+}
+
 async function request(url, options = {}) {
   const finalUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
-  const response = await fetch(finalUrl, {
-    ...options,
-    headers: {
-      ...getHeaders(options.includeAuth !== false),
-      ...(options.headers || {}),
-    },
-  });
+  const controller = new AbortController();
+  const timeoutMs = options.timeout || 25000;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  let response;
+  try {
+    response = await fetch(finalUrl, {
+      ...options,
+      signal: controller.signal,
+      headers: {
+        ...getHeaders(options.includeAuth !== false),
+        ...(options.headers || {}),
+      },
+    });
+  } catch (err) {
+    if (err.name === 'AbortError') {
+      throw new Error('Server took too long to respond. Please try again in a few seconds.');
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   if (response.status === 204) {
     return null;
@@ -60,16 +109,18 @@ async function request(url, options = {}) {
 
 export const api = {
   // Catalog
+  getHomeData: () => request('/api/products/home/', { timeout: 45000 }),
   getProducts: (params = {}) => {
     const query = new URLSearchParams(params).toString();
-    return request(`/api/products/${query ? '?' + query : ''}`);
+    return request(`/api/products/${query ? '?' + query : ''}`, { timeout: 45000 });
   },
-  getSections: () => request('/api/products/sections/'),
+  getSections: () => request('/api/products/sections/', { timeout: 45000 }),
   getCategories: () => request('/api/categories/'),
 
   // Auth
   sendOtp: (email) => request('/api/auth/send-otp/', {
     method: 'POST',
+    timeout: 15000,
     body: JSON.stringify({ email }),
   }),
   verifyOtp: (email, otp) => request('/api/auth/verify-otp/', {

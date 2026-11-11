@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ChevronLeft, ChevronRight, ShoppingBag, Sparkles, ArrowRight, Star } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { optimizeImageUrl } from '../api/client';
 
 export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }) {
   const safeProducts = Array.isArray(products) ? products : [];
@@ -9,14 +10,15 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();
   const [addingId, setAddingId] = useState(null);
+  const touchStartX = useRef(null);
 
-  // Auto-slide every 1.5s (smooth 0.55s slide transition + view time)
+  // Smooth auto-slide every 1.8s (GPU slide animation + view time)
   useEffect(() => {
     if (carouselItems.length === 0 || isHovered) return;
 
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
-    }, 1500);
+    }, 1800);
 
     return () => clearInterval(timer);
   }, [carouselItems.length, isHovered]);
@@ -29,6 +31,21 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
 
   const handleNext = () => {
     setCurrentIndex((prev) => (prev + 1) % carouselItems.length);
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+    setIsHovered(true);
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current !== null) {
+      const deltaX = touchStartX.current - e.changedTouches[0].clientX;
+      if (deltaX > 40) handleNext();
+      else if (deltaX < -40) handlePrev();
+    }
+    touchStartX.current = null;
+    setIsHovered(false);
   };
 
   const handleAddToCart = async (product) => {
@@ -47,81 +64,47 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
 
   return (
     <div 
-      style={{ maxWidth: 1280, margin: '20px auto 28px', padding: '0 16px' }}
+      style={{ maxWidth: 1280, margin: '16px auto 24px', padding: '0 16px' }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <div 
         style={{
           position: 'relative',
-          borderRadius: 28,
+          borderRadius: 24,
           overflow: 'hidden',
           background: 'linear-gradient(135deg, #fffdfa 0%, #fffbeb 40%, #fef3c7 100%)',
           border: '1px solid #fde68a',
           boxShadow: '0 10px 35px rgba(217, 119, 6, 0.1)',
-          minHeight: 420,
+          minHeight: 380,
         }}
       >
         {/* Navigation Arrows */}
         <button
           onClick={handlePrev}
-          style={{
-            position: 'absolute',
-            left: 16,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 30,
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#0f172a',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
+          className="hero-arrow-btn hero-arrow-prev"
           aria-label="Previous Slide"
         >
-          <ChevronLeft size={22} />
+          <ChevronLeft size={20} />
         </button>
 
         <button
           onClick={handleNext}
-          style={{
-            position: 'absolute',
-            right: 16,
-            top: '50%',
-            transform: 'translateY(-50%)',
-            zIndex: 30,
-            width: 44,
-            height: 44,
-            borderRadius: '50%',
-            background: 'rgba(255, 255, 255, 0.95)',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 4px 14px rgba(0,0,0,0.12)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#0f172a',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-          }}
+          className="hero-arrow-btn hero-arrow-next"
           aria-label="Next Slide"
         >
-          <ChevronRight size={22} />
+          <ChevronRight size={20} />
         </button>
 
-        {/* Real Horizontal Slide Track */}
+        {/* Real GPU Horizontal Slide Track */}
         <div 
           style={{
             display: 'flex',
             width: `${carouselItems.length * 100}%`,
-            transform: `translateX(-${currentIndex * (100 / carouselItems.length)}%)`,
-            transition: 'transform 0.55s cubic-bezier(0.25, 1, 0.5, 1)',
+            transform: `translate3d(-${currentIndex * (100 / carouselItems.length)}%, 0, 0)`,
+            transition: 'transform 0.5s cubic-bezier(0.22, 1, 0.36, 1)',
             willChange: 'transform',
           }}
         >
@@ -135,17 +118,18 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                 style={{
                   flex: `0 0 ${100 / carouselItems.length}%`,
                   width: `${100 / carouselItems.length}%`,
-                  minHeight: 420,
+                  minHeight: 380,
                   display: 'flex',
                   flexDirection: 'row',
                   flexWrap: 'wrap',
                   alignItems: 'center',
-                  padding: 'clamp(24px, 5vw, 44px)',
+                  gap: 20,
+                  padding: '24px clamp(18px, 5vw, 60px) 52px',
                   boxSizing: 'border-box',
                 }}
               >
                 {/* Left Text Column */}
-                <div style={{ flex: '1 1 340px', paddingRight: 'clamp(10px, 3vw, 40px)', zIndex: 10 }}>
+                <div style={{ flex: '1 1 280px', zIndex: 10 }}>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
                     <span className="badge-gold">
@@ -158,36 +142,36 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                   </div>
 
                   <h2 style={{
-                    fontSize: 'clamp(1.7rem, 4.2vw, 2.6rem)',
+                    fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                     fontWeight: 800,
                     color: '#0f172a',
                     lineHeight: 1.15,
-                    marginBottom: 14,
+                    marginBottom: 12,
                   }}>
                     {product.name}
                   </h2>
 
                   <p style={{
-                    fontSize: 'clamp(0.88rem, 2vw, 1rem)',
+                    fontSize: 'clamp(0.86rem, 2vw, 1rem)',
                     color: '#475569',
                     lineHeight: 1.55,
-                    marginBottom: 20,
+                    marginBottom: 18,
                     maxWidth: 480,
                   }}>
                     {product.description || 'Precision crafted with premier materials, limited stock drop available for priority express delivery.'}
                   </p>
 
                   {/* Price & Rating */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 14, marginBottom: 24, flexWrap: 'wrap' }}>
-                    <div style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.2rem)', fontWeight: 800, color: '#b45309' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
+                    <div style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2.1rem)', fontWeight: 800, color: '#b45309' }}>
                       ₹{Number(product.price).toLocaleString('en-IN')}
                     </div>
                     {originalPrice > product.price && (
-                      <div style={{ fontSize: '1.05rem', color: '#94a3b8', textDecoration: 'line-through' }}>
+                      <div style={{ fontSize: '1rem', color: '#94a3b8', textDecoration: 'line-through' }}>
                         ₹{Number(originalPrice).toLocaleString('en-IN')}
                       </div>
                     )}
-                    <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.76rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
+                    <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.74rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
                       {discount}% OFF
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: '#fef3c7', padding: '3px 8px', borderRadius: 8 }}>
@@ -199,24 +183,24 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                   </div>
 
                   {/* Call to Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                     <button
                       onClick={() => handleAddToCart(product)}
                       disabled={addingId === product.id}
                       className="btn-gold"
-                      style={{ padding: '12px 26px', fontSize: '0.96rem' }}
+                      style={{ padding: '11px 22px', fontSize: '0.92rem' }}
                     >
-                      <ShoppingBag size={18} />
+                      <ShoppingBag size={17} />
                       {addingId === product.id ? 'Adding...' : 'Add to Bag'}
                     </button>
 
                     <button
                       onClick={onShopNow}
                       className="btn-dark"
-                      style={{ padding: '12px 22px', fontSize: '0.96rem', background: '#ffffff', border: '1px solid #cbd5e1' }}
+                      style={{ padding: '11px 18px', fontSize: '0.92rem', background: '#ffffff', border: '1px solid #cbd5e1' }}
                     >
                       Browse All Drops
-                      <ArrowRight size={17} />
+                      <ArrowRight size={16} />
                     </button>
                   </div>
 
@@ -224,17 +208,16 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
 
                 {/* Right Product Image Column */}
                 <div style={{
-                  flex: '1 1 300px',
+                  flex: '1 1 260px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   position: 'relative',
-                  minHeight: 280,
                 }}>
                   <div style={{
                     position: 'relative',
-                    width: 'clamp(240px, 35vw, 380px)',
-                    height: 'clamp(240px, 35vw, 380px)',
+                    width: 'clamp(210px, 32vw, 350px)',
+                    height: 'clamp(210px, 32vw, 350px)',
                     borderRadius: 24,
                     overflow: 'hidden',
                     boxShadow: '0 16px 40px rgba(217, 119, 6, 0.18)',
@@ -242,16 +225,18 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                     border: '2px solid #ffffff'
                   }}>
                     <img
-                      src={product.image_url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800'}
+                      src={optimizeImageUrl(product.image_url, 640)}
                       alt={product.name}
+                      loading={idx === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
                       style={{
                         width: '100%',
                         height: '100%',
                         objectFit: 'cover',
-                        transition: 'transform 0.4s ease',
                       }}
                       onError={(e) => {
-                        e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800';
+                        e.target.onerror = null;
+                        e.target.src = optimizeImageUrl('', 640);
                       }}
                     />
                   </div>

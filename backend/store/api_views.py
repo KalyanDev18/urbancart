@@ -22,13 +22,28 @@ from .utils import send_otp_email
 
 # --- PRODUCT & CATEGORY VIEWSETS ---
 
+def _build_sections_payload(all_products):
+    serialized = ProductSerializer(all_products, many=True).data
+    featured = [p for p in serialized if p.get('is_featured')]
+    spotlight = featured[:6] if len(featured) >= 3 else serialized[:6]
+    deals = sorted(serialized, key=lambda p: float(p.get('rating') or 0), reverse=True)[:10]
+    suggested = sorted(serialized, key=lambda p: int(p.get('id') or 0))[:10]
+    return {
+        'spotlight': spotlight,
+        'deals': deals,
+        'suggested': suggested,
+        'total_count': len(serialized),
+        'products': serialized,
+    }
+
+
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Product.objects.all().order_by('-created_at')
+    queryset = Product.objects.select_related('category_rel').order_by('-created_at')
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        qs = Product.objects.all().order_by('-created_at')
+        qs = Product.objects.select_related('category_rel').order_by('-created_at')
         cat = self.request.query_params.get('category')
         q = self.request.query_params.get('q')
         featured = self.request.query_params.get('featured')
@@ -41,27 +56,27 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
             qs = qs.filter(is_featured=True)
         return qs
 
+    def list(self, request, *args, **kwargs):
+        resp = super().list(request, *args, **kwargs)
+        resp['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=300'
+        return resp
+
     @action(detail=False, methods=['get'])
     def sections(self, request):
-        all_products = Product.objects.all().order_by('-created_at')
-        
-        # Spotlight (is_featured or top 6)
-        spotlight = all_products.filter(is_featured=True)[:6]
-        if not spotlight.exists() or spotlight.count() < 3:
-            spotlight = all_products[:6]
+        all_products = list(Product.objects.all().order_by('-created_at'))
+        payload = _build_sections_payload(all_products)
+        payload.pop('products', None)
+        resp = Response(payload)
+        resp['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=300'
+        return resp
 
-        # Deals (highest rated or discounted)
-        deals = all_products.order_by('-rating')[:10]
-
-        # Suggested
-        suggested = all_products.order_by('id')[:10]
-
-        return Response({
-            'spotlight': ProductSerializer(spotlight, many=True).data,
-            'deals': ProductSerializer(deals, many=True).data,
-            'suggested': ProductSerializer(suggested, many=True).data,
-            'total_count': all_products.count()
-        })
+    @action(detail=False, methods=['get'])
+    def home(self, request):
+        """Combined single-roundtrip endpoint for HomePage (sections + catalog)."""
+        all_products = list(Product.objects.all().order_by('-created_at'))
+        resp = Response(_build_sections_payload(all_products))
+        resp['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=300'
+        return resp
 
 
 class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
@@ -89,14 +104,22 @@ def send_email_otp_api(request):
 
     email_sent, error_msg = send_otp_email(email, otp)
     if error_msg:
-        print(f"[UrbanCart SMTP Error] {error_msg}")
-    print(f"[UrbanCart OTP API Log] Generated OTP for {email}: {otp} (Sent via SMTP: {email_sent})")
+        print(f"[UrbanCart Email Error] {error_msg}")
+    print(f"[UrbanCart OTP API Log] Generated OTP for {email}: {otp} (Sent: {email_sent})")
+
+    if not email_sent:
+        return Response({
+            'status': 'error',
+            'error': error_msg or 'Could not deliver OTP email. Please configure EMAIL_WEBHOOK_URL or BREVO_API_KEY on Render.',
+            'email': email,
+            'email_sent': False,
+        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     return Response({
         'status': 'success',
         'message': f'Verification code sent to {email}. Please check your inbox.',
         'email': email,
-        'email_sent': email_sent,
+        'email_sent': True,
     })
 
 

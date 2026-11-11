@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { optimizeImageUrl } from '../api/client';
 
 export default function SpotlightHero({ spotlightProducts, onSelectProduct, onShopNow }) {
   const safeSpotlight = Array.isArray(spotlightProducts) ? spotlightProducts : [];
@@ -80,8 +81,10 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
             {/* Right Image */}
             <div style={{ flex: '1 1 240px', position: 'relative', minHeight: 220 }}>
               <img
-                src={mainFeature.image_url || 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&auto=format&fit=crop&q=80'}
+                src={optimizeImageUrl(mainFeature.image_url, 640)}
                 alt={mainFeature.name}
+                loading="lazy"
+                decoding="async"
                 style={{
                   position: 'absolute',
                   top: 0,
@@ -91,6 +94,10 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
                   objectFit: 'cover',
                   maskImage: 'linear-gradient(to right, transparent, black 25%)',
                   WebkitMaskImage: 'linear-gradient(to right, transparent, black 25%)',
+                }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = optimizeImageUrl('', 640);
                 }}
               />
             </div>

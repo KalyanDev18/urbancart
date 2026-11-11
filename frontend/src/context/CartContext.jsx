@@ -28,7 +28,15 @@ export function CartProvider({ children }) {
   };
 
   useEffect(() => {
-    refreshCart();
+    if (isAuthenticated) {
+      refreshCart();
+    } else {
+      setCartItems([]);
+      setCartCount(0);
+      setSubtotal('0.00');
+      setShipping('0.00');
+      setGrandTotal('0.00');
+    }
   }, [isAuthenticated]);
 
   const addToCart = async (productId, quantity = 1) => {

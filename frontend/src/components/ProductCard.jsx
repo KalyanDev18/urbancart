@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { ShoppingBag, Star, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
+import { optimizeImageUrl } from '../api/client';
 
-export default function ProductCard({ product, onRequireAuth }) {
+function ProductCard({ product, onRequireAuth }) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -31,31 +32,7 @@ export default function ProductCard({ product, onRequireAuth }) {
   const originalPrice = product.original_price || product.compare_at_price || Math.round(product.price * 1.35);
 
   return (
-    <div 
-      style={{
-        background: '#ffffff',
-        borderRadius: 18,
-        overflow: 'hidden',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        border: '1px solid #e2e8f0',
-        boxShadow: '0 4px 16px rgba(15, 23, 42, 0.04)',
-        transition: 'all 0.25s ease',
-        position: 'relative',
-        width: '100%',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.transform = 'translateY(-4px)';
-        e.currentTarget.style.borderColor = '#cbd5e1';
-        e.currentTarget.style.boxShadow = '0 10px 24px rgba(15, 23, 42, 0.08)';
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = 'translateY(0)';
-        e.currentTarget.style.borderColor = '#e2e8f0';
-        e.currentTarget.style.boxShadow = '0 4px 16px rgba(15, 23, 42, 0.04)';
-      }}
-    >
+    <div className="product-card">
       {/* Discount Pill */}
       {discount > 0 && (
         <div style={{
@@ -85,8 +62,10 @@ export default function ProductCard({ product, onRequireAuth }) {
         overflow: 'hidden',
       }}>
         <img
-          src={product.image_url || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'}
+          src={optimizeImageUrl(product.image_url, 420)}
           alt={product.name}
+          loading="lazy"
+          decoding="async"
           style={{
             position: 'absolute',
             top: 0,
@@ -94,10 +73,10 @@ export default function ProductCard({ product, onRequireAuth }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            transition: 'transform 0.4s ease',
           }}
           onError={(e) => {
-            e.target.src = 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80';
+            e.target.onerror = null;
+            e.target.src = optimizeImageUrl('', 420);
           }}
         />
       </div>
@@ -173,3 +152,6 @@ export default function ProductCard({ product, onRequireAuth }) {
     </div>
   );
 }
+
+export default memo(ProductCard);
+

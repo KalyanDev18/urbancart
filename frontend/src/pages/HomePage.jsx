@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import CategoryBar from '../components/CategoryBar';
 import HeroCarousel from '../components/HeroCarousel';
 import SpotlightHero from '../components/SpotlightHero';
 import DealsScrollRow from '../components/DealsScrollRow';
 import ProductCard from '../components/ProductCard';
-import { api, HAS_BACKEND_URL } from '../api/client';
+import { api, HAS_BACKEND_URL, getCachedHome, setCachedHome } from '../api/client';
 import { ShieldCheck, Truck, RefreshCw, Zap, AlertTriangle } from 'lucide-react';
 
 const toArray = (val) => {
@@ -14,58 +14,86 @@ const toArray = (val) => {
 };
 
 export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }) {
+  const cached = useMemo(() => getCachedHome(), []);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [products, setProducts] = useState([]);
-  const [sections, setSections] = useState({ spotlight: [], deals: [], suggested: [] });
-  const [loading, setLoading] = useState(true);
+  const [allProducts, setAllProducts] = useState(() => (cached ? toArray(cached.products) : []));
+  const [sections, setSections] = useState(() => ({
+    spotlight: cached ? toArray(cached.spotlight) : [],
+    deals: cached ? toArray(cached.deals) : [],
+    suggested: cached ? toArray(cached.suggested) : [],
+  }));
+  const [loading, setLoading] = useState(!cached);
   const [apiError, setApiError] = useState('');
 
-  // Fetch sections (Spotlight, Deals, Suggested)
-  const loadSections = useCallback(() => {
-    api.getSections()
-      .then((data) => {
-        setSections({
-          spotlight: toArray(data?.spotlight),
-          deals: toArray(data?.deals),
-          suggested: toArray(data?.suggested),
-        });
-      })
-      .catch((err) => console.error('Error loading sections:', err));
+  // Single-roundtrip fetch (with fallback to legacy endpoints if backend hasn't updated /home/ yet)
+  const loadInitialData = useCallback(async () => {
+    if (allProducts.length === 0) setLoading(true);
+    setApiError('');
+    try {
+      let homePayload = null;
+      try {
+        homePayload = await api.getHomeData();
+      } catch {
+        const [secData, prodData] = await Promise.all([
+          api.getSections().catch(() => ({})),
+          api.getProducts(),
+        ]);
+        homePayload = {
+          spotlight: toArray(secData?.spotlight),
+          deals: toArray(secData?.deals),
+          suggested: toArray(secData?.suggested),
+          products: toArray(prodData),
+        };
+      }
+
+      const normalized = {
+        spotlight: toArray(homePayload?.spotlight),
+        deals: toArray(homePayload?.deals),
+        suggested: toArray(homePayload?.suggested),
+        products: toArray(homePayload?.products),
+      };
+
+      setAllProducts(normalized.products);
+      setSections({
+        spotlight: normalized.spotlight,
+        deals: normalized.deals,
+        suggested: normalized.suggested,
+      });
+      setCachedHome(normalized);
+    } catch (err) {
+      console.error('Error loading storefront:', err);
+      if (allProducts.length === 0) {
+        setApiError(err.message || 'Could not connect to backend server.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [allProducts.length]);
+
+  useEffect(() => {
+    loadInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    loadSections();
-  }, [loadSections]);
-
-  // Fetch catalog with category and search query filters
-  const loadCatalog = useCallback(() => {
-    setLoading(true);
-    setApiError('');
-    const params = {};
+  // Instant zero-latency client-side filtering across category & search
+  const safeProducts = useMemo(() => {
+    let list = toArray(allProducts);
     if (selectedCategory && selectedCategory !== 'All') {
-      params.category = selectedCategory;
+      const target = selectedCategory.toLowerCase();
+      list = list.filter((p) => (p.category || '').toLowerCase() === target);
     }
-    if (searchQuery) {
-      params.q = searchQuery;
+    if (searchQuery && searchQuery.trim()) {
+      const q = searchQuery.trim().toLowerCase();
+      list = list.filter(
+        (p) =>
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.description || '').toLowerCase().includes(q) ||
+          (p.category || '').toLowerCase().includes(q)
+      );
     }
+    return list;
+  }, [allProducts, selectedCategory, searchQuery]);
 
-    api.getProducts(params)
-      .then((data) => {
-        setProducts(toArray(data));
-      })
-      .catch((err) => {
-        console.error('Error loading catalog:', err);
-        setProducts([]);
-        setApiError(err.message || 'Could not connect to backend server.');
-      })
-      .finally(() => setLoading(false));
-  }, [selectedCategory, searchQuery]);
-
-  useEffect(() => {
-    loadCatalog();
-  }, [loadCatalog]);
-
-  const safeProducts = toArray(products);
   const safeSpotlight = toArray(sections?.spotlight);
   const safeDeals = toArray(sections?.deals);
   const safeSuggested = toArray(sections?.suggested);
@@ -73,7 +101,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
   // Top 5 products for carousel
   const carouselProducts = safeSpotlight.length >= 5
     ? safeSpotlight.slice(0, 5)
-    : (safeProducts.length >= 5 ? safeProducts.slice(0, 5) : safeSpotlight);
+    : (allProducts.length >= 5 ? allProducts.slice(0, 5) : safeSpotlight);
 
   return (
     <div>
@@ -170,7 +198,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               {apiError}
             </p>
             <button
-              onClick={() => { loadSections(); loadCatalog(); }}
+              onClick={loadInitialData}
               className="btn-gold"
               style={{ padding: '10px 20px', fontSize: '0.9rem' }}
             >

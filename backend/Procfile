@@ -1,1 +1,1 @@
-web: gunicorn urbancart.wsgi:application
+web: gunicorn urbancart.wsgi:application --workers 2 --threads 4 --timeout 30
