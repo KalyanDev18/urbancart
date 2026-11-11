@@ -7,16 +7,17 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import status, permissions
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import viewsets
 
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket
 from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
-    OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer
+    OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer
 )
 from .utils import send_otp_email
 
@@ -534,11 +535,13 @@ def user_orders_api(request):
     if not request.user.is_authenticated:
         return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
 
-    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__product').order_by('-created_at')
+    active_orders = [o for o in orders if o.order_status not in ('Cancelled', 'Returned')]
+    active_total = sum(order.total_amount for order in active_orders)
     return Response({
         'orders': OrderSerializer(orders, many=True).data,
-        'total_spent': str(sum(order.total_amount for order in orders)),
-        'reward_points': int(sum(order.total_amount for order in orders) // 10)
+        'total_spent': str(active_total),
+        'reward_points': int(active_total // 10)
     })
 
 
@@ -552,6 +555,133 @@ def order_detail_api(request, order_id):
 
     return Response({
         'order': OrderSerializer(order).data
+    })
+
+
+@api_view(['POST'])
+def cancel_order_api(request, order_id):
+    """
+    POST /api/orders/<order_id>/cancel/
+    Payload: { reason }
+    """
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    order = Order.objects.filter(id=order_id, user=request.user).first()
+    if not order:
+        return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if order.order_status not in ('Processing', 'Shipped'):
+        return Response({
+            'error': f"Order #{order.id} is already '{order.order_status}' and cannot be cancelled directly. Use Return/Refund if it was delivered."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    reason = (request.data.get('reason') or '').strip() or 'Cancelled by customer'
+    order.order_status = 'Cancelled'
+    order.cancel_reason = reason
+
+    if order.payment_status == 'Paid':
+        order.payment_status = 'Refund Initiated'
+        order.refund_amount = order.total_amount
+        order.refund_reference = f"REF-{uuid.uuid4().hex[:8].upper()}"
+        reply_note = (
+            f"Order #{order.id} cancelled successfully. Refund of ₹{order.refund_amount} has been "
+            f"initiated to your {order.payment_method} source (Ref: {order.refund_reference}). "
+            f"Amount reflects in 2–3 business days."
+        )
+        ticket_status = 'In Progress'
+    else:
+        order.refund_amount = Decimal('0.00')
+        order.refund_reference = f"CXL-{uuid.uuid4().hex[:8].upper()}"
+        reply_note = f"Order #{order.id} cancelled successfully ({order.payment_method}). No payment was deducted."
+        ticket_status = 'Resolved'
+
+    order.save()
+
+    SupportTicket.objects.create(
+        user=request.user,
+        order=order,
+        issue_type='CANCEL',
+        subject=f"Cancellation for Order #{order.id}",
+        message=f"Reason: {reason}",
+        admin_reply=reply_note,
+        status=ticket_status,
+    )
+
+    return Response({
+        'status': 'success',
+        'message': reply_note,
+        'order': OrderSerializer(order).data,
+    })
+
+
+@api_view(['POST'])
+def return_order_api(request, order_id):
+    """
+    POST /api/orders/<order_id>/return/
+    Payload: { reason, resolution: 'REFUND' | 'REPLACEMENT' }
+    """
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    order = Order.objects.filter(id=order_id, user=request.user).first()
+    if not order:
+        return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if order.order_status != 'Delivered':
+        return Response({
+            'error': f"Return requests apply to Delivered orders (current status: {order.order_status}). You can cancel active orders directly."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    if (timezone.now() - order.created_at).days > 7:
+        return Response({'error': 'The 7-day return & replacement window has expired for this order.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    resolution = (request.data.get('resolution') or 'REFUND').strip().upper()
+    if resolution not in ('REFUND', 'REPLACEMENT'):
+        resolution = 'REFUND'
+    reason = (request.data.get('reason') or '').strip() or 'Customer requested return'
+
+    order.order_status = 'Return Requested'
+    order.return_reason = f"[{resolution}] {reason}"
+
+    if resolution == 'REFUND':
+        order.refund_amount = order.total_amount
+        order.refund_reference = f"RET-{uuid.uuid4().hex[:8].upper()}"
+        if order.payment_status == 'Paid':
+            order.payment_status = 'Refund Initiated'
+            reply_note = (
+                f"Return pickup scheduled within 24–48 hrs for Order #{order.id}. "
+                f"Refund of ₹{order.refund_amount} initiated (Ref: {order.refund_reference}) once courier picks up the item."
+            )
+        else:
+            reply_note = (
+                f"Return pickup scheduled within 24–48 hrs for COD Order #{order.id} (Ref: {order.refund_reference}). "
+                f"Instant UPI refund of ₹{order.refund_amount} will be issued at pickup."
+            )
+    else:
+        order.refund_amount = Decimal('0.00')
+        order.refund_reference = f"RPL-{uuid.uuid4().hex[:8].upper()}"
+        reply_note = (
+            f"Free replacement & reverse pickup scheduled within 24–48 hrs for Order #{order.id} "
+            f"(Ref: {order.refund_reference})."
+        )
+
+    order.save()
+
+    SupportTicket.objects.create(
+        user=request.user,
+        order=order,
+        issue_type='RETURN',
+        subject=f"{resolution.title()} Request for Order #{order.id}",
+        message=reason,
+        admin_reply=reply_note,
+        status='In Progress',
+    )
+
+    return Response({
+        'status': 'success',
+        'message': reply_note,
+        'order': OrderSerializer(order).data,
     })
 
 
@@ -597,7 +727,60 @@ def delete_address_api(request, address_id):
     return Response({'status': 'success'})
 
 
-# --- AI CHATBOT API ---
+# --- SUPPORT TICKETS & CHAT SUPPORT API ---
+
+@api_view(['GET', 'POST'])
+def support_tickets_api(request):
+    """
+    GET /api/support/tickets/  -> List authenticated user's support tickets
+    POST /api/support/tickets/ -> Create a new support ticket
+    """
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    if request.method == 'POST':
+        subject = (request.data.get('subject') or '').strip()
+        message = (request.data.get('message') or '').strip()
+        issue_type = (request.data.get('issue_type') or 'OTHER').strip().upper()
+        order_id = request.data.get('order_id')
+
+        if issue_type not in dict(SupportTicket.ISSUE_CHOICES):
+            issue_type = 'OTHER'
+
+        if not subject or not message:
+            return Response({'error': 'Subject and message are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        linked_order = None
+        if order_id:
+            linked_order = Order.objects.filter(id=order_id, user=request.user).first()
+
+        user_name = request.user.first_name or request.user.username or 'Customer'
+        order_label = f" regarding Order #{linked_order.id}" if linked_order else ""
+        auto_reply = (
+            f"Hi {user_name}, UrbanCart Priority Care has received your {issue_type.lower()} request"
+            f"{order_label}. A support specialist will update you here within 2–4 hours."
+        )
+
+        ticket = SupportTicket.objects.create(
+            user=request.user,
+            order=linked_order,
+            issue_type=issue_type,
+            subject=subject[:200],
+            message=message,
+            admin_reply=auto_reply,
+            status='Open',
+        )
+        return Response({
+            'status': 'success',
+            'message': f'Support Ticket #{ticket.id} created!',
+            'ticket': SupportTicketSerializer(ticket).data,
+        }, status=status.HTTP_201_CREATED)
+
+    tickets = SupportTicket.objects.filter(user=request.user).order_by('-created_at')
+    return Response({'tickets': SupportTicketSerializer(tickets, many=True).data})
+
+
+# --- AI CHATBOT & CUSTOMER SUPPORT API ---
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
@@ -605,29 +788,87 @@ def ai_chatbot_api(request):
     message = request.data.get('message', '').strip()
     if not message:
         return Response({
-            'reply': "Hey there! 👋 I'm your UrbanKart AI Assistant. How can I help you today? You can ask me to find hoodies, sneakers, gadgets, track your order, or learn about UrbanCoins!",
+            'reply': "Hey there! 👋 I'm your UrbanCart AI & Care Assistant. Ask me to find products, track orders, cancel/return an order, check refund status, or connect to Support!",
             'products': []
         })
 
     msg_lower = message.lower()
     suggested_products = []
 
-    # 1. ORDER TRACKING & SHIPMENT
-    if any(k in msg_lower for k in ['order', 'track', 'status', 'kaha hai', 'kahan', 'parcel', 'delivery kab', 'dispatch']):
-        order_num_match = re.search(r'(?:#|order\s*(?:id\s*)?)(\d+)', msg_lower)
-        target_order = None
-
-        if order_num_match:
-            order_id = int(order_num_match.group(1))
+    def _find_target_order():
+        match = re.search(r'(?:#|order\s*(?:id\s*)?)(\d+)', msg_lower)
+        if match:
+            oid = int(match.group(1))
             if request.user.is_authenticated:
-                target_order = Order.objects.filter(id=order_id, user=request.user).first()
-            if not target_order:
-                target_order = Order.objects.filter(id=order_id).first()
-        elif request.user.is_authenticated:
-            target_order = Order.objects.filter(user=request.user).order_by('-created_at').first()
+                found = Order.objects.filter(id=oid, user=request.user).first()
+                if found:
+                    return found
+            return Order.objects.filter(id=oid).first()
+        if request.user.is_authenticated:
+            return Order.objects.filter(user=request.user).order_by('-created_at').first()
+        return None
+
+    # 1. CANCEL, RETURN, REFUND & CUSTOMER CARE SUPPORT
+    if any(k in msg_lower for k in [
+        'return', 'refund', 'exchange', 'replace', 'wapas', 'cancel', 'paisa', 'paise',
+        'support', 'agent', 'human', 'customer care', 'complaint', 'help desk', 'issue', 'problem', 'madad', 'talk to'
+    ]):
+        target_order = _find_target_order()
+
+        if any(k in msg_lower for k in ['support', 'agent', 'human', 'customer care', 'complaint', 'help desk', 'madad', 'talk to']):
+            reply = (
+                "🎧 **UrbanCart Priority Chat Support:**\n\n"
+                "• **Live Ticket Desk:** Tap **Raise Support Ticket** below to send your issue directly to our care team (2–4 hr SLA).\n"
+                "• **Self-Service Cancel / Return:** Go to **Dashboard ➔ Order History** for instant 1-click cancellation & 7-day returns.\n"
+                "• **Email Care:** urbancart.care@support.in"
+            )
+            return Response({'reply': reply, 'products': [], 'action': 'open_support'})
+
+        if target_order:
+            if target_order.order_status in ('Cancelled', 'Return Requested', 'Returned'):
+                refund_line = (
+                    f"• **Refund Status:** {target_order.payment_status} — ₹{target_order.refund_amount or target_order.total_amount}\n"
+                    f"• **Reference ID:** {target_order.refund_reference or 'Processing'}"
+                )
+                reply = (
+                    f"🔄 **Order #{target_order.id} ({target_order.order_status})**\n\n"
+                    f"{refund_line}\n"
+                    f"• **Timeline:** Refunds settle in **2–3 business days** to your original payment method."
+                )
+                return Response({'reply': reply, 'products': [], 'action': 'open_orders'})
+
+            eligibility = (
+                "Eligible for **Instant 1-Click Cancel**"
+                if target_order.order_status in ('Processing', 'Shipped')
+                else "Eligible for **7-Day Free Return / Replacement**"
+            )
+            reply = (
+                f"📦 **Order #{target_order.id} Cancel / Return Help:**\n\n"
+                f"• **Current Status:** {target_order.order_status}\n"
+                f"• **Eligibility:** {eligibility}\n"
+                f"• **Order Value:** ₹{target_order.total_amount} ({target_order.payment_status})\n\n"
+                "Tap **Manage Orders** below to cancel or schedule a doorstep return pickup immediately!"
+            )
+            return Response({'reply': reply, 'products': [], 'action': 'open_orders'})
+
+        reply = (
+            "🔄 **UrbanCart Cancel, Return & Instant Refund Policy:**\n\n"
+            "• **Instant Cancel:** Processing / Shipped orders can be cancelled in 1 click from **Dashboard ➔ Orders**.\n"
+            "• **7-Day Hassle-Free Return:** Free reverse doorstep pickup within 7 days of delivery.\n"
+            "• **Fast Refunds:** Automatic refund to original UPI / Card within **2–3 business days** with tracking Ref ID."
+        )
+        return Response({'reply': reply, 'products': [], 'action': 'open_orders'})
+
+    # 2. ORDER TRACKING & SHIPMENT
+    if any(k in msg_lower for k in ['order', 'track', 'status', 'kaha hai', 'kahan', 'parcel', 'delivery kab', 'dispatch']):
+        target_order = _find_target_order()
 
         if target_order:
             status_emoji = '🚚' if target_order.order_status == 'Shipped' else ('🎉' if target_order.order_status == 'Delivered' else '📦')
+            refund_extra = (
+                f"\n• **Refund Ref:** {target_order.refund_reference} (₹{target_order.refund_amount})"
+                if target_order.refund_reference else ""
+            )
             reply = (
                 f"{status_emoji} **Order #{target_order.id} Status:**\n\n"
                 f"• **Current Stage:** {target_order.order_status}\n"
@@ -635,8 +876,9 @@ def ai_chatbot_api(request):
                 f"• **Payment:** {target_order.payment_status} ({target_order.get_payment_method_display()})\n"
                 f"• **Destination:** {target_order.city} ({target_order.postal_code})\n"
                 f"• **Estimated Delivery:** 2 to 3 business days via Express Courier."
+                f"{refund_extra}"
             )
-            return Response({'reply': reply, 'products': []})
+            return Response({'reply': reply, 'products': [], 'action': 'open_orders'})
         elif not request.user.is_authenticated:
             reply = "To track your orders instantly, please sign in with OTP or tell me your specific Order ID (e.g. 'Track order #1')."
             return Response({'reply': reply, 'products': []})
@@ -647,7 +889,7 @@ def ai_chatbot_api(request):
                 suggested_products.append(ProductSerializer(p).data)
             return Response({'reply': reply, 'products': suggested_products})
 
-    # 2. URBANCOINS & LOYALTY
+    # 3. URBANCOINS & LOYALTY
     if any(k in msg_lower for k in ['coin', 'reward', 'points', 'loyalty', 'cashback', 'urbancoin', 'coupon']):
         reply = (
             "🪙 **UrbanCoins VIP Rewards Program:**\n\n"
@@ -658,22 +900,13 @@ def ai_chatbot_api(request):
         )
         return Response({'reply': reply, 'products': []})
 
-    # 3. SHIPPING & PAYMENT
+    # 4. SHIPPING & PAYMENT
     if any(k in msg_lower for k in ['shipping', 'delivery charge', 'charges kitna', 'kab aayega', 'cod', 'payment method', 'free delivery']):
         reply = (
             "⚡ **Shipping & Payment Options:**\n\n"
             "• **Express Delivery:** Pan-India delivery within 2 to 4 business days.\n"
             "• **Flat Fee:** Express shipping is ₹99.\n"
             "• **Payment Modes:** UPI (GPay, PhonePe, Paytm), Cards (Visa/Mastercard/RuPay), and Cash on Delivery (COD) are all supported!"
-        )
-        return Response({'reply': reply, 'products': []})
-
-    # 4. RETURNS & REFUNDS
-    if any(k in msg_lower for k in ['return', 'refund', 'exchange', 'replace', 'wapas', 'cancel']):
-        reply = (
-            "🔄 **UrbanKart 7-Day Hassle-Free Returns:**\n\n"
-            "• We offer a **7-Day Return & Replacement Policy** on all streetwear apparel, footwear, and tech accessories.\n"
-            "• Items must be unused in original packaging."
         )
         return Response({'reply': reply, 'products': []})
 

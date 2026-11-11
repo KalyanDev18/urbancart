@@ -31,13 +31,16 @@ urlpatterns = [
     path('api/checkout/', api_views.checkout_api, name='api_checkout'),
     path('api/orders/my-orders/', api_views.user_orders_api, name='api_my_orders'),
     path('api/orders/<int:order_id>/', api_views.order_detail_api, name='api_order_detail'),
+    path('api/orders/<int:order_id>/cancel/', api_views.cancel_order_api, name='api_order_cancel'),
+    path('api/orders/<int:order_id>/return/', api_views.return_order_api, name='api_order_return'),
 
     # Addresses APIs
     path('api/addresses/', api_views.user_addresses_api, name='api_addresses'),
     path('api/addresses/<int:address_id>/', api_views.delete_address_api, name='api_delete_address'),
 
-    # AI Chatbot API
+    # AI Chatbot & Support Tickets APIs
     path('api/chatbot/', api_views.ai_chatbot_api, name='api_chatbot'),
+    path('api/support/tickets/', api_views.support_tickets_api, name='api_support_tickets'),
 
     # Web Template Fallback Routes (for backward compatibility)
     path('', views.home, name='home'),

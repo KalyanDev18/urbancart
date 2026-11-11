@@ -1,17 +1,99 @@
 import React, { useState, useEffect } from 'react';
-import { Package, MapPin, User, Coins, Truck, Trash2, Plus } from 'lucide-react';
+import {
+  Package,
+  MapPin,
+  User,
+  Coins,
+  Truck,
+  Trash2,
+  Plus,
+  Headphones,
+  RotateCcw,
+  XCircle,
+  RefreshCw,
+  X,
+  CheckCircle2,
+  AlertCircle,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 
-export default function DashboardPage({ onContinueShopping }) {
+const CANCEL_REASONS = [
+  'Ordered by mistake',
+  'Changed payment or address',
+  'Found a better price',
+  'Delivery taking too long',
+];
+
+const RETURN_REASONS = [
+  'Size or fit issue',
+  'Defective or damaged item',
+  'Wrong item delivered',
+  'Quality not as expected',
+];
+
+function getStatusPillStyle(orderStatus) {
+  switch (orderStatus) {
+    case 'Delivered':
+      return {
+        background: 'rgba(16, 185, 129, 0.12)',
+        color: '#10b981',
+        border: '1px solid rgba(16, 185, 129, 0.32)',
+      };
+    case 'Shipped':
+      return {
+        background: 'rgba(59, 130, 246, 0.12)',
+        color: '#3b82f6',
+        border: '1px solid rgba(59, 130, 246, 0.32)',
+      };
+    case 'Cancelled':
+      return {
+        background: 'rgba(239, 68, 68, 0.12)',
+        color: '#ef4444',
+        border: '1px solid rgba(239, 68, 68, 0.32)',
+      };
+    case 'Return Requested':
+    case 'Returned':
+      return {
+        background: 'rgba(168, 85, 247, 0.14)',
+        color: '#c084fc',
+        border: '1px solid rgba(168, 85, 247, 0.35)',
+      };
+    default:
+      return {
+        background: 'var(--badge-bg)',
+        color: 'var(--badge-text)',
+        border: '1px solid var(--badge-border)',
+      };
+  }
+}
+
+export default function DashboardPage({ onContinueShopping, initialTab = 'orders' }) {
   const { user, updateProfile } = useAuth();
-  
-  const [activeTab, setActiveTab] = useState('orders');
+
+  const [activeTab, setActiveTab] = useState(initialTab || 'orders');
   const [orders, setOrders] = useState([]);
   const [addresses, setAddresses] = useState([]);
+  const [tickets, setTickets] = useState([]);
   const [totalSpent, setTotalSpent] = useState('0');
   const [rewardPoints, setRewardPoints] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  // Cancel / Return modal state
+  const [actionModal, setActionModal] = useState(null); // { mode: 'cancel' | 'return', order }
+  const [actionReason, setActionReason] = useState('');
+  const [returnResolution, setReturnResolution] = useState('REFUND');
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionError, setActionError] = useState('');
+  const [actionBanner, setActionBanner] = useState('');
+
+  // Support ticket state
+  const [supportOrderId, setSupportOrderId] = useState('');
+  const [supportIssueType, setSupportIssueType] = useState('REFUND');
+  const [supportSubject, setSupportSubject] = useState('');
+  const [supportMessage, setSupportMessage] = useState('');
+  const [supportLoading, setSupportLoading] = useState(false);
+  const [supportFeedback, setSupportFeedback] = useState('');
 
   // Edit profile state
   const [firstName, setFirstName] = useState(user?.first_name || '');
@@ -27,17 +109,23 @@ export default function DashboardPage({ onContinueShopping }) {
   const [newState, setNewState] = useState('');
   const [newPostal, setNewPostal] = useState('');
 
+  useEffect(() => {
+    if (initialTab) setActiveTab(initialTab);
+  }, [initialTab]);
+
   const loadData = async () => {
     setLoading(true);
     try {
-      const [orderRes, addrRes] = await Promise.all([
+      const [orderRes, addrRes, ticketRes] = await Promise.all([
         api.getMyOrders().catch(() => ({ orders: [], total_spent: '0', reward_points: 0 })),
         api.getAddresses().catch(() => ({ addresses: [] })),
+        api.getSupportTickets().catch(() => ({ tickets: [] })),
       ]);
       setOrders(Array.isArray(orderRes?.orders) ? orderRes.orders : []);
       setTotalSpent(orderRes?.total_spent || '0');
       setRewardPoints(orderRes?.reward_points || 0);
       setAddresses(Array.isArray(addrRes?.addresses) ? addrRes.addresses : []);
+      setTickets(Array.isArray(ticketRes?.tickets) ? ticketRes.tickets : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -48,6 +136,66 @@ export default function DashboardPage({ onContinueShopping }) {
   useEffect(() => {
     loadData();
   }, []);
+
+  const openActionModal = (mode, order) => {
+    setActionError('');
+    setActionReason(mode === 'cancel' ? CANCEL_REASONS[0] : RETURN_REASONS[0]);
+    setReturnResolution('REFUND');
+    setActionModal({ mode, order });
+  };
+
+  const handleConfirmAction = async (e) => {
+    e.preventDefault();
+    if (!actionModal?.order) return;
+    setActionLoading(true);
+    setActionError('');
+    try {
+      const { mode, order } = actionModal;
+      const res =
+        mode === 'cancel'
+          ? await api.cancelOrder(order.id, actionReason)
+          : await api.returnOrder(order.id, { reason: actionReason, resolution: returnResolution });
+
+      setActionModal(null);
+      setActionBanner(res?.message || `Order #${order.id} updated successfully!`);
+      await loadData();
+    } catch (err) {
+      setActionError(err.message || 'Could not process your request.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleOpenSupportForOrder = (order) => {
+    setSupportOrderId(String(order.id));
+    setSupportIssueType(order.order_status === 'Delivered' ? 'RETURN' : 'CANCEL');
+    setSupportSubject(`Help with Order #${order.id}`);
+    setSupportFeedback('');
+    setActiveTab('support');
+  };
+
+  const handleSupportSubmit = async (e) => {
+    e.preventDefault();
+    if (!supportSubject.trim() || !supportMessage.trim()) return;
+    setSupportLoading(true);
+    setSupportFeedback('');
+    try {
+      const res = await api.createSupportTicket({
+        order_id: supportOrderId ? Number(supportOrderId) : null,
+        issue_type: supportIssueType,
+        subject: supportSubject.trim(),
+        message: supportMessage.trim(),
+      });
+      setSupportFeedback(res?.message || 'Support ticket submitted! Our care team will respond within 2–4 hours.');
+      setSupportSubject('');
+      setSupportMessage('');
+      await loadData();
+    } catch (err) {
+      setSupportFeedback(err.message || 'Failed to submit ticket.');
+    } finally {
+      setSupportLoading(false);
+    }
+  };
 
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
@@ -92,12 +240,15 @@ export default function DashboardPage({ onContinueShopping }) {
   };
 
   const activeShipmentsCount = orders.filter((o) => o.order_status === 'Processing' || o.order_status === 'Shipped').length;
+  const refundedOrders = orders.filter(
+    (o) => o.refund_reference || o.payment_status === 'Refund Initiated' || o.payment_status === 'Refunded'
+  );
 
   return (
     <div style={{ maxWidth: 1200, margin: 'clamp(18px, 4vw, 40px) auto', padding: '0 14px' }}>
-      
+
       {/* Header Profile Badge */}
-      <div 
+      <div
         style={{
           borderRadius: 24,
           padding: 'clamp(18px, 4vw, 32px) clamp(16px, 4vw, 36px)',
@@ -228,6 +379,26 @@ export default function DashboardPage({ onContinueShopping }) {
         </button>
 
         <button
+          onClick={() => setActiveTab('support')}
+          style={{
+            background: 'none',
+            padding: '10px 14px',
+            fontSize: '0.88rem',
+            fontWeight: 800,
+            color: activeTab === 'support' ? 'var(--price-color)' : 'var(--text-dim)',
+            borderBottom: activeTab === 'support' ? '2px solid #d97706' : 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}
+        >
+          <Headphones size={16} />
+          Support &amp; Refunds ({tickets.length})
+        </button>
+
+        <button
           onClick={() => setActiveTab('addresses')}
           style={{
             background: 'none',
@@ -268,6 +439,32 @@ export default function DashboardPage({ onContinueShopping }) {
         </button>
       </div>
 
+      {/* Action Confirmation Banner */}
+      {actionBanner && (
+        <div style={{
+          background: 'rgba(16, 185, 129, 0.12)',
+          border: '1px solid rgba(16, 185, 129, 0.35)',
+          color: '#10b981',
+          padding: '12px 16px',
+          borderRadius: 14,
+          marginBottom: 20,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 10,
+          fontSize: '0.88rem',
+          fontWeight: 600,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CheckCircle2 size={18} style={{ flexShrink: 0 }} />
+            <span>{actionBanner}</span>
+          </div>
+          <button onClick={() => setActionBanner('')} style={{ background: 'none', color: 'inherit' }}>
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
       {/* TAB 1: ORDER HISTORY */}
       {activeTab === 'orders' && (
         <div>
@@ -287,15 +484,22 @@ export default function DashboardPage({ onContinueShopping }) {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {orders.map((order) => {
-                const isDelivered = order.order_status === 'Delivered';
-                const isShipped = order.order_status === 'Shipped';
+                const canCancel = order.order_status === 'Processing' || order.order_status === 'Shipped';
+                const canReturn = order.order_status === 'Delivered';
+                const hasRefund =
+                  Boolean(order.refund_reference) ||
+                  order.payment_status === 'Refund Initiated' ||
+                  order.payment_status === 'Refunded' ||
+                  order.order_status === 'Cancelled' ||
+                  order.order_status === 'Return Requested' ||
+                  order.order_status === 'Returned';
 
                 return (
                   <div
                     key={order.id}
                     style={{
                       borderRadius: 20,
-                      padding: 24,
+                      padding: 'clamp(16px, 3vw, 24px)',
                       display: 'flex',
                       flexDirection: 'column',
                       gap: 16,
@@ -311,12 +515,12 @@ export default function DashboardPage({ onContinueShopping }) {
                       alignItems: 'center',
                       flexWrap: 'wrap',
                       gap: 12,
-                      paddingBottom: 16,
+                      paddingBottom: 14,
                       borderBottom: '1px solid var(--border-subtle)'
                     }}>
                       <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                          <span style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: '1.12rem', fontWeight: 800, color: 'var(--text-main)' }}>
                             Order #{order.id}
                           </span>
                           <span style={{
@@ -324,9 +528,7 @@ export default function DashboardPage({ onContinueShopping }) {
                             fontWeight: 800,
                             padding: '3px 10px',
                             borderRadius: 9999,
-                            background: isDelivered ? 'rgba(16, 185, 129, 0.12)' : (isShipped ? 'rgba(59, 130, 246, 0.12)' : 'var(--badge-bg)'),
-                            color: isDelivered ? '#10b981' : (isShipped ? '#3b82f6' : 'var(--badge-text)'),
-                            border: `1px solid ${isDelivered ? 'rgba(16, 185, 129, 0.3)' : (isShipped ? 'rgba(59, 130, 246, 0.3)' : 'var(--badge-border)')}`
+                            ...getStatusPillStyle(order.order_status),
                           }}>
                             {order.order_status}
                           </span>
@@ -337,11 +539,11 @@ export default function DashboardPage({ onContinueShopping }) {
                       </div>
 
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--price-color)' }}>
+                        <div style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--price-color)' }}>
                           ₹{Number(order.total_amount).toLocaleString('en-IN')}
                         </div>
                         <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
-                          Payment: {order.payment_status}
+                          {order.payment_method} • {order.payment_status}
                         </div>
                       </div>
                     </div>
@@ -349,41 +551,127 @@ export default function DashboardPage({ onContinueShopping }) {
                     {/* Order Items */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                       {order.items?.map((item, idx) => (
-                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                           {item.product_image && (
                             <img
                               src={item.product_image}
                               alt={item.product_name}
-                              style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)' }}
+                              style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', flexShrink: 0 }}
                             />
                           )}
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: '0.92rem', fontWeight: 700, color: 'var(--text-main)' }}>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>
                               {item.product_name}
                             </div>
                             <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
                               Qty: {item.quantity} × ₹{Number(item.price).toLocaleString('en-IN')}
                             </div>
                           </div>
-                          <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--price-color)' }}>
+                          <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--price-color)' }}>
                             ₹{Number(item.get_total_price || (item.price * item.quantity)).toLocaleString('en-IN')}
                           </div>
                         </div>
                       ))}
                     </div>
 
-                    {/* Address Footer */}
+                    {/* Cancel / Return / Refund Status Box */}
+                    {hasRefund && (
+                      <div style={{
+                        background: 'var(--bg-surface)',
+                        border: '1px solid var(--border-subtle)',
+                        borderRadius: 12,
+                        padding: '10px 14px',
+                        fontSize: '0.82rem',
+                        color: 'var(--text-muted)',
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        gap: 8,
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <RefreshCw size={15} color="#10b981" />
+                          <span>
+                            <strong>{order.payment_status}</strong>
+                            {Number(order.refund_amount) > 0 && ` • ₹${Number(order.refund_amount).toLocaleString('en-IN')}`}
+                            {(order.cancel_reason || order.return_reason) && ` — ${order.cancel_reason || order.return_reason}`}
+                          </span>
+                        </div>
+                        {order.refund_reference && (
+                          <span style={{ fontWeight: 800, color: 'var(--price-color)', fontSize: '0.76rem' }}>
+                            Ref: {order.refund_reference}
+                          </span>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Address & Cancel / Return / Support Actions Footer */}
                     <div style={{
                       paddingTop: 12,
                       borderTop: '1px solid var(--border-subtle)',
-                      fontSize: '0.82rem',
-                      color: 'var(--text-dim)',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: 6
+                      justifyContent: 'space-between',
+                      flexWrap: 'wrap',
+                      gap: 12,
                     }}>
-                      <MapPin size={14} color="#d97706" />
-                      Shipped to: {order.address}, {order.city} - {order.postal_code}
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-dim)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <MapPin size={14} color="#d97706" />
+                        <span>Shipped to: {order.address}, {order.city} - {order.postal_code}</span>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                        {canCancel && (
+                          <button
+                            onClick={() => openActionModal('cancel', order)}
+                            style={{
+                              background: 'rgba(239, 68, 68, 0.1)',
+                              border: '1px solid rgba(239, 68, 68, 0.35)',
+                              color: '#ef4444',
+                              padding: '7px 12px',
+                              borderRadius: 10,
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                            }}
+                          >
+                            <XCircle size={14} />
+                            Cancel Order
+                          </button>
+                        )}
+
+                        {canReturn && (
+                          <button
+                            onClick={() => openActionModal('return', order)}
+                            style={{
+                              background: 'var(--badge-bg)',
+                              border: '1px solid var(--badge-border)',
+                              color: 'var(--badge-text)',
+                              padding: '7px 12px',
+                              borderRadius: 10,
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 5,
+                            }}
+                          >
+                            <RotateCcw size={14} />
+                            Return / Refund
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => handleOpenSupportForOrder(order)}
+                          className="btn-dark"
+                          style={{ padding: '7px 12px', fontSize: '0.78rem', borderRadius: 10 }}
+                        >
+                          <Headphones size={14} />
+                          Need Help
+                        </button>
+                      </div>
                     </div>
 
                   </div>
@@ -394,7 +682,166 @@ export default function DashboardPage({ onContinueShopping }) {
         </div>
       )}
 
-      {/* TAB 2: ADDRESS BOOK */}
+      {/* TAB 2: SUPPORT & REFUNDS */}
+      {activeTab === 'support' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: 22 }}>
+          {/* Raise Support Ticket Form */}
+          <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 'clamp(18px, 4vw, 28px)', borderRadius: 24, boxShadow: '0 4px 18px rgba(15,23,42,0.06)' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 6 }}>
+              Chat &amp; Customer Care Desk
+            </h3>
+            <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)', marginBottom: 16 }}>
+              Raise a ticket for refunds, returns, or urgent order help (2–4 hr response SLA).
+            </p>
+
+            {supportFeedback && (
+              <div style={{ background: 'var(--badge-bg)', color: 'var(--badge-text)', border: '1px solid var(--badge-border)', padding: '10px 14px', borderRadius: 12, marginBottom: 16, fontSize: '0.84rem', fontWeight: 600 }}>
+                {supportFeedback}
+              </div>
+            )}
+
+            <form onSubmit={handleSupportSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 5 }}>
+                  Related Order (Optional)
+                </label>
+                <select
+                  value={supportOrderId}
+                  onChange={(e) => setSupportOrderId(e.target.value)}
+                  style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 10, padding: '10px 12px', color: 'var(--text-main)' }}
+                >
+                  <option value="">General Account / No Specific Order</option>
+                  {orders.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      Order #{o.id} — ₹{Number(o.total_amount).toLocaleString('en-IN')} ({o.order_status})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 5 }}>
+                  Issue Category
+                </label>
+                <select
+                  value={supportIssueType}
+                  onChange={(e) => setSupportIssueType(e.target.value)}
+                  style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 10, padding: '10px 12px', color: 'var(--text-main)' }}
+                >
+                  <option value="REFUND">Refund Status / Bank Credit</option>
+                  <option value="RETURN">Return &amp; Reverse Pickup</option>
+                  <option value="CANCEL">Order Cancellation</option>
+                  <option value="DELIVERY">Delivery &amp; Courier Help</option>
+                  <option value="OTHER">Other Question</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 5 }}>
+                  Subject *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Need return pickup or refund update"
+                  value={supportSubject}
+                  onChange={(e) => setSupportSubject(e.target.value)}
+                  style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 10, padding: '10px 12px', color: 'var(--text-main)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 600, marginBottom: 5 }}>
+                  Message *
+                </label>
+                <textarea
+                  rows={3}
+                  required
+                  placeholder="Share details so our support team can resolve it fast..."
+                  value={supportMessage}
+                  onChange={(e) => setSupportMessage(e.target.value)}
+                  style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 10, padding: '10px 12px', color: 'var(--text-main)', fontFamily: 'inherit', resize: 'vertical' }}
+                />
+              </div>
+
+              <button type="submit" disabled={supportLoading} className="btn-gold" style={{ padding: '12px', fontSize: '0.92rem' }}>
+                <Headphones size={16} />
+                {supportLoading ? 'Submitting...' : 'Submit Support Ticket'}
+              </button>
+            </form>
+          </div>
+
+          {/* Active Refunds + Support Ticket Feed */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            {/* Refunds Overview */}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 'clamp(16px, 4vw, 24px)', borderRadius: 24 }}>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 12 }}>
+                Refund &amp; Return Tracker ({refundedOrders.length})
+              </h4>
+              {refundedOrders.length === 0 ? (
+                <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)' }}>
+                  No refunds or return pickups active right now.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {refundedOrders.map((ro) => (
+                    <div key={ro.id} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                          Order #{ro.id} ({ro.order_status})
+                        </span>
+                        <span style={{ fontWeight: 800, color: '#10b981', fontSize: '0.9rem' }}>
+                          ₹{Number(ro.refund_amount || ro.total_amount).toLocaleString('en-IN')}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
+                        Status: <strong>{ro.payment_status}</strong> {ro.refund_reference ? `• Ref: ${ro.refund_reference}` : ''}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Tickets List */}
+            <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 'clamp(16px, 4vw, 24px)', borderRadius: 24 }}>
+              <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 12 }}>
+                Your Support Tickets ({tickets.length})
+              </h4>
+              {tickets.length === 0 ? (
+                <p style={{ fontSize: '0.84rem', color: 'var(--text-dim)' }}>
+                  You haven&apos;t raised any support tickets yet.
+                </p>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {tickets.map((t) => (
+                    <div key={t.id} style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 14, padding: 14 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+                        <span style={{ fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-main)' }}>
+                          #{t.id} • {t.subject}
+                        </span>
+                        <span className="badge-gold" style={{ fontSize: '0.68rem', padding: '2px 8px' }}>
+                          {t.status}
+                        </span>
+                      </div>
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)', marginBottom: t.admin_reply ? 8 : 0 }}>
+                        {t.message}
+                      </p>
+                      {t.admin_reply && (
+                        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 10, padding: '8px 10px', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                          <strong style={{ color: 'var(--price-color)' }}>UrbanCart Care:</strong> {t.admin_reply}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 3: ADDRESS BOOK */}
       {activeTab === 'addresses' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, flexWrap: 'wrap', gap: 12 }}>
@@ -498,7 +945,7 @@ export default function DashboardPage({ onContinueShopping }) {
         </div>
       )}
 
-      {/* TAB 3: PROFILE SETTINGS */}
+      {/* TAB 4: PROFILE SETTINGS */}
       {activeTab === 'profile' && (
         <div style={{ maxWidth: 600, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', padding: 'clamp(18px, 4vw, 32px)', borderRadius: 24, boxShadow: '0 4px 18px rgba(15,23,42,0.06)' }}>
           <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--text-main)', marginBottom: 18 }}>
@@ -544,6 +991,168 @@ export default function DashboardPage({ onContinueShopping }) {
               Save Profile Changes
             </button>
           </form>
+        </div>
+      )}
+
+      {/* Cancel / Return Reason Modal */}
+      {actionModal && (
+        <div
+          onClick={() => setActionModal(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 9999,
+            background: 'rgba(6, 9, 17, 0.75)',
+            backdropFilter: 'blur(6px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 16,
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="animate-fade-in"
+            style={{
+              width: '100%',
+              maxWidth: 440,
+              borderRadius: 24,
+              padding: 'clamp(18px, 4vw, 26px)',
+              background: 'var(--bg-card)',
+              border: '1px solid var(--border-subtle)',
+              boxShadow: '0 24px 60px rgba(0,0,0,0.45)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
+              <div>
+                <h3 style={{ fontSize: '1.18rem', fontWeight: 800, color: 'var(--text-main)' }}>
+                  {actionModal.mode === 'cancel'
+                    ? `Cancel Order #${actionModal.order.id}`
+                    : `Return Order #${actionModal.order.id}`}
+                </h3>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+                  Order Value: ₹{Number(actionModal.order.total_amount).toLocaleString('en-IN')} ({actionModal.order.payment_method})
+                </p>
+              </div>
+              <button onClick={() => setActionModal(null)} style={{ background: 'none', color: 'var(--text-dim)' }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {actionError && (
+              <div style={{ background: 'rgba(239, 68, 68, 0.12)', border: '1px solid rgba(239, 68, 68, 0.35)', color: '#ef4444', padding: '8px 12px', borderRadius: 10, fontSize: '0.82rem', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <AlertCircle size={15} />
+                {actionError}
+              </div>
+            )}
+
+            <form onSubmit={handleConfirmAction} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {actionModal.mode === 'return' && (
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 6 }}>
+                    Preferred Resolution
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => setReturnResolution('REFUND')}
+                      style={{
+                        padding: '9px 10px',
+                        borderRadius: 10,
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        background: returnResolution === 'REFUND' ? 'var(--badge-bg)' : 'var(--bg-surface)',
+                        border: returnResolution === 'REFUND' ? '2px solid #d97706' : '1px solid var(--border-strong)',
+                        color: returnResolution === 'REFUND' ? 'var(--badge-text)' : 'var(--text-main)',
+                      }}
+                    >
+                      Instant Refund
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setReturnResolution('REPLACEMENT')}
+                      style={{
+                        padding: '9px 10px',
+                        borderRadius: 10,
+                        fontSize: '0.8rem',
+                        fontWeight: 700,
+                        background: returnResolution === 'REPLACEMENT' ? 'var(--badge-bg)' : 'var(--bg-surface)',
+                        border: returnResolution === 'REPLACEMENT' ? '2px solid #d97706' : '1px solid var(--border-strong)',
+                        color: returnResolution === 'REPLACEMENT' ? 'var(--badge-text)' : 'var(--text-main)',
+                      }}
+                    >
+                      Free Replacement
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <label style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: 6 }}>
+                  Select Reason
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 8 }}>
+                  {(actionModal.mode === 'cancel' ? CANCEL_REASONS : RETURN_REASONS).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setActionReason(r)}
+                      style={{
+                        padding: '5px 10px',
+                        borderRadius: 9999,
+                        fontSize: '0.74rem',
+                        fontWeight: 600,
+                        background: actionReason === r ? 'var(--badge-bg)' : 'var(--bg-surface)',
+                        border: actionReason === r ? '1px solid #d97706' : '1px solid var(--border-strong)',
+                        color: actionReason === r ? 'var(--badge-text)' : 'var(--text-muted)',
+                      }}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  rows={2}
+                  required
+                  value={actionReason}
+                  onChange={(e) => setActionReason(e.target.value)}
+                  placeholder="Enter reason..."
+                  style={{ width: '100%', background: 'var(--bg-surface)', border: '1px solid var(--border-strong)', borderRadius: 10, padding: '10px 12px', color: 'var(--text-main)', fontFamily: 'inherit', resize: 'none' }}
+                />
+              </div>
+
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', background: 'var(--bg-surface)', padding: '8px 12px', borderRadius: 10, border: '1px solid var(--border-subtle)' }}>
+                {actionModal.mode === 'cancel'
+                  ? actionModal.order.payment_status === 'Paid'
+                    ? 'Paid orders trigger an automatic refund to your original UPI / Card within 2–3 business days.'
+                    : 'COD pending orders are cancelled immediately with zero charge.'
+                  : '7-Day Free Doorstep Pickup within 24–48 hrs. Refund settles to UPI / original source once verified.'}
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button
+                  type="submit"
+                  disabled={actionLoading}
+                  className="btn-gold"
+                  style={{ flex: 1, padding: '11px', fontSize: '0.88rem' }}
+                >
+                  {actionLoading
+                    ? 'Processing...'
+                    : actionModal.mode === 'cancel'
+                      ? 'Confirm Cancel & Refund'
+                      : 'Schedule Return Pickup'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActionModal(null)}
+                  className="btn-dark"
+                  style={{ padding: '11px 16px', fontSize: '0.86rem' }}
+                >
+                  Close
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 

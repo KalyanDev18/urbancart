@@ -85,6 +85,8 @@ class Order(models.Model):
         ('Pending', 'Pending'),
         ('Paid', 'Paid'),
         ('Failed', 'Failed'),
+        ('Refund Initiated', 'Refund Initiated'),
+        ('Refunded', 'Refunded'),
     )
 
     ORDER_STATUS_CHOICES = (
@@ -92,6 +94,8 @@ class Order(models.Model):
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
         ('Cancelled', 'Cancelled'),
+        ('Return Requested', 'Return Requested'),
+        ('Returned', 'Returned'),
     )
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
@@ -105,10 +109,47 @@ class Order(models.Model):
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='Paid')
     order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='Processing')
     transaction_id = models.CharField(max_length=100, blank=True, null=True)
+    cancel_reason = models.TextField(blank=True, default='')
+    return_reason = models.TextField(blank=True, default='')
+    refund_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    refund_reference = models.CharField(max_length=100, blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Order #{self.id} - {self.full_name} ({self.order_status})"
+
+
+class SupportTicket(models.Model):
+    ISSUE_CHOICES = (
+        ('CANCEL', 'Order Cancellation'),
+        ('RETURN', 'Return / Replacement'),
+        ('REFUND', 'Refund Status'),
+        ('DELIVERY', 'Delivery & Tracking'),
+        ('OTHER', 'General Help'),
+    )
+
+    STATUS_CHOICES = (
+        ('Open', 'Open'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+    )
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='support_tickets')
+    order = models.ForeignKey(Order, on_delete=models.SET_NULL, null=True, blank=True, related_name='support_tickets')
+    issue_type = models.CharField(max_length=20, choices=ISSUE_CHOICES, default='OTHER')
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    admin_reply = models.TextField(blank=True, default='')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Open')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Ticket #{self.id} ({self.issue_type}) - {self.status}"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, SupportTicket
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -53,10 +53,20 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'user', 'full_name', 'email', 'address', 
             'city', 'postal_code', 'total_amount', 'payment_method', 
-            'payment_status', 'order_status', 'transaction_id', 'items', 'created_at'
+            'payment_status', 'order_status', 'transaction_id',
+            'cancel_reason', 'return_reason', 'refund_amount', 'refund_reference',
+            'items', 'created_at', 'updated_at'
         ]
 
 class ShippingAddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShippingAddress
         fields = '__all__'
+
+class SupportTicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SupportTicket
+        fields = [
+            'id', 'order', 'issue_type', 'subject', 'message',
+            'admin_reply', 'status', 'created_at', 'updated_at'
+        ]

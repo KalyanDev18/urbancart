@@ -24,11 +24,13 @@ const PageLoader = () => (
 function MainApp() {
   const [showSplash, setShowSplash] = useState(true);
   const [currentPage, setCurrentPage] = useState('home');
+  const [dashboardTab, setDashboardTab] = useState('orders');
   const [searchQuery, setSearchQuery] = useState('');
   const [completedOrder, setCompletedOrder] = useState(null);
   const [redirectAfterLogin, setRedirectAfterLogin] = useState('home');
 
-  const navigateTo = (page) => {
+  const navigateTo = (page, tab) => {
+    if (tab) setDashboardTab(tab);
     setCurrentPage(page);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -50,13 +52,13 @@ function MainApp() {
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', color: 'var(--text-main)' }}>
       
-      {/* 1-Second Luxury Animated Landing Screen */}
+      {/* 2-Second Luxury Animated Landing Poster */}
       {showSplash && <WelcomeSplash onDone={() => setShowSplash(false)} />}
 
       {/* Top Navbar */}
       <Navbar
         currentPage={currentPage}
-        onNavigate={(page) => navigateTo(page)}
+        onNavigate={(page) => navigateTo(page, page === 'dashboard' ? 'orders' : undefined)}
         searchQuery={searchQuery}
         onSearch={(q) => {
           setSearchQuery(q);
@@ -93,12 +95,13 @@ function MainApp() {
             <OrderSuccessPage
               order={completedOrder}
               onContinueShopping={() => navigateTo('home')}
-              onViewOrders={() => navigateTo('dashboard')}
+              onViewOrders={() => navigateTo('dashboard', 'orders')}
             />
           )}
 
           {currentPage === 'dashboard' && (
             <DashboardPage
+              initialTab={dashboardTab}
               onContinueShopping={() => navigateTo('home')}
             />
           )}
@@ -111,9 +114,10 @@ function MainApp() {
         onLogin={() => handleRequireAuth('checkout')}
       />
 
-      {/* Floating AI Shopping Assistant */}
+      {/* Floating AI & Care Support Assistant */}
       <ChatbotWidget
-        onRequireAuth={() => handleRequireAuth('home')}
+        onRequireAuth={() => handleRequireAuth('dashboard')}
+        onOpenDashboard={(tab = 'orders') => navigateTo('dashboard', tab)}
       />
 
       {/* Global Footer (Hidden on login page) */}

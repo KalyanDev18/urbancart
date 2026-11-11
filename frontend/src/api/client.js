@@ -172,6 +172,14 @@ export const api = {
   }),
   getMyOrders: () => request('/api/orders/my-orders/'),
   getOrderDetail: (orderId) => request(`/api/orders/${orderId}/`),
+  cancelOrder: (orderId, reason) => request(`/api/orders/${orderId}/cancel/`, {
+    method: 'POST',
+    body: JSON.stringify({ reason }),
+  }),
+  returnOrder: (orderId, payload) => request(`/api/orders/${orderId}/return/`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  }),
 
   // Saved Addresses
   getAddresses: () => request('/api/addresses/'),
@@ -183,9 +191,14 @@ export const api = {
     method: 'DELETE',
   }),
 
-  // AI Chatbot
+  // AI Chatbot & Support Tickets
   askChatbot: (message) => request('/api/chatbot/', {
     method: 'POST',
     body: JSON.stringify({ message }),
+  }),
+  getSupportTickets: () => request('/api/support/tickets/'),
+  createSupportTicket: (data) => request('/api/support/tickets/', {
+    method: 'POST',
+    body: JSON.stringify(data),
   }),
 };
