@@ -1,4 +1,9 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+const RAW_API_URL = import.meta.env.VITE_API_URL || '';
+export const API_BASE_URL = RAW_API_URL.replace(/\/+$/, '');
+export const HAS_BACKEND_URL =
+  Boolean(API_BASE_URL) ||
+  (typeof window !== 'undefined' &&
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
 
 function getHeaders(includeAuth = true) {
   const headers = {
@@ -23,13 +28,24 @@ async function request(url, options = {}) {
     },
   });
 
-  const contentType = response.headers.get('content-type') || '';
-  let data = null;
-  if (contentType.includes('application/json')) {
-    data = await response.json();
-  } else {
-    data = await response.text();
+  if (response.status === 204) {
+    return null;
   }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    const rawText = await response.text().catch(() => '');
+    const err = new Error(
+      !HAS_BACKEND_URL
+        ? 'Backend API URL (VITE_API_URL) is not set in Vercel Environment Variables.'
+        : `Server returned ${contentType || 'non-JSON'} (status ${response.status}). Backend may still be waking up.`
+    );
+    err.status = response.status;
+    err.data = rawText;
+    throw err;
+  }
+
+  const data = await response.json();
 
   if (!response.ok) {
     const errorMsg = data && data.error ? data.error : (data && data.message ? data.message : `Request failed with status ${response.status}`);

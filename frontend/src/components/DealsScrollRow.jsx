@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import ProductCard from './ProductCard';
 
 export default function DealsScrollRow({ title = 'Deals on your favourites! ✨', products = [], onRequireAuth }) {
+  const safeProducts = Array.isArray(products) ? products : [];
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
@@ -16,7 +17,7 @@ export default function DealsScrollRow({ title = 'Deals on your favourites! ✨'
     }
   };
 
-  if (!products || products.length === 0) return null;
+  if (safeProducts.length === 0) return null;
 
   return (
     <div style={{ maxWidth: 1280, margin: '36px auto', padding: '0 20px' }}>
@@ -80,7 +81,7 @@ export default function DealsScrollRow({ title = 'Deals on your favourites! ✨'
           scrollSnapType: 'x mandatory',
         }}
       >
-        {products.map((item) => (
+        {safeProducts.map((item) => (
           <div 
             key={item.id} 
             style={{ 

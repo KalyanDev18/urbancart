@@ -34,10 +34,10 @@ export default function DashboardPage({ onContinueShopping }) {
         api.getMyOrders().catch(() => ({ orders: [], total_spent: '0', reward_points: 0 })),
         api.getAddresses().catch(() => ({ addresses: [] })),
       ]);
-      setOrders(orderRes.orders || []);
-      setTotalSpent(orderRes.total_spent || '0');
-      setRewardPoints(orderRes.reward_points || 0);
-      setAddresses(addrRes.addresses || []);
+      setOrders(Array.isArray(orderRes?.orders) ? orderRes.orders : []);
+      setTotalSpent(orderRes?.total_spent || '0');
+      setRewardPoints(orderRes?.reward_points || 0);
+      setAddresses(Array.isArray(addrRes?.addresses) ? addrRes.addresses : []);
     } catch (err) {
       console.error(err);
     } finally {

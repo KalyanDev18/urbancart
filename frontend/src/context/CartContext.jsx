@@ -17,11 +17,11 @@ export function CartProvider({ children }) {
   const refreshCart = async () => {
     try {
       const res = await api.getCart();
-      setCartItems(res.items || []);
-      setCartCount(res.count || 0);
-      setSubtotal(res.subtotal || '0.00');
-      setShipping(res.shipping || '0.00');
-      setGrandTotal(res.grand_total || '0.00');
+      setCartItems(Array.isArray(res?.items) ? res.items : []);
+      setCartCount(Number(res?.count) || 0);
+      setSubtotal(res?.subtotal || '0.00');
+      setShipping(res?.shipping || '0.00');
+      setGrandTotal(res?.grand_total || '0.00');
     } catch (e) {
       console.error('Error fetching cart:', e);
     }

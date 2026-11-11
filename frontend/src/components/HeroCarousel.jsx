@@ -3,7 +3,8 @@ import { ChevronLeft, ChevronRight, ShoppingBag, Sparkles, ArrowRight, Star } fr
 import { useCart } from '../context/CartContext';
 
 export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }) {
-  const carouselItems = products.slice(0, 5);
+  const safeProducts = Array.isArray(products) ? products : [];
+  const carouselItems = safeProducts.slice(0, 5);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const { addToCart } = useCart();

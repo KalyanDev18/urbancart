@@ -1,30 +1,46 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import CategoryBar from '../components/CategoryBar';
 import HeroCarousel from '../components/HeroCarousel';
 import SpotlightHero from '../components/SpotlightHero';
 import DealsScrollRow from '../components/DealsScrollRow';
 import ProductCard from '../components/ProductCard';
-import { api } from '../api/client';
-import { ShieldCheck, Truck, RefreshCw, Zap } from 'lucide-react';
+import { api, HAS_BACKEND_URL } from '../api/client';
+import { ShieldCheck, Truck, RefreshCw, Zap, AlertTriangle } from 'lucide-react';
+
+const toArray = (val) => {
+  if (Array.isArray(val)) return val;
+  if (val && Array.isArray(val.results)) return val.results;
+  return [];
+};
 
 export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }) {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState([]);
   const [sections, setSections] = useState({ spotlight: [], deals: [], suggested: [] });
   const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState('');
 
   // Fetch sections (Spotlight, Deals, Suggested)
-  useEffect(() => {
+  const loadSections = useCallback(() => {
     api.getSections()
       .then((data) => {
-        setSections(data);
+        setSections({
+          spotlight: toArray(data?.spotlight),
+          deals: toArray(data?.deals),
+          suggested: toArray(data?.suggested),
+        });
       })
       .catch((err) => console.error('Error loading sections:', err));
   }, []);
 
-  // Fetch catalog with category and search query filters
   useEffect(() => {
+    loadSections();
+  }, [loadSections]);
+
+  // Fetch catalog with category and search query filters
+  const loadCatalog = useCallback(() => {
     setLoading(true);
+    setApiError('');
     const params = {};
     if (selectedCategory && selectedCategory !== 'All') {
       params.category = selectedCategory;
@@ -35,16 +51,29 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
     api.getProducts(params)
       .then((data) => {
-        setProducts(data || []);
+        setProducts(toArray(data));
       })
-      .catch((err) => console.error('Error loading catalog:', err))
+      .catch((err) => {
+        console.error('Error loading catalog:', err);
+        setProducts([]);
+        setApiError(err.message || 'Could not connect to backend server.');
+      })
       .finally(() => setLoading(false));
   }, [selectedCategory, searchQuery]);
 
+  useEffect(() => {
+    loadCatalog();
+  }, [loadCatalog]);
+
+  const safeProducts = toArray(products);
+  const safeSpotlight = toArray(sections?.spotlight);
+  const safeDeals = toArray(sections?.deals);
+  const safeSuggested = toArray(sections?.suggested);
+
   // Top 5 products for carousel
-  const carouselProducts = sections.spotlight?.length >= 5 
-    ? sections.spotlight.slice(0, 5) 
-    : (products.length >= 5 ? products.slice(0, 5) : sections.spotlight);
+  const carouselProducts = safeSpotlight.length >= 5
+    ? safeSpotlight.slice(0, 5)
+    : (safeProducts.length >= 5 ? safeProducts.slice(0, 5) : safeSpotlight);
 
   return (
     <div>
@@ -67,9 +96,9 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       )}
 
       {/* 3. Spotlight Hero Showcase Section */}
-      {!searchQuery && selectedCategory === 'All' && (
+      {!searchQuery && selectedCategory === 'All' && safeSpotlight.length > 0 && (
         <SpotlightHero
-          spotlightProducts={sections.spotlight}
+          spotlightProducts={safeSpotlight}
           onSelectProduct={onSelectProduct}
           onShopNow={() => {
             const el = document.getElementById('catalog-grid');
@@ -79,19 +108,19 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       )}
 
       {/* 3. Deals on your favourites! ✨ (Horizontal scroll row) */}
-      {!searchQuery && selectedCategory === 'All' && sections.deals.length > 0 && (
+      {!searchQuery && selectedCategory === 'All' && safeDeals.length > 0 && (
         <DealsScrollRow
           title="Deals on your favourites! ✨"
-          products={sections.deals}
+          products={safeDeals}
           onRequireAuth={onRequireAuth}
         />
       )}
 
       {/* 4. Suggested For You ➔ (Horizontal scroll row) */}
-      {!searchQuery && selectedCategory === 'All' && sections.suggested.length > 0 && (
+      {!searchQuery && selectedCategory === 'All' && safeSuggested.length > 0 && (
         <DealsScrollRow
           title="Suggested For You ➔"
-          products={sections.suggested}
+          products={safeSuggested}
           onRequireAuth={onRequireAuth}
         />
       )}
@@ -106,7 +135,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               {searchQuery ? `Search Results for "${searchQuery}"` : (selectedCategory === 'All' ? 'Complete Catalog & New Drops' : `${selectedCategory} Collection`)}
             </h2>
             <p style={{ fontSize: '0.82rem', color: '#64748b' }}>
-              Showing {products.length} luxury items available for express delivery
+              Showing {safeProducts.length} luxury items available for express delivery
             </p>
           </div>
 
@@ -131,7 +160,25 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               />
             ))}
           </div>
-        ) : products.length === 0 ? (
+        ) : apiError ? (
+          <div style={{ textAlign: 'center', padding: '44px 20px', borderRadius: 24, background: '#fffbeb', border: '1px solid #fde68a' }}>
+            <AlertTriangle size={36} color="#d97706" style={{ margin: '0 auto 12px' }} />
+            <h3 style={{ fontSize: '1.15rem', color: '#0f172a', fontWeight: 800, marginBottom: 8 }}>
+              {!HAS_BACKEND_URL ? 'Backend URL Not Linked Yet' : 'Connecting to UrbanCart Server...'}
+            </h3>
+            <p style={{ fontSize: '0.88rem', color: '#475569', maxWidth: 520, margin: '0 auto 18px', lineHeight: 1.5 }}>
+              {apiError}
+            </p>
+            <button
+              onClick={() => { loadSections(); loadCatalog(); }}
+              className="btn-gold"
+              style={{ padding: '10px 20px', fontSize: '0.9rem' }}
+            >
+              <RefreshCw size={15} />
+              Retry Connection
+            </button>
+          </div>
+        ) : safeProducts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '50px 20px', borderRadius: 24, background: '#ffffff', border: '1px solid #e2e8f0' }}>
             <h3 style={{ fontSize: '1.2rem', color: '#0f172a', marginBottom: 8 }}>No products found</h3>
             <p style={{ fontSize: '0.88rem', color: '#64748b' }}>
@@ -140,7 +187,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
           </div>
         ) : (
           <div className="responsive-product-grid">
-            {products.map((item) => (
+            {safeProducts.map((item) => (
               <ProductCard
                 key={item.id}
                 product={item}

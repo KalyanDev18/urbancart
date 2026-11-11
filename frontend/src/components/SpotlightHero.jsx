@@ -2,8 +2,10 @@ import React from 'react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
 export default function SpotlightHero({ spotlightProducts, onSelectProduct, onShopNow }) {
-  const mainFeature = spotlightProducts && spotlightProducts[0];
-  const sideCards = spotlightProducts && spotlightProducts.slice(1, 3);
+  const safeSpotlight = Array.isArray(spotlightProducts) ? spotlightProducts : [];
+  if (safeSpotlight.length === 0) return null;
+  const mainFeature = safeSpotlight[0];
+  const sideCards = safeSpotlight.slice(1, 3);
 
   return (
     <div style={{ maxWidth: 1280, margin: '20px auto', padding: '0 16px' }}>
