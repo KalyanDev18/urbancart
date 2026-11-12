@@ -208,6 +208,7 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow, 
                       src={optimizeImageUrl(product.image_url, 640)}
                       alt={product.name}
                       loading={idx === 0 ? 'eager' : 'lazy'}
+                      fetchPriority={idx === 0 ? 'high' : 'low'}
                       decoding="async"
                       style={{
                         width: '100%',

@@ -4,11 +4,11 @@ import { CartProvider } from './context/CartContext';
 import { ThemeProvider } from './context/ThemeContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import CartDrawer from './components/CartDrawer';
-import ChatbotWidget from './components/ChatbotWidget';
 
 import HomePage from './pages/HomePage';
 
+const CartDrawer = lazy(() => import('./components/CartDrawer'));
+const ChatbotWidget = lazy(() => import('./components/ChatbotWidget'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const CheckoutPage = lazy(() => import('./pages/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
@@ -111,17 +111,19 @@ function MainApp() {
         </Suspense>
       </main>
 
-      {/* Slide-out Cart Drawer */}
-      <CartDrawer
-        onCheckout={() => navigateTo('checkout')}
-        onLogin={() => handleRequireAuth('checkout')}
-      />
+      <Suspense fallback={null}>
+        {/* Slide-out Cart Drawer */}
+        <CartDrawer
+          onCheckout={() => navigateTo('checkout')}
+          onLogin={() => handleRequireAuth('checkout')}
+        />
 
-      {/* Floating AI & Care Support Assistant */}
-      <ChatbotWidget
-        onRequireAuth={() => handleRequireAuth('dashboard')}
-        onOpenDashboard={(tab = 'orders') => navigateTo('dashboard', tab)}
-      />
+        {/* Floating AI & Care Support Assistant */}
+        <ChatbotWidget
+          onRequireAuth={() => handleRequireAuth('dashboard')}
+          onOpenDashboard={(tab = 'orders') => navigateTo('dashboard', tab)}
+        />
+      </Suspense>
 
       {/* Global Footer (Hidden on login page) */}
       {currentPage !== 'login' && (

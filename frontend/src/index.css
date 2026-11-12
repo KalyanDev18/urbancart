@@ -812,6 +812,8 @@ button {
   width: 100%;
   min-width: 0;
   will-change: transform;
+  content-visibility: auto;
+  contain-intrinsic-size: 280px 320px;
 }
 
 .product-card img {

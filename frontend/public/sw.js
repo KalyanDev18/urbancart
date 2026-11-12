@@ -1,6 +1,6 @@
-const CACHE_NAME = 'urbancart-shell-v1';
+const CACHE_NAME = 'urbancart-shell-v2';
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', () => {
   self.skipWaiting();
 });
 
@@ -14,11 +14,37 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  // Always let API and non-GET requests go straight to network
-  if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
+  if (event.request.method !== 'GET') return;
+
+  const url = new URL(event.request.url);
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/admin/')) {
     return;
   }
+
+  const isStaticAsset =
+    url.origin === self.location.origin ||
+    url.hostname === 'fonts.googleapis.com' ||
+    url.hostname === 'fonts.gstatic.com' ||
+    url.hostname === 'images.unsplash.com';
+
+  if (!isStaticAsset) return;
+
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.match(event.request).then((cached) => {
+        const networkFetch = fetch(event.request)
+          .then((response) => {
+            if (response && response.ok && response.type !== 'opaque') {
+              cache.put(event.request, response.clone());
+            } else if (response && response.type === 'opaque') {
+              cache.put(event.request, response.clone());
+            }
+            return response;
+          })
+          .catch(() => cached);
+
+        return cached || networkFetch;
+      })
+    )
   );
 });

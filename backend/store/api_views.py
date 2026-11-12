@@ -5,6 +5,7 @@ import re
 from decimal import Decimal, InvalidOperation
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.conf import settings
 from django.db.models import Q, Sum
@@ -22,6 +23,12 @@ from .serializers import (
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer, ProductReviewSerializer
 )
 from .utils import send_otp_email
+
+HOME_CACHE_KEY = 'urbancart_home_payload_v2'
+
+
+def _invalidate_home_cache():
+    cache.delete(HOME_CACHE_KEY)
 
 
 def _get_admin_emails():
@@ -49,13 +56,22 @@ def _build_sections_payload(all_products):
     }
 
 
+def _get_home_payload():
+    payload = cache.get(HOME_CACHE_KEY)
+    if payload is None:
+        all_products = list(Product.objects.all().order_by('-created_at'))
+        payload = _build_sections_payload(all_products)
+        cache.set(HOME_CACHE_KEY, payload, timeout=180)
+    return payload
+
+
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Product.objects.select_related('category_rel').order_by('-created_at')
+    queryset = Product.objects.order_by('-created_at')
     serializer_class = ProductSerializer
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
-        qs = Product.objects.select_related('category_rel').order_by('-created_at')
+        qs = Product.objects.order_by('-created_at')
         cat = self.request.query_params.get('category')
         q = self.request.query_params.get('q')
         featured = self.request.query_params.get('featured')
@@ -70,24 +86,22 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
 
     def list(self, request, *args, **kwargs):
         resp = super().list(request, *args, **kwargs)
-        resp['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=300'
+        resp['Cache-Control'] = 'public, max-age=180, stale-while-revalidate=600'
         return resp
 
     @action(detail=False, methods=['get'])
     def sections(self, request):
-        all_products = list(Product.objects.all().order_by('-created_at'))
-        payload = _build_sections_payload(all_products)
+        payload = dict(_get_home_payload())
         payload.pop('products', None)
         resp = Response(payload)
-        resp['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=300'
+        resp['Cache-Control'] = 'public, max-age=180, stale-while-revalidate=600'
         return resp
 
     @action(detail=False, methods=['get'])
     def home(self, request):
         """Combined single-roundtrip endpoint for HomePage (sections + catalog)."""
-        all_products = list(Product.objects.all().order_by('-created_at'))
-        resp = Response(_build_sections_payload(all_products))
-        resp['Cache-Control'] = 'public, max-age=120, stale-while-revalidate=300'
+        resp = Response(_get_home_payload())
+        resp['Cache-Control'] = 'public, max-age=180, stale-while-revalidate=600'
         return resp
 
 
@@ -1180,6 +1194,7 @@ def admin_create_product_api(request):
         stock=stock,
         is_featured=is_featured,
     )
+    _invalidate_home_cache()
     return Response({
         'status': 'success',
         'message': f'Product "{product.name}" created.',
@@ -1198,6 +1213,7 @@ def admin_product_detail_api(request, product_id):
     if request.method == 'DELETE':
         product_name = product.name
         product.delete()
+        _invalidate_home_cache()
         return Response({'status': 'success', 'message': f'Deleted "{product_name}".'})
 
     if 'name' in request.data and str(request.data['name']).strip():
@@ -1231,6 +1247,7 @@ def admin_product_detail_api(request, product_id):
         product.is_featured = bool(request.data['is_featured'])
 
     product.save()
+    _invalidate_home_cache()
     return Response({
         'status': 'success',
         'message': f'Product "{product.name}" updated.',
@@ -1308,6 +1325,7 @@ def product_reviews_api(request, product_id):
             },
         )
         product.recalculate_rating()
+        _invalidate_home_cache()
 
         return Response({
             'status': 'success',
@@ -1354,6 +1372,7 @@ def delete_product_review_api(request, product_id, review_id):
     product = review.product
     review.delete()
     product.recalculate_rating()
+    _invalidate_home_cache()
 
     return Response({
         'status': 'success',

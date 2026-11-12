@@ -1,12 +1,13 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import CategoryBar from '../components/CategoryBar';
 import HeroCarousel from '../components/HeroCarousel';
 import SpotlightHero from '../components/SpotlightHero';
 import DealsScrollRow from '../components/DealsScrollRow';
 import ProductCard from '../components/ProductCard';
-import ProductDetailModal from '../components/ProductDetailModal';
 import { api, HAS_BACKEND_URL, getCachedHome, setCachedHome } from '../api/client';
 import { ShieldCheck, Truck, RefreshCw, Zap, AlertTriangle } from 'lucide-react';
+
+const ProductDetailModal = lazy(() => import('../components/ProductDetailModal'));
 
 const toArray = (val) => {
   if (Array.isArray(val)) return val;
@@ -18,6 +19,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
   const cached = useMemo(() => getCachedHome(), []);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showAllCatalog, setShowAllCatalog] = useState(false);
   const [allProducts, setAllProducts] = useState(() => (cached ? toArray(cached.products) : []));
   const [sections, setSections] = useState(() => ({
     spotlight: cached ? toArray(cached.spotlight) : [],
@@ -242,16 +244,29 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
             </p>
           </div>
         ) : (
-          <div className="responsive-product-grid">
-            {safeProducts.map((item) => (
-              <ProductCard
-                key={item.id}
-                product={item}
-                onRequireAuth={onRequireAuth}
-                onSelectProduct={handleSelectProduct}
-              />
-            ))}
-          </div>
+          <>
+            <div className="responsive-product-grid">
+              {(searchQuery || selectedCategory !== 'All' || showAllCatalog ? safeProducts : safeProducts.slice(0, 16)).map((item) => (
+                <ProductCard
+                  key={item.id}
+                  product={item}
+                  onRequireAuth={onRequireAuth}
+                  onSelectProduct={handleSelectProduct}
+                />
+              ))}
+            </div>
+            {!searchQuery && selectedCategory === 'All' && !showAllCatalog && safeProducts.length > 16 && (
+              <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <button
+                  onClick={() => setShowAllCatalog(true)}
+                  className="btn-dark"
+                  style={{ padding: '11px 24px', fontSize: '0.88rem' }}
+                >
+                  Show All {safeProducts.length} Products
+                </button>
+              </div>
+            )}
+          </>
         )}
 
       </div>
@@ -375,12 +390,14 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       </div>
 
       {selectedProduct && (
-        <ProductDetailModal
-          product={selectedProduct}
-          onClose={() => setSelectedProduct(null)}
-          onRequireAuth={onRequireAuth}
-          onRatingUpdated={handleRatingUpdated}
-        />
+        <Suspense fallback={null}>
+          <ProductDetailModal
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            onRequireAuth={onRequireAuth}
+            onRatingUpdated={handleRatingUpdated}
+          />
+        </Suspense>
       )}
 
     </div>

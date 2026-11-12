@@ -18,24 +18,24 @@ function getHeaders(includeAuth = true) {
   return headers;
 }
 
-export function optimizeImageUrl(url, width = 420) {
-  const fallback = `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=${width}&auto=format&fit=crop&q=75`;
+export function optimizeImageUrl(url, width = 360) {
+  const fallback = `https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=${width}&auto=format&fit=crop&q=70`;
   if (!url || typeof url !== 'string') return fallback;
   if (url.includes('images.unsplash.com')) {
     const clean = url.split('?')[0];
-    return `${clean}?auto=format&fit=crop&w=${width}&q=75`;
+    return `${clean}?auto=format&fit=crop&w=${width}&q=70`;
   }
   return url;
 }
 
-const HOME_CACHE_KEY = 'urbancart_home_cache_v1';
+const HOME_CACHE_KEY = 'urbancart_home_cache_v2';
 
 export function getCachedHome() {
   try {
-    const raw = sessionStorage.getItem(HOME_CACHE_KEY);
+    const raw = localStorage.getItem(HOME_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (parsed && Array.isArray(parsed.products)) return parsed;
+    if (parsed && Array.isArray(parsed.products) && parsed.products.length > 0) return parsed;
   } catch {
     // Ignore storage errors
   }
@@ -45,12 +45,14 @@ export function getCachedHome() {
 export function setCachedHome(data) {
   try {
     if (data && Array.isArray(data.products) && data.products.length > 0) {
-      sessionStorage.setItem(HOME_CACHE_KEY, JSON.stringify(data));
+      localStorage.setItem(HOME_CACHE_KEY, JSON.stringify({ ...data, _cachedAt: Date.now() }));
     }
   } catch {
     // Ignore quota errors
   }
 }
+
+let inflightHomeRequest = null;
 
 async function request(url, options = {}) {
   const finalUrl = url.startsWith('http') ? url : `${API_BASE_URL}${url}`;
@@ -109,7 +111,13 @@ async function request(url, options = {}) {
 
 export const api = {
   // Catalog
-  getHomeData: () => request('/api/products/home/', { timeout: 45000 }),
+  getHomeData: () => {
+    if (inflightHomeRequest) return inflightHomeRequest;
+    inflightHomeRequest = request('/api/products/home/', { timeout: 45000 }).finally(() => {
+      inflightHomeRequest = null;
+    });
+    return inflightHomeRequest;
+  },
   getProducts: (params = {}) => {
     const query = new URLSearchParams(params).toString();
     return request(`/api/products/${query ? '?' + query : ''}`, { timeout: 45000 });
