@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { X, Star, ShoppingBag, CheckCircle2, ShieldCheck, Trash2, AlertTriangle, Check } from 'lucide-react';
+import { X, Star, ShoppingBag, CheckCircle2, ShieldCheck, Trash2, AlertTriangle, Check, Truck, Package } from 'lucide-react';
 import { api, optimizeImageUrl } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -344,8 +344,12 @@ export default function ProductDetailModal({ product, onClose, onRequireAuth, on
                     Sign In to Review
                   </button>
                 </div>
-              ) : (
+              ) : reviewsData.user_review || reviewsData.can_review ? (
                 <form onSubmit={handleSubmitReview} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.78rem', color: '#10b981', fontWeight: 700, marginBottom: 2 }}>
+                    <ShieldCheck size={14} /> Verified Buyer — Delivery Confirmed
+                  </div>
+
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {[1, 2, 3, 4, 5].map((starVal) => {
                       const active = starVal <= (hoverStars || selectedStars);
@@ -405,6 +409,36 @@ export default function ProductDetailModal({ product, onClose, onRequireAuth, on
                         : 'Submit Review'}
                   </button>
                 </form>
+              ) : reviewsData.review_status_reason === 'delivery_pending' ? (
+                <div style={{ padding: '14px 16px', borderRadius: 12, background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.25)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, color: '#3b82f6', marginBottom: 6 }}>
+                    <Truck size={16} /> Order in Transit
+                  </div>
+                  <div style={{ color: 'var(--text-muted)' }}>
+                    Aapka order process ho raha hai ya raste me hai. Package <strong>Delivered</strong> hone ke baad aap genuine rating &amp; review submit kar payenge!
+                  </div>
+                </div>
+              ) : reviewsData.review_status_reason === 'not_purchased' ? (
+                <div style={{ padding: '14px 16px', borderRadius: 12, background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.25)', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontWeight: 800, color: 'var(--price-color)', marginBottom: 6 }}>
+                    <Package size={16} /> Verified Buyers Only
+                  </div>
+                  <div style={{ color: 'var(--text-muted)', marginBottom: 10 }}>
+                    Reviews sirf wahi customers de sakte hain jinhone ye product purchase kiya ho aur delivery receive ki ho.
+                  </div>
+                  <button
+                    onClick={handleAddToBag}
+                    disabled={adding || product.stock <= 0}
+                    className="btn-gold"
+                    style={{ fontSize: '0.82rem', padding: '8px 14px' }}
+                  >
+                    <ShoppingBag size={14} /> Order to Review
+                  </button>
+                </div>
+              ) : (
+                <div style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', fontSize: '0.85rem', color: 'var(--text-dim)', lineHeight: 1.5 }}>
+                  Reviews are only allowed after your order has been successfully delivered.
+                </div>
               )}
             </div>
           </div>

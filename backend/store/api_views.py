@@ -1299,8 +1299,8 @@ def admin_update_ticket_api(request, ticket_id):
 @permission_classes([permissions.AllowAny])
 def product_reviews_api(request, product_id):
     """
-    GET  /api/products/<product_id>/reviews/ -> List all real reviews + rating breakdown
-    POST /api/products/<product_id>/reviews/ -> Submit or update authenticated user's review
+    GET  /api/products/<product_id>/reviews/ -> List all real reviews + rating breakdown + user review eligibility
+    POST /api/products/<product_id>/reviews/ -> Submit or update review (strictly verified delivered buyers only)
     """
     product = Product.objects.filter(id=product_id).first()
     if not product:
@@ -1322,10 +1322,29 @@ def product_reviews_api(request, product_id):
         if len(comment) < 3:
             return Response({'error': 'Please write at least 3 characters in your review comment.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        verified_purchase = OrderItem.objects.filter(
-            order__user=request.user,
-            product=product,
-        ).exclude(order__order_status='Cancelled').exists()
+        # Strictly verify that user ordered this product AND it has been delivered
+        user_orders = Order.objects.filter(
+            user=request.user,
+            items__product=product,
+        )
+        if not user_orders.exists():
+            return Response({
+                'error': 'Only customers who have ordered this product can write a review.',
+                'code': 'not_purchased'
+            }, status=status.HTTP_403_FORBIDDEN)
+
+        delivered_order = user_orders.filter(order_status='Delivered').first()
+        if not delivered_order:
+            in_transit = user_orders.filter(order_status__in=['Processing', 'Shipped']).exists()
+            if in_transit:
+                return Response({
+                    'error': 'Your order is currently in transit. You can write a review once it has been delivered!',
+                    'code': 'delivery_pending'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'error': 'Reviews are only allowed after your order has been successfully delivered.',
+                'code': 'not_delivered'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         review, created = ProductReview.objects.update_or_create(
             product=product,
@@ -1334,7 +1353,7 @@ def product_reviews_api(request, product_id):
                 'rating': rating_val,
                 'title': title,
                 'comment': comment,
-                'is_verified_purchase': verified_purchase,
+                'is_verified_purchase': True,
             },
         )
         product.recalculate_rating()
@@ -1353,17 +1372,36 @@ def product_reviews_api(request, product_id):
     for r in reviews_qs:
         breakdown[str(r.rating)] = breakdown.get(str(r.rating), 0) + 1
 
+    can_review = False
+    review_status_reason = 'unauthenticated'
     user_review = None
+
     if request.user.is_authenticated:
         own = reviews_qs.filter(user=request.user).first()
         if own:
             user_review = ProductReviewSerializer(own, context={'request': request}).data
+
+        user_orders = Order.objects.filter(user=request.user, items__product=product)
+        if not user_orders.exists():
+            can_review = False
+            review_status_reason = 'not_purchased'
+        elif user_orders.filter(order_status='Delivered').exists():
+            can_review = True
+            review_status_reason = 'eligible'
+        elif user_orders.filter(order_status__in=['Processing', 'Shipped']).exists():
+            can_review = False
+            review_status_reason = 'delivery_pending'
+        else:
+            can_review = False
+            review_status_reason = 'not_delivered'
 
     return Response({
         'product_id': product.id,
         'average_rating': str(product.rating),
         'review_count': product.review_count,
         'breakdown': breakdown,
+        'can_review': can_review,
+        'review_status_reason': review_status_reason,
         'user_review': user_review,
         'reviews': ProductReviewSerializer(reviews_qs, many=True, context={'request': request}).data,
     })

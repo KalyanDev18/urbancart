@@ -269,11 +269,36 @@ class ProductReviewSystemTests(TestCase):
         self.assertEqual(self.product.get_original_price(), Decimal('0.00'))
 
     def test_submit_update_and_delete_product_reviews(self):
-        # Unauthenticated POST blocked
+        # 1. Unauthenticated POST blocked
         unauth = self.client.post(f'/api/products/{self.product.id}/reviews/', {'rating': 5, 'comment': 'Nice!'}, format='json')
         self.assertEqual(unauth.status_code, 401)
 
-        # Verified buyer submits 5-star review
+        # 2. Non-purchasing user blocked
+        self.client.force_authenticate(user=self.other)
+        unpurchased_res = self.client.post(f'/api/products/{self.product.id}/reviews/', {'rating': 3, 'comment': 'Never ordered'}, format='json')
+        self.assertEqual(unpurchased_res.status_code, 403)
+        self.assertEqual(unpurchased_res.data.get('code'), 'not_purchased')
+
+        # 3. User with in-transit (Processing / Shipped) order blocked until Delivered
+        in_transit_order = Order.objects.create(
+            user=self.other,
+            full_name='Riya',
+            email='browser@example.com',
+            address='Lane 2',
+            city='Pune',
+            postal_code='411002',
+            total_amount=Decimal('1999.00'),
+            payment_method='CARD',
+            payment_status='Paid',
+            order_status='Shipped',
+        )
+        OrderItem.objects.create(order=in_transit_order, product=self.product, price=self.product.price, quantity=1)
+
+        transit_res = self.client.post(f'/api/products/{self.product.id}/reviews/', {'rating': 4, 'comment': 'Still on the way'}, format='json')
+        self.assertEqual(transit_res.status_code, 400)
+        self.assertEqual(transit_res.data.get('code'), 'delivery_pending')
+
+        # 4. Verified buyer with Delivered order submits 5-star review
         self.client.force_authenticate(user=self.buyer)
         res1 = self.client.post(
             f'/api/products/{self.product.id}/reviews/',
@@ -286,7 +311,10 @@ class ProductReviewSystemTests(TestCase):
         self.assertEqual(res1.data['review_count'], 1)
         rev1_id = res1.data['review']['id']
 
-        # Second user (not purchased) submits 3-star review -> average becomes 4.0
+        # 5. Order gets Delivered -> second user can now submit review
+        in_transit_order.order_status = 'Delivered'
+        in_transit_order.save()
+
         self.client.force_authenticate(user=self.other)
         res2 = self.client.post(
             f'/api/products/{self.product.id}/reviews/',
@@ -294,15 +322,15 @@ class ProductReviewSystemTests(TestCase):
             format='json',
         )
         self.assertEqual(res2.status_code, 201)
-        self.assertFalse(res2.data['review']['is_verified_purchase'])
+        self.assertTrue(res2.data['review']['is_verified_purchase'])
         self.assertEqual(res2.data['average_rating'], '4.0')
         self.assertEqual(res2.data['review_count'], 2)
 
-        # Cannot delete another user's review
+        # 6. Cannot delete another user's review
         forbidden_del = self.client.delete(f'/api/products/{self.product.id}/reviews/{rev1_id}/')
         self.assertEqual(forbidden_del.status_code, 403)
 
-        # Updating own review recalculates rating
+        # 7. Updating own review recalculates rating
         res2_upd = self.client.post(
             f'/api/products/{self.product.id}/reviews/',
             {'rating': 4, 'comment': 'Fits better after wash.'},
@@ -312,7 +340,7 @@ class ProductReviewSystemTests(TestCase):
         self.assertEqual(res2_upd.data['average_rating'], '4.5')
         self.assertEqual(res2_upd.data['review_count'], 2)
 
-        # Buyer deletes own review -> only other's 4-star remains
+        # 8. Buyer deletes own review -> only other's 4-star remains
         self.client.force_authenticate(user=self.buyer)
         del_res = self.client.delete(f'/api/products/{self.product.id}/reviews/{rev1_id}/')
         self.assertEqual(del_res.status_code, 200)
