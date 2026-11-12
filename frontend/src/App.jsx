@@ -6,7 +6,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import CartDrawer from './components/CartDrawer';
 import ChatbotWidget from './components/ChatbotWidget';
-import WelcomeSplash from './components/WelcomeSplash';
 
 import HomePage from './pages/HomePage';
 
@@ -23,7 +22,6 @@ const PageLoader = () => (
 );
 
 function MainApp() {
-  const [showSplash, setShowSplash] = useState(true);
   const [currentPage, setCurrentPage] = useState('home');
   const [dashboardTab, setDashboardTab] = useState('orders');
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,9 +50,6 @@ function MainApp() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bg-primary)', color: 'var(--text-main)' }}>
-      
-      {/* 2-Second Luxury Animated Landing Poster */}
-      {showSplash && <WelcomeSplash onDone={() => setShowSplash(false)} />}
 
       {/* Top Navbar */}
       <Navbar
