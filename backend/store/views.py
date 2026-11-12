@@ -21,7 +21,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP
-from .utils import send_otp_email
+from .utils import send_otp_email, send_order_status_email
 from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer
@@ -49,12 +49,15 @@ class OrderViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def update_status(self, request, pk=None):
         order = self.get_object()
+        old_status = order.order_status
         new_status = request.data.get('order_status')
         if new_status in dict(Order.ORDER_STATUS_CHOICES):
             order.order_status = new_status
             if new_status == 'Delivered':
                 order.payment_status = 'Paid'
             order.save()
+            if new_status != old_status:
+                send_order_status_email(order, new_status.upper().replace(' ', '_'))
             return Response({'status': 'order status updated', 'order_status': order.order_status})
         return Response({'error': 'invalid status'}, status=400)
 
@@ -500,6 +503,7 @@ def process_payment(request):
         )
 
     cart_items.delete()
+    send_order_status_email(order, 'CONFIRMED')
 
     messages.success(request, f"Payment Successful! Order #{order.id} placed for ₹{grand_total}.")
     return redirect('order_success', order_id=order.id)

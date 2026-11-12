@@ -22,7 +22,7 @@ from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer, ProductReviewSerializer
 )
-from .utils import send_otp_email
+from .utils import send_otp_email, send_order_status_email, send_ticket_update_email
 
 HOME_CACHE_KEY = 'urbancart_home_payload_v2'
 
@@ -557,6 +557,7 @@ def checkout_api(request):
         )
 
     cart_items.delete()
+    send_order_status_email(order, 'CONFIRMED')
 
     return Response({
         'status': 'success',
@@ -635,6 +636,7 @@ def cancel_order_api(request, order_id):
         ticket_status = 'Resolved'
 
     order.save()
+    send_order_status_email(order, 'CANCELLED')
 
     SupportTicket.objects.create(
         user=request.user,
@@ -705,6 +707,7 @@ def return_order_api(request, order_id):
         )
 
     order.save()
+    send_order_status_email(order, 'RETURN_REQUESTED')
 
     SupportTicket.objects.create(
         user=request.user,
@@ -1107,6 +1110,9 @@ def admin_update_order_api(request, order_id):
     if not order:
         return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
 
+    old_order_status = order.order_status
+    old_payment_status = order.payment_status
+
     new_order_status = request.data.get('order_status')
     new_payment_status = request.data.get('payment_status')
     refund_amount = request.data.get('refund_amount')
@@ -1139,6 +1145,12 @@ def admin_update_order_api(request, order_id):
         order.refund_reference = f"RFND-{order.id:05d}-{uuid.uuid4().hex[:6].upper()}"
 
     order.save()
+
+    if new_order_status is not None and new_order_status != old_order_status:
+        send_order_status_email(order, new_order_status.upper().replace(' ', '_'))
+    elif new_payment_status == 'Refunded' and old_payment_status != 'Refunded':
+        send_order_status_email(order, 'REFUNDED')
+
     return Response({
         'status': 'success',
         'message': f'Order #{order.id} updated to {order.order_status} ({order.payment_status}).',
@@ -1273,6 +1285,7 @@ def admin_update_ticket_api(request, ticket_id):
         ticket.admin_reply = str(request.data['admin_reply']).strip()
 
     ticket.save()
+    send_ticket_update_email(ticket)
     return Response({
         'status': 'success',
         'message': f'Ticket #{ticket.id} updated.',

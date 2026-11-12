@@ -1,5 +1,7 @@
+import uuid
 from django.contrib import admin
 from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket, ProductReview
+from .utils import send_order_status_email, send_ticket_update_email
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -31,17 +33,42 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
     actions = ['mark_as_shipped', 'mark_as_delivered', 'mark_as_refunded']
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if change and getattr(form, 'initial', None):
+            old_status = form.initial.get('order_status')
+            old_payment = form.initial.get('payment_status')
+            if obj.order_status != old_status:
+                send_order_status_email(obj, obj.order_status.upper().replace(' ', '_'))
+            elif obj.payment_status == 'Refunded' and old_payment != 'Refunded':
+                send_order_status_email(obj, 'REFUNDED')
+
     @admin.action(description='Mark selected orders as Shipped')
     def mark_as_shipped(self, request, queryset):
-        queryset.update(order_status='Shipped')
+        for order in queryset:
+            order.order_status = 'Shipped'
+            order.save(update_fields=['order_status', 'updated_at'])
+            send_order_status_email(order, 'SHIPPED')
 
     @admin.action(description='Mark selected orders as Delivered')
     def mark_as_delivered(self, request, queryset):
-        queryset.update(order_status='Delivered', payment_status='Paid')
+        for order in queryset:
+            order.order_status = 'Delivered'
+            order.payment_status = 'Paid'
+            order.save(update_fields=['order_status', 'payment_status', 'updated_at'])
+            send_order_status_email(order, 'DELIVERED')
 
     @admin.action(description='Mark selected orders as Returned & Refunded')
     def mark_as_refunded(self, request, queryset):
-        queryset.update(order_status='Returned', payment_status='Refunded')
+        for order in queryset:
+            order.order_status = 'Returned'
+            order.payment_status = 'Refunded'
+            if not order.refund_amount or order.refund_amount <= 0:
+                order.refund_amount = order.total_amount
+            if not order.refund_reference:
+                order.refund_reference = f"RFND-{order.id:05d}-{uuid.uuid4().hex[:6].upper()}"
+            order.save(update_fields=['order_status', 'payment_status', 'refund_amount', 'refund_reference', 'updated_at'])
+            send_order_status_email(order, 'REFUNDED')
 
 @admin.register(ShippingAddress)
 class ShippingAddressAdmin(admin.ModelAdmin):
@@ -60,6 +87,11 @@ class SupportTicketAdmin(admin.ModelAdmin):
     list_filter = ('issue_type', 'status', 'created_at')
     search_fields = ('subject', 'message', 'user__username', 'user__email')
     list_editable = ('status',)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+        if change and ('status' in form.changed_data or 'admin_reply' in form.changed_data):
+            send_ticket_update_email(obj)
 
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):

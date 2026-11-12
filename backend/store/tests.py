@@ -319,3 +319,151 @@ class ProductReviewSystemTests(TestCase):
         self.assertEqual(del_res.data['average_rating'], '4.0')
         self.assertEqual(del_res.data['review_count'], 1)
 
+
+class OrderEmailNotificationTests(TestCase):
+    def setUp(self):
+        from .models import CartItem
+        self.customer = User.objects.create_user(
+            username='mailbuyer',
+            email='mailbuyer@example.com',
+            password='userpass123',
+            first_name='Rohan',
+        )
+        self.admin_user = User.objects.create_superuser(
+            username='mailadmin',
+            email='mailadmin@example.com',
+            password='AdminStrongPass!99',
+        )
+        self.product = Product.objects.create(
+            name='Aero Runner Pro',
+            category='Footwear',
+            price=Decimal('3499.00'),
+            stock=10,
+        )
+        CartItem.objects.create(product=self.product, quantity=2)
+        self.client = APIClient()
+
+    def test_order_lifecycle_emails_dispatched_for_all_stages(self):
+        import os
+        from unittest.mock import patch
+        from django.core import mail
+        from django.test import override_settings
+
+        clean_env = {'EMAIL_WEBHOOK_URL': '', 'BREVO_API_KEY': '', 'RESEND_API_KEY': ''}
+        with override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'):
+            with patch.dict(os.environ, clean_env):
+                mail.outbox.clear()
+
+                # 1. Checkout -> Order Confirmed email
+                self.client.force_authenticate(user=self.customer)
+                checkout_res = self.client.post('/api/checkout/', {
+                    'full_name': 'Rohan Verma',
+                    'email': 'rohan@example.com',
+                    'address': '101 Cyber Hub',
+                    'city': 'Gurugram',
+                    'postal_code': '122002',
+                    'payment_method': 'UPI',
+                }, format='json')
+                self.assertEqual(checkout_res.status_code, 200)
+                order_id = checkout_res.data['order']['id']
+
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertIn('Order Confirmed', mail.outbox[0].subject)
+                self.assertEqual(mail.outbox[0].to, ['rohan@example.com'])
+                self.assertIn('Aero Runner Pro', mail.outbox[0].body)
+
+                # 2. Admin marks Shipped -> Order Shipped email
+                self.client.force_authenticate(user=self.admin_user)
+                ship_res = self.client.patch(
+                    f'/api/admin/orders/{order_id}/',
+                    {'order_status': 'Shipped'},
+                    format='json',
+                )
+                self.assertEqual(ship_res.status_code, 200)
+                self.assertEqual(len(mail.outbox), 2)
+                self.assertIn('Shipped', mail.outbox[1].subject)
+
+                # 3. Admin marks Delivered -> Order Delivered email
+                deliv_res = self.client.patch(
+                    f'/api/admin/orders/{order_id}/',
+                    {'order_status': 'Delivered', 'payment_status': 'Paid'},
+                    format='json',
+                )
+                self.assertEqual(deliv_res.status_code, 200)
+                self.assertEqual(len(mail.outbox), 3)
+                self.assertIn('Delivered', mail.outbox[2].subject)
+
+                # 4. Customer requests Return -> Return Request email
+                self.client.force_authenticate(user=self.customer)
+                ret_res = self.client.post(f'/api/orders/{order_id}/return/', {
+                    'reason': 'Need larger size',
+                    'resolution': 'REFUND',
+                }, format='json')
+                self.assertEqual(ret_res.status_code, 200)
+                self.assertEqual(len(mail.outbox), 4)
+                self.assertIn('Return Request', mail.outbox[3].subject)
+
+                # 5. Admin marks Returned & Refunded -> Refund Processed email
+                self.client.force_authenticate(user=self.admin_user)
+                rfnd_res = self.client.patch(
+                    f'/api/admin/orders/{order_id}/',
+                    {'order_status': 'Returned', 'payment_status': 'Refunded'},
+                    format='json',
+                )
+                self.assertEqual(rfnd_res.status_code, 200)
+                self.assertEqual(len(mail.outbox), 5)
+                self.assertIn('Refund Processed', mail.outbox[4].subject)
+
+    def test_cancel_order_and_ticket_reply_send_emails(self):
+        import os
+        from unittest.mock import patch
+        from django.core import mail
+        from django.test import override_settings
+
+        order = Order.objects.create(
+            user=self.customer,
+            full_name='Rohan Verma',
+            email='rohan@example.com',
+            address='101 Cyber Hub',
+            city='Gurugram',
+            postal_code='122002',
+            total_amount=Decimal('3499.00'),
+            payment_method='CARD',
+            payment_status='Paid',
+            order_status='Processing',
+        )
+        OrderItem.objects.create(order=order, product=self.product, price=self.product.price, quantity=1)
+        ticket = SupportTicket.objects.create(
+            user=self.customer,
+            order=order,
+            issue_type='DELIVERY',
+            subject='Delivery slot query',
+            message='When will it reach?',
+        )
+
+        clean_env = {'EMAIL_WEBHOOK_URL': '', 'BREVO_API_KEY': '', 'RESEND_API_KEY': ''}
+        with override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend'):
+            with patch.dict(os.environ, clean_env):
+                mail.outbox.clear()
+
+                # Cancel order sends Cancelled email with refund ref
+                self.client.force_authenticate(user=self.customer)
+                cxl_res = self.client.post(f'/api/orders/{order.id}/cancel/', {'reason': 'Changed mind'}, format='json')
+                self.assertEqual(cxl_res.status_code, 200)
+                self.assertEqual(len(mail.outbox), 1)
+                self.assertIn('Cancelled', mail.outbox[0].subject)
+                self.assertIn('Changed mind', mail.outbox[0].body)
+
+                # Admin updates support ticket -> email sent
+                self.client.force_authenticate(user=self.admin_user)
+                t_res = self.client.patch(
+                    f'/api/admin/tickets/{ticket.id}/',
+                    {'status': 'Resolved', 'admin_reply': 'Refund already processed!'},
+                    format='json',
+                )
+                self.assertEqual(t_res.status_code, 200)
+                self.assertEqual(len(mail.outbox), 2)
+                self.assertIn('Support Update', mail.outbox[1].subject)
+                self.assertIn('Refund already processed!', mail.outbox[1].body)
+
+
