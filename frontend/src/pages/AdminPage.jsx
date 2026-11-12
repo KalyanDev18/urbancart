@@ -874,7 +874,7 @@ export default function AdminPage({ onRequireAuth, onContinueShopping }) {
                   <div>
                     <div style={{ fontWeight: 700, fontSize: '0.94rem' }}>{p.name}</div>
                     <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)' }}>
-                      #{p.id} • {p.category} • ★ {p.rating}
+                      #{p.id} • {p.category} • {Number(p.review_count) > 0 ? `★ ${p.rating} (${p.review_count})` : 'No reviews'}
                     </div>
                   </div>
                   <div>

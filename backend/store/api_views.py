@@ -16,10 +16,10 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import viewsets
 
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket, ProductReview
 from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
-    OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer
+    OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer, ProductReviewSerializer
 )
 from .utils import send_otp_email
 
@@ -34,7 +34,11 @@ def _build_sections_payload(all_products):
     serialized = ProductSerializer(all_products, many=True).data
     featured = [p for p in serialized if p.get('is_featured')]
     spotlight = featured[:6] if len(featured) >= 3 else serialized[:6]
-    deals = sorted(serialized, key=lambda p: float(p.get('rating') or 0), reverse=True)[:10]
+    deals = sorted(
+        serialized,
+        key=lambda p: (float(p.get('rating') or 0), int(p.get('discount_percent') or 0), 1 if p.get('is_featured') else 0),
+        reverse=True,
+    )[:10]
     suggested = sorted(serialized, key=lambda p: int(p.get('id') or 0))[:10]
     return {
         'spotlight': spotlight,
@@ -192,8 +196,11 @@ def google_auth_api(request):
     POST /api/auth/google/
     Payload: { "email": "...", "name": "..." }
     """
-    email = request.data.get('email', '').strip().lower() or 'kdev23416@gmail.com'
-    name = request.data.get('name', '').strip() or 'Kalyan Dev'
+    email = request.data.get('email', '').strip().lower()
+    name = request.data.get('name', '').strip()
+
+    if not email:
+        return Response({'error': 'Email address is required.'}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.filter(email__iexact=email).first()
     if (user and (user.is_staff or user.is_superuser)) or email in _get_admin_emails():
@@ -1253,4 +1260,104 @@ def admin_update_ticket_api(request, ticket_id):
         'status': 'success',
         'message': f'Ticket #{ticket.id} updated.',
         'ticket': SupportTicketSerializer(ticket).data,
+    })
+
+
+# --- PRODUCT REVIEWS & RATINGS API ---
+
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.AllowAny])
+def product_reviews_api(request, product_id):
+    """
+    GET  /api/products/<product_id>/reviews/ -> List all real reviews + rating breakdown
+    POST /api/products/<product_id>/reviews/ -> Submit or update authenticated user's review
+    """
+    product = Product.objects.filter(id=product_id).first()
+    if not product:
+        return Response({'error': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'POST':
+        if not request.user.is_authenticated:
+            return Response({'error': 'Please sign in to submit a review.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:
+            rating_val = int(request.data.get('rating'))
+            if rating_val < 1 or rating_val > 5:
+                raise ValueError()
+        except (TypeError, ValueError):
+            return Response({'error': 'Rating must be an integer between 1 and 5.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        title = (request.data.get('title') or '').strip()[:120]
+        comment = (request.data.get('comment') or '').strip()
+        if len(comment) < 3:
+            return Response({'error': 'Please write at least 3 characters in your review comment.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        verified_purchase = OrderItem.objects.filter(
+            order__user=request.user,
+            product=product,
+        ).exclude(order__order_status='Cancelled').exists()
+
+        review, created = ProductReview.objects.update_or_create(
+            product=product,
+            user=request.user,
+            defaults={
+                'rating': rating_val,
+                'title': title,
+                'comment': comment,
+                'is_verified_purchase': verified_purchase,
+            },
+        )
+        product.recalculate_rating()
+
+        return Response({
+            'status': 'success',
+            'message': 'Review submitted!' if created else 'Your review was updated!',
+            'review': ProductReviewSerializer(review, context={'request': request}).data,
+            'average_rating': str(product.rating),
+            'review_count': product.review_count,
+        }, status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
+
+    reviews_qs = ProductReview.objects.filter(product=product).select_related('user').order_by('-created_at')
+    breakdown = {str(star): 0 for star in range(1, 6)}
+    for r in reviews_qs:
+        breakdown[str(r.rating)] = breakdown.get(str(r.rating), 0) + 1
+
+    user_review = None
+    if request.user.is_authenticated:
+        own = reviews_qs.filter(user=request.user).first()
+        if own:
+            user_review = ProductReviewSerializer(own, context={'request': request}).data
+
+    return Response({
+        'product_id': product.id,
+        'average_rating': str(product.rating),
+        'review_count': product.review_count,
+        'breakdown': breakdown,
+        'user_review': user_review,
+        'reviews': ProductReviewSerializer(reviews_qs, many=True, context={'request': request}).data,
+    })
+
+
+@api_view(['DELETE'])
+def delete_product_review_api(request, product_id, review_id):
+    """DELETE /api/products/<product_id>/reviews/<review_id>/ -> Delete own review or admin moderation."""
+    if not request.user.is_authenticated:
+        return Response({'error': 'Authentication required.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+    review = ProductReview.objects.select_related('product').filter(id=review_id, product_id=product_id).first()
+    if not review:
+        return Response({'error': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if review.user_id != request.user.id and not request.user.is_staff:
+        return Response({'error': 'You can only delete your own review.'}, status=status.HTTP_403_FORBIDDEN)
+
+    product = review.product
+    review.delete()
+    product.recalculate_rating()
+
+    return Response({
+        'status': 'success',
+        'message': 'Review deleted.',
+        'average_rating': str(product.rating),
+        'review_count': product.review_count,
     })

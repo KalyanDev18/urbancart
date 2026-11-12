@@ -25,7 +25,8 @@ class Product(models.Model):
     compare_at_price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     image_url = models.URLField(max_length=500, blank=True, null=True)
     stock = models.IntegerField(default=10, validators=[MinValueValidator(0)])
-    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.8, validators=[MinValueValidator(1), MaxValueValidator(5)])
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=0, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    review_count = models.PositiveIntegerField(default=0)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -36,16 +37,23 @@ class Product(models.Model):
     def __str__(self):
         return self.name
 
+    def recalculate_rating(self):
+        agg = self.reviews.aggregate(avg=models.Avg('rating'), cnt=models.Count('id'))
+        cnt = agg['cnt'] or 0
+        avg = agg['avg'] or 0
+        self.rating = round(Decimal(str(avg)), 1) if cnt > 0 else Decimal('0.0')
+        self.review_count = cnt
+        self.save(update_fields=['rating', 'review_count'])
+
     def get_discount_percent(self):
         if self.compare_at_price and self.compare_at_price > self.price:
             return int(((self.compare_at_price - self.price) / self.compare_at_price) * 100)
-        return int((self.id * 7) % 25 + 20)
+        return 0
 
     def get_original_price(self):
         if self.compare_at_price and self.compare_at_price > self.price:
             return self.compare_at_price
-        disc = self.get_discount_percent()
-        return round(self.price * Decimal(100) / Decimal(100 - disc), 2)
+        return Decimal('0.00')
 
 class ShippingAddress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shipping_addresses')
@@ -180,4 +188,22 @@ class EmailOTP(models.Model):
 
     def __str__(self):
         return f"{self.email} - {self.otp} ({'Verified' if self.is_verified else 'Pending'})"
+
+
+class ProductReview(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_reviews')
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    title = models.CharField(max_length=120, blank=True, default='')
+    comment = models.TextField()
+    is_verified_purchase = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('product', 'user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.rating}★ on {self.product.name} by {self.user.username}"
 

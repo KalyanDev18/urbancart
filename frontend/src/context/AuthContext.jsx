@@ -43,12 +43,6 @@ export function AuthProvider({ children }) {
     return res;
   };
 
-  const loginWithGoogle = async (email, name) => {
-    const res = await api.googleLogin(email, name);
-    saveAuthSession(res.token, res.user);
-    return res;
-  };
-
   const registerUser = async (payload) => {
     const res = await api.register(payload);
     saveAuthSession(res.token, res.user);
@@ -81,7 +75,6 @@ export function AuthProvider({ children }) {
         loading,
         loginWithOtp,
         loginWithPassword,
-        loginWithGoogle,
         registerUser,
         logoutUser,
         updateProfile,

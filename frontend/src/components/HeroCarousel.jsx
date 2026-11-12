@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight, ShoppingBag, Sparkles, ArrowRight, Star } fr
 import { useCart } from '../context/CartContext';
 import { optimizeImageUrl } from '../api/client';
 
-export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }) {
+export default function HeroCarousel({ products = [], onRequireAuth, onShopNow, onSelectProduct }) {
   const safeProducts = Array.isArray(products) ? products : [];
   const carouselItems = safeProducts.slice(0, 5);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -99,8 +99,10 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
           }}
         >
           {carouselItems.map((product, idx) => {
-            const discount = product.discount_percent || Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100) || 28;
-            const originalPrice = product.original_price || product.compare_at_price || Math.round(product.price * 1.35);
+            const discount = Number(product.discount_percent || 0);
+            const originalPrice = Number(product.original_price || product.compare_at_price || 0);
+            const reviewCount = Number(product.review_count || 0);
+            const ratingVal = Number(product.rating || 0);
 
             return (
               <div 
@@ -117,20 +119,24 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, flexWrap: 'wrap' }}>
                     <span className="badge-gold">
                       <Sparkles size={13} />
-                      DROP 0{idx + 1} OF 05
+                      DROP 0{idx + 1} OF {String(carouselItems.length).padStart(2, '0')}
                     </span>
                     <span style={{ fontSize: '0.8rem', color: 'var(--price-color)', fontWeight: 700, textTransform: 'uppercase' }}>
                       {product.category}
                     </span>
                   </div>
 
-                  <h2 style={{
-                    fontSize: 'clamp(1.3rem, 3.8vw, 2.45rem)',
-                    fontWeight: 800,
-                    color: 'var(--text-main)',
-                    lineHeight: 1.15,
-                    marginBottom: 10,
-                  }}>
+                  <h2
+                    onClick={() => onSelectProduct && onSelectProduct(product)}
+                    style={{
+                      fontSize: 'clamp(1.3rem, 3.8vw, 2.45rem)',
+                      fontWeight: 800,
+                      color: 'var(--text-main)',
+                      lineHeight: 1.15,
+                      marginBottom: 10,
+                      cursor: onSelectProduct ? 'pointer' : 'default',
+                    }}
+                  >
                     {product.name}
                   </h2>
 
@@ -141,28 +147,34 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                     marginBottom: 14,
                     maxWidth: 480,
                   }}>
-                    {product.description || 'Precision crafted with premier materials, limited stock drop available for priority express delivery.'}
+                    {product.description || 'Crafted for everyday style and comfort.'}
                   </p>
 
-                  {/* Price & Rating */}
+                  {/* Price & Real Rating */}
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
                     <div style={{ fontSize: 'clamp(1.35rem, 3.5vw, 2.05rem)', fontWeight: 800, color: 'var(--price-color)' }}>
                       ₹{Number(product.price).toLocaleString('en-IN')}
                     </div>
-                    {originalPrice > product.price && (
+                    {originalPrice > Number(product.price) && (
                       <div style={{ fontSize: '0.94rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                         ₹{Number(originalPrice).toLocaleString('en-IN')}
                       </div>
                     )}
-                    <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
-                      {discount}% OFF
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '3px 8px', borderRadius: 8 }}>
-                      <Star size={13} fill="#d97706" color="#d97706" />
+                    {discount > 0 && originalPrice > Number(product.price) && (
+                      <div style={{ background: '#d97706', color: '#ffffff', fontSize: '0.72rem', fontWeight: 800, padding: '3px 8px', borderRadius: 6 }}>
+                        {discount}% OFF
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => onSelectProduct && onSelectProduct(product)}
+                      style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '3px 8px', borderRadius: 8, cursor: 'pointer' }}
+                    >
+                      <Star size={13} fill={reviewCount > 0 ? '#d97706' : 'none'} color="#d97706" />
                       <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--badge-text)' }}>
-                        {product.rating || '4.9'}
+                        {reviewCount > 0 ? `${ratingVal.toFixed(1)} (${reviewCount})` : 'Reviews'}
                       </span>
-                    </div>
+                    </button>
                   </div>
 
                   {/* Call to Action Buttons */}
@@ -178,11 +190,11 @@ export default function HeroCarousel({ products = [], onRequireAuth, onShopNow }
                     </button>
 
                     <button
-                      onClick={onShopNow}
+                      onClick={() => (onSelectProduct ? onSelectProduct(product) : onShopNow?.())}
                       className="btn-dark"
                       style={{ padding: '11px 16px', fontSize: '0.9rem' }}
                     >
-                      Browse All Drops
+                      Reviews & Details
                       <ArrowRight size={15} />
                     </button>
                   </div>

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import ProductCard from './ProductCard';
 
-export default function DealsScrollRow({ title = 'Deals on your favourites! ✨', products = [], onRequireAuth }) {
+export default function DealsScrollRow({ title = 'Deals on your favourites! ✨', products = [], onRequireAuth, onSelectProduct }) {
   const safeProducts = Array.isArray(products) ? products : [];
   const scrollRef = useRef(null);
 
@@ -87,7 +87,7 @@ export default function DealsScrollRow({ title = 'Deals on your favourites! ✨'
             key={item.id} 
             className="deals-scroll-item"
           >
-            <ProductCard product={item} onRequireAuth={onRequireAuth} />
+            <ProductCard product={item} onRequireAuth={onRequireAuth} onSelectProduct={onSelectProduct} />
           </div>
         ))}
       </div>

@@ -1,4 +1,4 @@
-import os
+﻿import os
 import django
 from decimal import Decimal
 
@@ -16,7 +16,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?auto=format&fit=crop&w=800&q=80",
         "stock": 35,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Vintage Japanese Graphic Crewneck Tee",
@@ -25,7 +25,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=800&q=80",
         "stock": 50,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Classic Washed Indigo Denim Trucker Jacket",
@@ -34,7 +34,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1576995853123-5a10305d93c0?auto=format&fit=crop&w=800&q=80",
         "stock": 20,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Techwear Tactical Cargo Joggers",
@@ -43,7 +43,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&w=800&q=80",
         "stock": 28,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Cuban Collar Tropical Resort Shirt",
@@ -52,7 +52,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=800&q=80",
         "stock": 40,
-        "rating": Decimal("4.6")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Urban Padded Down Puffer Jacket",
@@ -61,7 +61,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1539533018447-63fcce2678e3?auto=format&fit=crop&w=800&q=80",
         "stock": 15,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Slim Fit Stretch Cotton Chino Trousers",
@@ -70,7 +70,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1473966968600-fa801b869a1a?auto=format&fit=crop&w=800&q=80",
         "stock": 45,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Corduroy Button-Down Overshirt",
@@ -79,7 +79,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1596755094514-f87e34085b2c?auto=format&fit=crop&w=800&q=80",
         "stock": 30,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Merino Wool Ribbed Cable Knit Sweater",
@@ -88,7 +88,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?auto=format&fit=crop&w=800&q=80",
         "stock": 22,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Athletic Dry-Fit Training Performance Tee",
@@ -97,7 +97,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?auto=format&fit=crop&w=800&q=80",
         "stock": 60,
-        "rating": Decimal("4.6")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Oversized Streetwear Bomber Jacket",
@@ -106,7 +106,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80",
         "stock": 18,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Minimalist Fleece Sweatpants",
@@ -115,7 +115,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1552902865-b72c031ac5ea?auto=format&fit=crop&w=800&q=80",
         "stock": 38,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Retro Tie-Dye Oversized Hoodie",
@@ -124,7 +124,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1509967419530-da38b4704bc6?auto=format&fit=crop&w=800&q=80",
         "stock": 25,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Distressed Slim Fit Biker Denim Jeans",
@@ -133,7 +133,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?auto=format&fit=crop&w=800&q=80",
         "stock": 27,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Pure Linen Casual Button-Up Shirt",
@@ -142,7 +142,7 @@ UNIQUE_PRODUCTS = [
         "category": "Clothing",
         "image_url": "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=800&q=80",
         "stock": 32,
-        "rating": Decimal("4.6")
+        "rating": Decimal("0.0")
     },
 
     # --- FOOTWEAR & SNEAKERS ---
@@ -153,7 +153,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=800&q=80",
         "stock": 30,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Retro High-Top Court Basketball Sneakers",
@@ -162,7 +162,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1552346154-21d32810aba3?auto=format&fit=crop&w=800&q=80",
         "stock": 25,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Ultra-Lightweight Mesh Running Trainers",
@@ -171,7 +171,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=800&q=80",
         "stock": 45,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Suede Leather Chelsea Ankle Boots",
@@ -180,7 +180,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?auto=format&fit=crop&w=800&q=80",
         "stock": 18,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Canvas Vulcanized Slip-On Skate Shoes",
@@ -189,7 +189,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=800&q=80",
         "stock": 50,
-        "rating": Decimal("4.6")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Waterproof Outdoor Trail Hiking Boots",
@@ -198,7 +198,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=800&q=80",
         "stock": 16,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Chunky Platform Dad Sneakers",
@@ -207,7 +207,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=800&q=80",
         "stock": 22,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Hand-Stitched Tan Leather Oxford Shoes",
@@ -216,7 +216,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?auto=format&fit=crop&w=800&q=80",
         "stock": 14,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Molded Ergonomic Comfort Slide Sandals",
@@ -225,7 +225,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1603808033192-082d6919d3e1?auto=format&fit=crop&w=800&q=80",
         "stock": 60,
-        "rating": Decimal("4.5")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Firm Ground Performance Cleat Football Boots",
@@ -234,7 +234,7 @@ UNIQUE_PRODUCTS = [
         "category": "Footwear",
         "image_url": "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=800&q=80",
         "stock": 20,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
 
     # --- ELECTRONICS & TECH ---
@@ -245,7 +245,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80",
         "stock": 25,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "CyberDeck RGB Mechanical Keyboard",
@@ -254,7 +254,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1587829741301-dc798b83add3?auto=format&fit=crop&w=800&q=80",
         "stock": 30,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Spatial Audio True Wireless ANC Earbuds",
@@ -263,7 +263,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=800&q=80",
         "stock": 40,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Ultra-HD 4K 60fps Action Camera",
@@ -272,7 +272,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
         "stock": 15,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Heavy Bass 30W Waterproof Bluetooth Speaker",
@@ -281,7 +281,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1545454675-3531b543be5d?auto=format&fit=crop&w=800&q=80",
         "stock": 35,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Precision 26K DPI Ergonomic Gaming Mouse",
@@ -290,7 +290,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?auto=format&fit=crop&w=800&q=80",
         "stock": 28,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "20000mAh 65W PD Fast Power Bank",
@@ -299,7 +299,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1609592424074-9c025cf26d40?auto=format&fit=crop&w=800&q=80",
         "stock": 50,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Aluminum 9-in-1 USB-C Multiport Dock",
@@ -308,7 +308,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1544652478-6653e09f18a2?auto=format&fit=crop&w=800&q=80",
         "stock": 32,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Studio Condenser USB Microphone Kit",
@@ -317,7 +317,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1590602847861-f357a9332bbc?auto=format&fit=crop&w=800&q=80",
         "stock": 20,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "15W Fast Qi Wireless Charging Stand",
@@ -326,7 +326,7 @@ UNIQUE_PRODUCTS = [
         "category": "Electronics",
         "image_url": "https://images.unsplash.com/photo-1622445268465-8438465b89a8?auto=format&fit=crop&w=800&q=80",
         "stock": 45,
-        "rating": Decimal("4.6")
+        "rating": Decimal("0.0")
     },
 
     # --- WEARABLES ---
@@ -337,7 +337,7 @@ UNIQUE_PRODUCTS = [
         "category": "Wearables",
         "image_url": "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=800&q=80",
         "stock": 18,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Fitness Tracker Band with SpO2 Sensor",
@@ -346,7 +346,7 @@ UNIQUE_PRODUCTS = [
         "category": "Wearables",
         "image_url": "https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?auto=format&fit=crop&w=800&q=80",
         "stock": 50,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Polarized Audio Sunglasses with Bluetooth",
@@ -355,7 +355,7 @@ UNIQUE_PRODUCTS = [
         "category": "Wearables",
         "image_url": "https://images.unsplash.com/photo-1572635196237-14b3f281503f?auto=format&fit=crop&w=800&q=80",
         "stock": 15,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Stainless Steel Executive Chronograph Watch",
@@ -364,7 +364,7 @@ UNIQUE_PRODUCTS = [
         "category": "Wearables",
         "image_url": "https://images.unsplash.com/photo-1524805444758-089113d48a6d?auto=format&fit=crop&w=800&q=80",
         "stock": 22,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Biometric Titanium Smart Health Ring",
@@ -373,7 +373,7 @@ UNIQUE_PRODUCTS = [
         "category": "Wearables",
         "image_url": "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=800&q=80",
         "stock": 12,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
 
     # --- GAMING ---
@@ -384,7 +384,7 @@ UNIQUE_PRODUCTS = [
         "category": "Gaming",
         "image_url": "https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?auto=format&fit=crop&w=800&q=80",
         "stock": 10,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Pro Gaming Headset with 7.1 Surround Sound",
@@ -393,7 +393,7 @@ UNIQUE_PRODUCTS = [
         "category": "Gaming",
         "image_url": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=800&q=80",
         "stock": 30,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Wireless Haptic Feedback Gamepad Controller",
@@ -402,7 +402,7 @@ UNIQUE_PRODUCTS = [
         "category": "Gaming",
         "image_url": "https://images.unsplash.com/photo-1600080972464-8e5f35f63d08?auto=format&fit=crop&w=800&q=80",
         "stock": 35,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Extended RGB Large Gaming Desk Mat",
@@ -411,7 +411,7 @@ UNIQUE_PRODUCTS = [
         "category": "Gaming",
         "image_url": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80",
         "stock": 50,
-        "rating": Decimal("4.6")
+        "rating": Decimal("0.0")
     },
 
     # --- LIFESTYLE & ACCESSORIES ---
@@ -422,7 +422,7 @@ UNIQUE_PRODUCTS = [
         "category": "Lifestyle",
         "image_url": "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=800&q=80",
         "stock": 25,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Polarized Metal Frame Aviator Sunglasses",
@@ -431,7 +431,7 @@ UNIQUE_PRODUCTS = [
         "category": "Lifestyle",
         "image_url": "https://images.unsplash.com/photo-1511499767150-a48a237f0083?auto=format&fit=crop&w=800&q=80",
         "stock": 40,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Insulated Stainless Steel Water Flask 1L",
@@ -440,7 +440,7 @@ UNIQUE_PRODUCTS = [
         "category": "Lifestyle",
         "image_url": "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=800&q=80",
         "stock": 55,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "RFID Blocking Bifold Genuine Leather Wallet",
@@ -449,7 +449,7 @@ UNIQUE_PRODUCTS = [
         "category": "Lifestyle",
         "image_url": "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=800&q=80",
         "stock": 45,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Vintage Heavyweight Canvas Messenger Bag",
@@ -458,7 +458,7 @@ UNIQUE_PRODUCTS = [
         "category": "Lifestyle",
         "image_url": "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?auto=format&fit=crop&w=800&q=80",
         "stock": 20,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
 
     # --- HOME TECH ---
@@ -469,7 +469,7 @@ UNIQUE_PRODUCTS = [
         "category": "Home Tech",
         "image_url": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
         "stock": 35,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "HEPA H13 Smart Air Purifier",
@@ -478,7 +478,7 @@ UNIQUE_PRODUCTS = [
         "category": "Home Tech",
         "image_url": "https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=800&q=80",
         "stock": 18,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     },
     {
         "name": "LIDAR Navigation Robot Vacuum & Mop",
@@ -487,7 +487,7 @@ UNIQUE_PRODUCTS = [
         "category": "Home Tech",
         "image_url": "https://images.unsplash.com/photo-1589923188900-85dae523342b?auto=format&fit=crop&w=800&q=80",
         "stock": 12,
-        "rating": Decimal("4.9")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Smart WiFi RGB Ambient LED Light Strip 5M",
@@ -496,7 +496,7 @@ UNIQUE_PRODUCTS = [
         "category": "Home Tech",
         "image_url": "https://images.unsplash.com/photo-1550985616-10810253b84d?auto=format&fit=crop&w=800&q=80",
         "stock": 50,
-        "rating": Decimal("4.7")
+        "rating": Decimal("0.0")
     },
     {
         "name": "Ultrasonic Aroma Essential Oil Diffuser",
@@ -505,7 +505,7 @@ UNIQUE_PRODUCTS = [
         "category": "Home Tech",
         "image_url": "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=800&q=80",
         "stock": 40,
-        "rating": Decimal("4.8")
+        "rating": Decimal("0.0")
     }
 ]
 

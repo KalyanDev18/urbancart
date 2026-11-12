@@ -38,35 +38,38 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
                   <span style={{ fontSize: '0.8rem', color: 'var(--price-color)', fontWeight: 600 }}>Limited Edition</span>
                 </div>
 
-                <h2 style={{ fontSize: 'clamp(1.35rem, 3.8vw, 2.2rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginBottom: 10 }}>
+                <h2
+                  onClick={() => onSelectProduct && onSelectProduct(mainFeature)}
+                  style={{ fontSize: 'clamp(1.35rem, 3.8vw, 2.2rem)', fontWeight: 800, color: 'var(--text-main)', lineHeight: 1.15, marginBottom: 10, cursor: onSelectProduct ? 'pointer' : 'default' }}
+                >
                   {mainFeature.name}
                 </h2>
                 <p style={{ fontSize: '0.88rem', color: 'var(--text-muted)', lineHeight: 1.5, maxWidth: 420 }}>
-                  {mainFeature.description || 'Engineered with premium materials and avant-garde craftsmanship.'}
+                  {mainFeature.description || 'Crafted for everyday comfort and style.'}
                 </p>
               </div>
 
               <div style={{ marginTop: 18, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>Special Price</div>
+                  <div style={{ fontSize: '0.74rem', color: 'var(--text-dim)', fontWeight: 600 }}>Price</div>
                   <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--price-color)' }}>
                     ₹{Number(mainFeature.price).toLocaleString('en-IN')}
                   </div>
                 </div>
 
                 <button
-                  onClick={onShopNow}
+                  onClick={() => (onSelectProduct ? onSelectProduct(mainFeature) : onShopNow?.())}
                   className="btn-gold"
                   style={{ padding: '10px 20px', fontSize: '0.88rem' }}
                 >
-                  Explore Collection
+                  View & Reviews
                   <ArrowRight size={16} />
                 </button>
               </div>
             </div>
 
             {/* Right Image */}
-            <div className="spotlight-hero-media">
+            <div className="spotlight-hero-media" onClick={() => onSelectProduct && onSelectProduct(mainFeature)} style={{ cursor: onSelectProduct ? 'pointer' : 'default' }}>
               <img
                 src={optimizeImageUrl(mainFeature.image_url, 640)}
                 alt={mainFeature.name}
@@ -116,11 +119,11 @@ export default function SpotlightHero({ spotlightProducts, onSelectProduct, onSh
                   ₹{Number(card.price).toLocaleString('en-IN')}
                 </div>
                 <button
-                  onClick={onShopNow}
+                  onClick={() => (onSelectProduct ? onSelectProduct(card) : onShopNow?.())}
                   className="btn-dark"
                   style={{ padding: '7px 14px', fontSize: '0.8rem' }}
                 >
-                  View
+                  Reviews
                 </button>
               </div>
             </div>

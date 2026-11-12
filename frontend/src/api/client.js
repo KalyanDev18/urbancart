@@ -223,4 +223,14 @@ export const api = {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
+
+  // Product Reviews & Ratings
+  getProductReviews: (productId) => request(`/api/products/${productId}/reviews/`),
+  submitProductReview: (productId, data) => request(`/api/products/${productId}/reviews/`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  deleteProductReview: (productId, reviewId) => request(`/api/products/${productId}/reviews/${reviewId}/`, {
+    method: 'DELETE',
+  }),
 };

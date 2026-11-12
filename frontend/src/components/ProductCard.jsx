@@ -3,7 +3,7 @@ import { ShoppingBag, Star, Check } from 'lucide-react';
 import { useCart } from '../context/CartContext';
 import { optimizeImageUrl } from '../api/client';
 
-function ProductCard({ product, onRequireAuth }) {
+function ProductCard({ product, onRequireAuth, onSelectProduct }) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
@@ -28,13 +28,19 @@ function ProductCard({ product, onRequireAuth }) {
     }
   };
 
-  const discount = product.discount_percent || Math.round(((product.compare_at_price - product.price) / product.compare_at_price) * 100) || 25;
-  const originalPrice = product.original_price || product.compare_at_price || Math.round(product.price * 1.35);
+  const discount = Number(product.discount_percent || 0);
+  const originalPrice = Number(product.original_price || product.compare_at_price || 0);
+  const reviewCount = Number(product.review_count || 0);
+  const ratingVal = Number(product.rating || 0);
 
   return (
-    <div className="product-card">
-      {/* Discount Pill */}
-      {discount > 0 && (
+    <div
+      className="product-card"
+      onClick={() => onSelectProduct && onSelectProduct(product)}
+      style={{ cursor: onSelectProduct ? 'pointer' : 'default' }}
+    >
+      {/* Discount Pill (only when real compare_at_price > price) */}
+      {discount > 0 && originalPrice > Number(product.price) && (
         <div style={{
           position: 'absolute',
           top: 10,
@@ -89,9 +95,9 @@ function ProductCard({ product, onRequireAuth }) {
               {product.category}
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 3, background: 'var(--badge-bg)', border: '1px solid var(--badge-border)', padding: '2px 6px', borderRadius: 6, flexShrink: 0 }}>
-              <Star size={11} fill="#d97706" color="#d97706" />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--badge-text)' }}>
-                {product.rating || '4.8'}
+              <Star size={11} fill={reviewCount > 0 ? '#d97706' : 'none'} color="#d97706" />
+              <span style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--badge-text)' }}>
+                {reviewCount > 0 ? `${ratingVal.toFixed(1)} (${reviewCount})` : 'Review'}
               </span>
             </div>
           </div>
@@ -116,7 +122,7 @@ function ProductCard({ product, onRequireAuth }) {
             <div style={{ fontSize: 'clamp(0.95rem, 2.8vw, 1.18rem)', fontWeight: 800, color: 'var(--price-color)', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
               ₹{Number(product.price).toLocaleString('en-IN')}
             </div>
-            {originalPrice > product.price && (
+            {originalPrice > Number(product.price) && (
               <div style={{ fontSize: '0.72rem', color: 'var(--text-dim)', textDecoration: 'line-through' }}>
                 ₹{Number(originalPrice).toLocaleString('en-IN')}
               </div>

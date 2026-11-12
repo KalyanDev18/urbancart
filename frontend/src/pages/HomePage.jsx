@@ -4,6 +4,7 @@ import HeroCarousel from '../components/HeroCarousel';
 import SpotlightHero from '../components/SpotlightHero';
 import DealsScrollRow from '../components/DealsScrollRow';
 import ProductCard from '../components/ProductCard';
+import ProductDetailModal from '../components/ProductDetailModal';
 import { api, HAS_BACKEND_URL, getCachedHome, setCachedHome } from '../api/client';
 import { ShieldCheck, Truck, RefreshCw, Zap, AlertTriangle } from 'lucide-react';
 
@@ -16,6 +17,7 @@ const toArray = (val) => {
 export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }) {
   const cached = useMemo(() => getCachedHome(), []);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [allProducts, setAllProducts] = useState(() => (cached ? toArray(cached.products) : []));
   const [sections, setSections] = useState(() => ({
     spotlight: cached ? toArray(cached.spotlight) : [],
@@ -98,6 +100,29 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
   const safeDeals = toArray(sections?.deals);
   const safeSuggested = toArray(sections?.suggested);
 
+  const handleSelectProduct = (prod) => {
+    setSelectedProduct(prod);
+    if (onSelectProduct) onSelectProduct(prod);
+  };
+
+  const handleRatingUpdated = (productId, avgRating, reviewCount) => {
+    const patchProd = (p) => (p.id === productId ? { ...p, rating: avgRating, review_count: reviewCount } : p);
+    setAllProducts((prev) => {
+      const nextProducts = prev.map(patchProd);
+      setSections((secPrev) => {
+        const nextSec = {
+          spotlight: secPrev.spotlight.map(patchProd),
+          deals: secPrev.deals.map(patchProd),
+          suggested: secPrev.suggested.map(patchProd),
+        };
+        setCachedHome({ ...nextSec, products: nextProducts });
+        return nextSec;
+      });
+      return nextProducts;
+    });
+    setSelectedProduct((prev) => (prev && prev.id === productId ? { ...prev, rating: avgRating, review_count: reviewCount } : prev));
+  };
+
   // Top 5 products for carousel
   const carouselProducts = safeSpotlight.length >= 5
     ? safeSpotlight.slice(0, 5)
@@ -116,6 +141,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
         <HeroCarousel
           products={carouselProducts}
           onRequireAuth={onRequireAuth}
+          onSelectProduct={handleSelectProduct}
           onShopNow={() => {
             const el = document.getElementById('catalog-grid');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -127,7 +153,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
       {!searchQuery && selectedCategory === 'All' && safeSpotlight.length > 0 && (
         <SpotlightHero
           spotlightProducts={safeSpotlight}
-          onSelectProduct={onSelectProduct}
+          onSelectProduct={handleSelectProduct}
           onShopNow={() => {
             const el = document.getElementById('catalog-grid');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -141,6 +167,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
           title="Deals on your favourites! ✨"
           products={safeDeals}
           onRequireAuth={onRequireAuth}
+          onSelectProduct={handleSelectProduct}
         />
       )}
 
@@ -150,6 +177,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
           title="Suggested For You ➔"
           products={safeSuggested}
           onRequireAuth={onRequireAuth}
+          onSelectProduct={handleSelectProduct}
         />
       )}
 
@@ -163,7 +191,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
               {searchQuery ? `Search Results for "${searchQuery}"` : (selectedCategory === 'All' ? 'Complete Catalog & New Drops' : `${selectedCategory} Collection`)}
             </h2>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-dim)' }}>
-              Showing {safeProducts.length} luxury items available for express delivery
+              Showing {safeProducts.length} items available for express delivery
             </p>
           </div>
 
@@ -220,6 +248,7 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
                 key={item.id}
                 product={item}
                 onRequireAuth={onRequireAuth}
+                onSelectProduct={handleSelectProduct}
               />
             ))}
           </div>
@@ -344,6 +373,15 @@ export default function HomePage({ onRequireAuth, searchQuery, onSelectProduct }
 
         </div>
       </div>
+
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onRequireAuth={onRequireAuth}
+          onRatingUpdated={handleRatingUpdated}
+        />
+      )}
 
     </div>
   );

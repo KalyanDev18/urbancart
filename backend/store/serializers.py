@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, SupportTicket
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, SupportTicket, ProductReview
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -82,3 +82,27 @@ class SupportTicketSerializer(serializers.ModelSerializer):
 
     def get_customer_email(self, obj):
         return obj.user.email if obj.user else ''
+
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+    reviewer_name = serializers.SerializerMethodField()
+    product_name = serializers.ReadOnlyField(source='product.name')
+    is_own_review = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProductReview
+        fields = [
+            'id', 'product', 'product_name', 'reviewer_name', 'rating',
+            'title', 'comment', 'is_verified_purchase', 'is_own_review',
+            'created_at', 'updated_at',
+        ]
+
+    def get_reviewer_name(self, obj):
+        if obj.user:
+            full = f"{obj.user.first_name} {obj.user.last_name}".strip()
+            return full or obj.user.username
+        return 'Customer'
+
+    def get_is_own_review(self, obj):
+        request = self.context.get('request')
+        return bool(request and request.user.is_authenticated and obj.user_id == request.user.id)

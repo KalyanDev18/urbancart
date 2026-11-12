@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket
+from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket, ProductReview
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -9,7 +9,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock', 'rating', 'is_featured', 'created_at')
+    list_display = ('name', 'category', 'price', 'stock', 'rating', 'review_count', 'is_featured', 'created_at')
     list_filter = ('category', 'is_featured', 'created_at')
     search_fields = ('name', 'description')
     list_editable = ('price', 'stock', 'is_featured')
@@ -60,4 +60,10 @@ class SupportTicketAdmin(admin.ModelAdmin):
     list_filter = ('issue_type', 'status', 'created_at')
     search_fields = ('subject', 'message', 'user__username', 'user__email')
     list_editable = ('status',)
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'user', 'rating', 'title', 'is_verified_purchase', 'created_at')
+    list_filter = ('rating', 'is_verified_purchase', 'created_at')
+    search_fields = ('title', 'comment', 'product__name', 'user__username', 'user__email')
 

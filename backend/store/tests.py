@@ -227,3 +227,95 @@ class AdminAccessAndControlTests(TestCase):
                 self.assertTrue(env_u.is_superuser)
                 self.assertTrue(env_u.check_password('EnvAdminTestPassword!42'))
 
+
+class ProductReviewSystemTests(TestCase):
+    def setUp(self):
+        self.buyer = User.objects.create_user(
+            username='verifiedbuyer',
+            email='verified@example.com',
+            password='pass1234',
+            first_name='Aryan',
+        )
+        self.other = User.objects.create_user(
+            username='browser',
+            email='browser@example.com',
+            password='pass1234',
+            first_name='Riya',
+        )
+        self.product = Product.objects.create(
+            name='Minimalist Hoodie',
+            category='Clothing',
+            price=Decimal('1999.00'),
+        )
+        order = Order.objects.create(
+            user=self.buyer,
+            full_name='Aryan',
+            email='verified@example.com',
+            address='Lane 1',
+            city='Pune',
+            postal_code='411001',
+            total_amount=Decimal('1999.00'),
+            payment_method='UPI',
+            payment_status='Paid',
+            order_status='Delivered',
+        )
+        OrderItem.objects.create(order=order, product=self.product, price=self.product.price, quantity=1)
+        self.client = APIClient()
+
+    def test_new_product_has_zero_dummy_rating_and_zero_fake_discount(self):
+        self.assertEqual(self.product.rating, Decimal('0.0'))
+        self.assertEqual(self.product.review_count, 0)
+        self.assertEqual(self.product.get_discount_percent(), 0)
+        self.assertEqual(self.product.get_original_price(), Decimal('0.00'))
+
+    def test_submit_update_and_delete_product_reviews(self):
+        # Unauthenticated POST blocked
+        unauth = self.client.post(f'/api/products/{self.product.id}/reviews/', {'rating': 5, 'comment': 'Nice!'}, format='json')
+        self.assertEqual(unauth.status_code, 401)
+
+        # Verified buyer submits 5-star review
+        self.client.force_authenticate(user=self.buyer)
+        res1 = self.client.post(
+            f'/api/products/{self.product.id}/reviews/',
+            {'rating': 5, 'title': 'Great fit', 'comment': 'Fabric quality is super soft.'},
+            format='json',
+        )
+        self.assertEqual(res1.status_code, 201)
+        self.assertTrue(res1.data['review']['is_verified_purchase'])
+        self.assertEqual(res1.data['average_rating'], '5.0')
+        self.assertEqual(res1.data['review_count'], 1)
+        rev1_id = res1.data['review']['id']
+
+        # Second user (not purchased) submits 3-star review -> average becomes 4.0
+        self.client.force_authenticate(user=self.other)
+        res2 = self.client.post(
+            f'/api/products/{self.product.id}/reviews/',
+            {'rating': 3, 'comment': 'Good color, sizing runs slightly snug.'},
+            format='json',
+        )
+        self.assertEqual(res2.status_code, 201)
+        self.assertFalse(res2.data['review']['is_verified_purchase'])
+        self.assertEqual(res2.data['average_rating'], '4.0')
+        self.assertEqual(res2.data['review_count'], 2)
+
+        # Cannot delete another user's review
+        forbidden_del = self.client.delete(f'/api/products/{self.product.id}/reviews/{rev1_id}/')
+        self.assertEqual(forbidden_del.status_code, 403)
+
+        # Updating own review recalculates rating
+        res2_upd = self.client.post(
+            f'/api/products/{self.product.id}/reviews/',
+            {'rating': 4, 'comment': 'Fits better after wash.'},
+            format='json',
+        )
+        self.assertEqual(res2_upd.status_code, 200)
+        self.assertEqual(res2_upd.data['average_rating'], '4.5')
+        self.assertEqual(res2_upd.data['review_count'], 2)
+
+        # Buyer deletes own review -> only other's 4-star remains
+        self.client.force_authenticate(user=self.buyer)
+        del_res = self.client.delete(f'/api/products/{self.product.id}/reviews/{rev1_id}/')
+        self.assertEqual(del_res.status_code, 200)
+        self.assertEqual(del_res.data['average_rating'], '4.0')
+        self.assertEqual(del_res.data['review_count'], 1)
+

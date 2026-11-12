@@ -9,6 +9,8 @@ router.register(r'categories', api_views.CategoryViewSet, basename='api_categori
 
 urlpatterns = [
     # REST API Endpoints
+    path('api/products/<int:product_id>/reviews/', api_views.product_reviews_api, name='api_product_reviews'),
+    path('api/products/<int:product_id>/reviews/<int:review_id>/', api_views.delete_product_review_api, name='api_delete_product_review'),
     path('api/', include(router.urls)),
     
     # Auth APIs
