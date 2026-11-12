@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/checkout/', api_views.checkout_api, name='api_checkout'),
     path('api/orders/my-orders/', api_views.user_orders_api, name='api_my_orders'),
     path('api/orders/<int:order_id>/', api_views.order_detail_api, name='api_order_detail'),
+    path('api/orders/<int:order_id>/invoice/', api_views.order_invoice_api, name='api_order_invoice'),
     path('api/orders/<int:order_id>/cancel/', api_views.cancel_order_api, name='api_order_cancel'),
     path('api/orders/<int:order_id>/return/', api_views.return_order_api, name='api_order_return'),
 

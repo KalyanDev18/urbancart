@@ -37,21 +37,41 @@ class CartItemSerializer(serializers.ModelSerializer):
 class OrderItemSerializer(serializers.ModelSerializer):
     product_name = serializers.ReadOnlyField(source='product.name')
     product_image = serializers.SerializerMethodField()
+    category = serializers.SerializerMethodField()
+    hsn_code = serializers.SerializerMethodField()
 
     class Meta:
         model = OrderItem
-        fields = ['id', 'product', 'product_name', 'product_image', 'price', 'quantity', 'get_total_price']
+        fields = ['id', 'product', 'product_name', 'product_image', 'category', 'hsn_code', 'price', 'quantity', 'get_total_price']
 
     def get_product_image(self, obj):
         return obj.product.image_url if obj.product else ''
 
+    def get_category(self, obj):
+        return obj.product.category if obj.product else 'General'
+
+    def get_hsn_code(self, obj):
+        cat = (obj.product.category if obj.product else '').lower()
+        if any(w in cat for w in ['cloth', 'apparel', 'hoodie', 'streetwear', 'shirt', 'jacket']):
+            return '6109'
+        elif any(w in cat for w in ['foot', 'shoe', 'sneaker', 'boot']):
+            return '6404'
+        elif any(w in cat for w in ['elec', 'audio', 'sound', 'headphone']):
+            return '8518'
+        elif any(w in cat for w in ['watch', 'wearable']):
+            return '9102'
+        elif any(w in cat for w in ['gaming', 'keyboard', 'mouse']):
+            return '8471'
+        return '9983'
+
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
+    invoice_number = serializers.ReadOnlyField()
 
     class Meta:
         model = Order
         fields = [
-            'id', 'user', 'full_name', 'email', 'address', 
+            'id', 'invoice_number', 'user', 'full_name', 'email', 'address', 
             'city', 'postal_code', 'total_amount', 'payment_method', 
             'payment_status', 'order_status', 'transaction_id',
             'cancel_reason', 'return_reason', 'refund_amount', 'refund_reference',

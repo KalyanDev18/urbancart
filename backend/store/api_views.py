@@ -11,8 +11,10 @@ from django.conf import settings
 from django.db.models import Q, Sum
 from django.utils import timezone
 from django.utils.text import slugify
+from django.http import HttpResponse
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes, action
+from rest_framework.decorators import api_view, permission_classes, renderer_classes, action
+from rest_framework.renderers import JSONRenderer, StaticHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import viewsets
@@ -22,7 +24,10 @@ from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer, ProductReviewSerializer
 )
-from .utils import send_otp_email, send_order_status_email, send_ticket_update_email
+from .utils import (
+    send_otp_email, send_order_status_email, send_ticket_update_email,
+    generate_tax_invoice_html, amount_to_words_inr
+)
 
 HOME_CACHE_KEY = 'urbancart_home_payload_v2'
 
@@ -595,6 +600,70 @@ def order_detail_api(request, order_id):
     return Response({
         'order': OrderSerializer(order).data
     })
+
+
+@api_view(['GET'])
+@permission_classes([permissions.AllowAny])
+@renderer_classes([JSONRenderer, StaticHTMLRenderer])
+def order_invoice_api(request, order_id):
+    """
+    GET /api/orders/<order_id>/invoice/
+    Returns official GST Tax Invoice data for an order.
+    Query param ?format=html returns a full printable standalone HTML page.
+    """
+    order = Order.objects.filter(id=order_id).prefetch_related('items__product').first()
+    if not order:
+        return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.user.is_authenticated and order.user_id:
+        if order.user_id != request.user.id and not request.user.is_staff:
+            return Response({'error': 'You do not have permission to view this invoice.'}, status=status.HTTP_403_FORBIDDEN)
+
+    if request.query_params.get('format') == 'html' or request.query_params.get('view') == 'html':
+        html_content = generate_tax_invoice_html(order)
+        return HttpResponse(html_content, content_type='text/html; charset=utf-8')
+
+    serialized_order = OrderSerializer(order).data
+    subtotal = sum(item.get_total_price() for item in order.items.all())
+    taxable_val = (subtotal / Decimal('1.18')).quantize(Decimal('0.01')) if subtotal > 0 else Decimal('0.00')
+    gst_val = (subtotal - taxable_val).quantize(Decimal('0.01'))
+    amount_words = amount_to_words_inr(order.total_amount)
+
+    invoice_data = {
+        'order_id': order.id,
+        'invoice_number': order.invoice_number,
+        'invoice_date': order.created_at.strftime('%d %B %Y') if order.created_at else '',
+        'order': serialized_order,
+        'items': serialized_order.get('items', []),
+        'buyer': {
+            'name': order.full_name or (order.user.get_full_name() if order.user else 'Valued Customer'),
+            'email': order.email or (order.user.email if order.user else ''),
+            'address': order.address,
+            'city': order.city,
+            'postal_code': order.postal_code,
+        },
+        'seller': {
+            'company_name': 'UrbanCart Retail Private Limited',
+            'gstin': '07AAACU1234F1Z8',
+            'cin': 'U52100HR2026PTC109988',
+            'address': 'DLF Cyber City, Building 10, DLF Phase 2, Gurugram, Haryana - 122002',
+            'support_email': 'care@urbancart.in',
+            'support_phone': '+91 1800-URBANCART',
+        },
+        'tax_summary': {
+            'subtotal': str(subtotal),
+            'taxable_amount': str(taxable_val),
+            'gst_amount': str(gst_val),
+            'gst_rate': '18% Inclusive',
+            'gst_rate_percent': 18,
+            'shipping': str(max(Decimal('0.00'), order.total_amount - subtotal)),
+            'total_amount': str(order.total_amount),
+            'amount_in_words': amount_words,
+        },
+        'amount_in_words': amount_words,
+        'html_url': f"/api/orders/{order.id}/invoice/?format=html",
+    }
+    return Response(invoice_data)
 
 
 @api_view(['POST'])

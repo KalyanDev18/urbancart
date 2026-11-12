@@ -180,6 +180,7 @@ export const api = {
   }),
   getMyOrders: () => request('/api/orders/my-orders/'),
   getOrderDetail: (orderId) => request(`/api/orders/${orderId}/`),
+  getOrderInvoice: (orderId) => request(`/api/orders/${orderId}/invoice/`),
   cancelOrder: (orderId, reason) => request(`/api/orders/${orderId}/cancel/`, {
     method: 'POST',
     body: JSON.stringify({ reason }),

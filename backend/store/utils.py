@@ -699,3 +699,361 @@ def send_ticket_update_email(ticket, async_send=None):
     except Exception as e:
         return False, str(e)
 
+
+def amount_to_words_inr(amount):
+    """Converts numeric amount into Indian Rupee words (e.g. 5098.50 -> Five Thousand Ninety-Eight Rupees and Fifty Paise Only)."""
+    try:
+        dec = Decimal(str(amount)).quantize(Decimal('0.01'))
+    except Exception:
+        return "Zero Rupees Only"
+
+    rupees = int(dec)
+    paise = int(round((dec - Decimal(rupees)) * 100))
+
+    if rupees <= 0 and paise <= 0:
+        return "Zero Rupees Only"
+
+    units = ["", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+             "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen",
+             "Seventeen", "Eighteen", "Nineteen"]
+    tens = ["", "", "Twenty", "Thirty", "Forty", "Fifty", "Sixty", "Seventy", "Eighty", "Ninety"]
+
+    def _two_digits(n):
+        if n < 20:
+            return units[n]
+        return tens[n // 10] + ("-" + units[n % 10] if n % 10 != 0 else "")
+
+    def _three_digits(n):
+        h = n // 100
+        rem = n % 100
+        res = ""
+        if h > 0:
+            res += units[h] + " Hundred"
+            if rem > 0:
+                res += " and "
+        if rem > 0:
+            res += _two_digits(rem)
+        return res
+
+    parts = []
+    crores = rupees // 10000000
+    rupees %= 10000000
+    lakhs = rupees // 100000
+    rupees %= 100000
+    thousands = rupees // 1000
+    rupees %= 1000
+    hundreds = rupees
+
+    if crores > 0:
+        parts.append(f"{_three_digits(crores)} Crore")
+    if lakhs > 0:
+        parts.append(f"{_two_digits(lakhs)} Lakh")
+    if thousands > 0:
+        parts.append(f"{_two_digits(thousands)} Thousand")
+    if hundreds > 0:
+        parts.append(_three_digits(hundreds))
+
+    r_words = " ".join(parts).strip()
+    result = ""
+    if r_words:
+        result = f"{r_words} Rupees"
+    else:
+        result = "Zero Rupees"
+
+    if paise > 0:
+        p_words = _two_digits(paise)
+        result += f" and {p_words} Paise"
+
+    return f"{result} Only"
+
+
+def get_hsn_code_for_product(category_name):
+    cat = (category_name or '').lower()
+    if any(w in cat for w in ['cloth', 'apparel', 'hoodie', 'streetwear', 'shirt', 'jacket']):
+        return '6109'
+    elif any(w in cat for w in ['foot', 'shoe', 'sneaker', 'boot']):
+        return '6404'
+    elif any(w in cat for w in ['elec', 'audio', 'sound', 'headphone']):
+        return '8518'
+    elif any(w in cat for w in ['watch', 'wearable']):
+        return '9102'
+    elif any(w in cat for w in ['gaming', 'keyboard', 'mouse']):
+        return '8471'
+    return '9983'
+
+
+def generate_tax_invoice_html(order):
+    """Generates an authentic, high-resolution GST Tax Invoice HTML page formatted for print and PDF export."""
+    inv_num = getattr(order, 'invoice_number', f"INV-2026-{order.id:05d}")
+    date_str = order.created_at.strftime('%d %B %Y') if getattr(order, 'created_at', None) else '12 Nov 2026'
+    time_str = order.created_at.strftime('%I:%M %p') if getattr(order, 'created_at', None) else ''
+
+    safe_name = html.escape(order.full_name or 'Valued Customer')
+    safe_address = html.escape(order.address or '')
+    safe_city = html.escape(order.city or '')
+    safe_postal = html.escape(order.postal_code or '')
+    safe_email = html.escape(order.email or '')
+    safe_pm = html.escape(getattr(order, 'get_payment_method_display', lambda: order.payment_method)() or order.payment_method)
+    safe_ps = html.escape(order.payment_status or '')
+    safe_tx = html.escape(order.transaction_id or 'TXN-AUTO-VERIFIED')
+
+    items = list(order.items.select_related('product').all())
+    subtotal_dec = Decimal('0.00')
+    rows_html = ''
+
+    for idx, it in enumerate(items, 1):
+        pname = it.product.name if it.product else 'Urban Item'
+        pcat = it.product.category if it.product else 'General'
+        hsn = get_hsn_code_for_product(pcat)
+        qty = it.quantity
+        price = it.price
+        line_total = it.get_total_price()
+        subtotal_dec += line_total
+
+        # 18% inclusive GST calculation: Taxable = Total / 1.18, Tax = Total - Taxable
+        taxable_val = (line_total / Decimal('1.18')).quantize(Decimal('0.01'))
+        tax_val = (line_total - taxable_val).quantize(Decimal('0.01'))
+
+        rows_html += f"""
+        <tr>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: center; color: #64748b;">{idx}</td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0;">
+            <div style="font-weight: 700; color: #0f172a;">{html.escape(pname)}</div>
+            <div style="font-size: 11px; color: #64748b;">Category: {html.escape(pcat)}</div>
+          </td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: center; font-family: monospace; font-size: 12px; color: #475569;">{hsn}</td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: center; font-weight: 600;">{qty}</td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #475569;">₹{price}</td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #475569;">₹{taxable_val}</td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: right; color: #64748b; font-size: 12px;">₹{tax_val} <span style="font-size: 10px;">(18%)</span></td>
+          <td style="padding: 10px 8px; border-bottom: 1px solid #e2e8f0; text-align: right; font-weight: 700; color: #0f172a;">₹{line_total}</td>
+        </tr>
+        """
+
+    total_dec = order.total_amount
+    shipping_dec = max(Decimal('0.00'), total_dec - subtotal_dec) if items else Decimal('99.00')
+    net_taxable_total = (subtotal_dec / Decimal('1.18')).quantize(Decimal('0.01')) if items else Decimal('0.00')
+    net_gst_total = (subtotal_dec - net_taxable_total).quantize(Decimal('0.01')) if items else Decimal('0.00')
+    amount_words = amount_to_words_inr(total_dec)
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Tax Invoice #{inv_num} — UrbanCart</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {{ box-sizing: border-box; }}
+    body {{
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: #f1f5f9;
+      color: #1e293b;
+      margin: 0;
+      padding: 24px 16px;
+    }}
+    .invoice-card {{
+      max-width: 860px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 40px 48px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }}
+    .no-print {{
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }}
+    .btn {{
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }}
+    .btn-print {{
+      background: #d97706;
+      color: #ffffff;
+    }}
+    .btn-print:hover {{
+      background: #b45309;
+    }}
+    .btn-back {{
+      background: #e2e8f0;
+      color: #1e293b;
+    }}
+    @media print {{
+      body {{
+        background: #ffffff !important;
+        padding: 0 !important;
+      }}
+      .no-print {{
+        display: none !important;
+      }}
+      .invoice-card {{
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }}
+      @page {{
+        margin: 12mm;
+        size: A4 portrait;
+      }}
+    }}
+  </style>
+</head>
+<body>
+
+  <div class="no-print" style="max-width: 860px; margin: 0 auto 16px;">
+    <button onclick="window.history.back()" class="btn btn-back">← Back</button>
+    <button onclick="window.print()" class="btn btn-print">🖨️ Print / Download PDF</button>
+  </div>
+
+  <div class="invoice-card">
+    <!-- Header -->
+    <table style="width: 100%; border-bottom: 2px solid #0f172a; padding-bottom: 20px; margin-bottom: 24px;">
+      <tr>
+        <td style="vertical-align: top; width: 55%;">
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+            <span style="display: inline-block; background: #d97706; color: #ffffff; font-weight: 800; font-size: 15px; width: 32px; height: 32px; line-height: 32px; border-radius: 8px; text-align: center;">UC</span>
+            <span style="font-size: 24px; font-weight: 800; color: #090d16; letter-spacing: -0.5px;">
+              Urban<span style="color: #d97706;">Cart</span>
+            </span>
+          </div>
+          <div style="font-size: 13px; font-weight: 700; color: #0f172a;">UrbanCart Retail Private Limited</div>
+          <div style="font-size: 12px; color: #475569; line-height: 1.5; margin-top: 4px;">
+            DLF Cyber City, Building 10, DLF Phase 2<br>
+            Gurugram, Haryana - 122002, India<br>
+            <strong>GSTIN:</strong> 07AAACU1234F1Z8 | <strong>CIN:</strong> U52100HR2026PTC109988<br>
+            <strong>Support:</strong> care@urbancart.in | +91 1800-URBANCART
+          </div>
+        </td>
+        <td style="vertical-align: top; text-align: right; width: 45%;">
+          <div style="display: inline-block; background: #ecfdf5; border: 1px solid #a7f3d0; color: #059669; padding: 4px 12px; border-radius: 999px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-bottom: 8px;">
+            ORIGINAL FOR RECIPIENT
+          </div>
+          <h1 style="font-size: 26px; font-weight: 800; margin: 0 0 6px; color: #0f172a; letter-spacing: -0.5px;">TAX INVOICE</h1>
+          <div style="font-size: 13px; color: #475569; line-height: 1.6;">
+            <strong>Invoice No:</strong> <span style="color: #d97706; font-weight: 800;">{inv_num}</span><br>
+            <strong>Invoice Date:</strong> {date_str} {time_str}<br>
+            <strong>Order Reference:</strong> #{order.id}<br>
+            <strong>Place of Supply:</strong> {safe_city}, India (State: Haryana - 06)
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Billing & Shipping Information -->
+    <table style="width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 24px; font-size: 13px; border-collapse: collapse;">
+      <tr style="background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+        <th style="padding: 10px 14px; text-align: left; width: 50%; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Billed &amp; Shipped To (Customer)</th>
+        <th style="padding: 10px 14px; text-align: left; width: 50%; color: #475569; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Payment &amp; Logistics Details</th>
+      </tr>
+      <tr>
+        <td style="padding: 14px; vertical-align: top; border-right: 1px solid #e2e8f0; line-height: 1.6;">
+          <div style="font-size: 15px; font-weight: 800; color: #0f172a;">{safe_name}</div>
+          <div style="color: #334155;">{safe_address}</div>
+          <div style="color: #334155;">{safe_city} - {safe_postal}, India</div>
+          <div style="color: #64748b; font-size: 12px; margin-top: 4px;">Email: {safe_email}</div>
+        </td>
+        <td style="padding: 14px; vertical-align: top; line-height: 1.6;">
+          <div><strong>Payment Mode:</strong> {safe_pm}</div>
+          <div><strong>Payment Status:</strong> <span style="color: #059669; font-weight: 700;">{safe_ps}</span></div>
+          <div><strong>Transaction ID:</strong> <span style="font-family: monospace;">{safe_tx}</span></div>
+          <div><strong>Fulfillment Mode:</strong> UrbanCart Express Doorstep Delivery</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Itemized Products Table -->
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 20px;">
+      <thead>
+        <tr style="background: #090d16; color: #ffffff; font-size: 11px; text-transform: uppercase;">
+          <th style="padding: 10px 8px; text-align: center; width: 5%;">#</th>
+          <th style="padding: 10px 8px; text-align: left; width: 38%;">Description of Goods</th>
+          <th style="padding: 10px 8px; text-align: center; width: 10%;">HSN Code</th>
+          <th style="padding: 10px 8px; text-align: center; width: 7%;">Qty</th>
+          <th style="padding: 10px 8px; text-align: right; width: 12%;">Gross Price</th>
+          <th style="padding: 10px 8px; text-align: right; width: 13%;">Taxable Val</th>
+          <th style="padding: 10px 8px; text-align: right; width: 15%;">GST (18% Incl.)</th>
+          <th style="padding: 10px 8px; text-align: right; width: 12%;">Total Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows_html}
+      </tbody>
+    </table>
+
+    <!-- Financial Totals -->
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 28px;">
+      <tr>
+        <td style="width: 60%; vertical-align: top; padding-right: 24px;">
+          <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">
+            <strong>Amount in Words:</strong><br>
+            <span style="font-size: 13px; font-weight: 700; color: #0f172a;">{amount_words}</span>
+          </div>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; margin-top: 14px; font-size: 11px; color: #64748b; line-height: 1.5;">
+            <strong>Terms &amp; Conditions:</strong><br>
+            1. Goods once sold are covered under UrbanCart's 7-Day Hassle-Free Return / Replacement guarantee.<br>
+            2. All taxes have been charged under GST rules. No extra octroi or cess payable at delivery.<br>
+            3. For warranty and customer support queries, visit www.urbancart.in or write to care@urbancart.in.
+          </div>
+        </td>
+
+        <td style="width: 40%; vertical-align: top;">
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Items Net Taxable Value:</td>
+              <td style="padding: 6px 0; text-align: right; font-weight: 600; color: #0f172a;">₹{net_taxable_total}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Integrated GST (18% Included):</td>
+              <td style="padding: 6px 0; text-align: right; font-weight: 600; color: #0f172a;">₹{net_gst_total}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Subtotal (Inclusive of Taxes):</td>
+              <td style="padding: 6px 0; text-align: right; font-weight: 600; color: #0f172a;">₹{subtotal_dec}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Express Shipping Charges:</td>
+              <td style="padding: 6px 0; text-align: right; font-weight: 600; color: #0f172a;">₹{shipping_dec}</td>
+            </tr>
+            <tr style="border-top: 2px solid #0f172a; border-bottom: 2px solid #0f172a;">
+              <td style="padding: 10px 0; font-size: 16px; font-weight: 800; color: #0f172a;">Grand Total Paid:</td>
+              <td style="padding: 10px 0; text-align: right; font-size: 18px; font-weight: 800; color: #d97706;">₹{total_dec}</td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Signature & Digital Stamp -->
+    <table style="width: 100%; border-top: 1px solid #e2e8f0; padding-top: 20px; font-size: 12px; margin-top: 10px;">
+      <tr>
+        <td style="vertical-align: middle; width: 60%; color: #64748b;">
+          🔒 <strong>Digital Verification Note:</strong><br>
+          This is a computer-generated tax invoice issued in accordance with the provisions of Section 31 of the CGST Act, 2017. No physical signature is required.
+        </td>
+        <td style="vertical-align: middle; text-align: right; width: 40%;">
+          <div style="font-size: 11px; color: #475569; font-weight: 700; margin-bottom: 4px;">For UrbanCart Retail Private Limited</div>
+          <div style="display: inline-block; border: 2px dashed #059669; background: #ecfdf5; border-radius: 8px; padding: 6px 14px; text-align: center;">
+            <div style="font-size: 12px; font-weight: 800; color: #059669;">✓ DIGITALLY SIGNED</div>
+            <div style="font-size: 10px; color: #047857;">Authorized Signatory: Kalyan Dev</div>
+          </div>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+</body>
+</html>"""
+
+

@@ -14,9 +14,11 @@ import {
   X,
   CheckCircle2,
   AlertCircle,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
+import InvoiceModal from '../components/InvoiceModal';
 
 const CANCEL_REASONS = [
   'Ordered by mistake',
@@ -78,6 +80,7 @@ export default function DashboardPage({ onContinueShopping, initialTab = 'orders
   const [totalSpent, setTotalSpent] = useState('0');
   const [rewardPoints, setRewardPoints] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [invoiceOrder, setInvoiceOrder] = useState(null);
 
   // Cancel / Return modal state
   const [actionModal, setActionModal] = useState(null); // { mode: 'cancel' | 'return', order }
@@ -664,6 +667,27 @@ export default function DashboardPage({ onContinueShopping, initialTab = 'orders
                         )}
 
                         <button
+                          onClick={() => setInvoiceOrder(order)}
+                          style={{
+                            background: 'rgba(217, 119, 6, 0.12)',
+                            border: '1px solid rgba(217, 119, 6, 0.35)',
+                            color: 'var(--price-color)',
+                            padding: '7px 12px',
+                            borderRadius: 10,
+                            fontSize: '0.78rem',
+                            fontWeight: 700,
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 5,
+                            cursor: 'pointer',
+                          }}
+                          title="View & Download Official GST Tax Invoice"
+                        >
+                          <FileText size={14} />
+                          Invoice
+                        </button>
+
+                        <button
                           onClick={() => handleOpenSupportForOrder(order)}
                           className="btn-dark"
                           style={{ padding: '7px 12px', fontSize: '0.78rem', borderRadius: 10 }}
@@ -1154,6 +1178,10 @@ export default function DashboardPage({ onContinueShopping, initialTab = 'orders
             </form>
           </div>
         </div>
+      )}
+
+      {invoiceOrder && (
+        <InvoiceModal order={invoiceOrder} onClose={() => setInvoiceOrder(null)} />
       )}
 
     </div>

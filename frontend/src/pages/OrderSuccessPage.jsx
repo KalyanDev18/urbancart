@@ -1,7 +1,10 @@
-import React from 'react';
-import { CheckCircle2, Package, ArrowRight, Home } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, Package, ArrowRight, Home, FileText, Printer } from 'lucide-react';
+import InvoiceModal from '../components/InvoiceModal';
 
 export default function OrderSuccessPage({ order, onContinueShopping, onViewOrders }) {
+  const [showInvoice, setShowInvoice] = useState(false);
+
   if (!order) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 20px' }}>
@@ -12,6 +15,8 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
       </div>
     );
   }
+
+  const invoiceNum = order.invoice_number || `INV-2026-${String(order.id).padStart(5, '0')}`;
 
   return (
     <div style={{ maxWidth: 760, margin: 'clamp(20px, 5vw, 50px) auto', padding: '0 14px' }}>
@@ -75,8 +80,8 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
             </div>
 
             <div>
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Transaction ID</div>
-              <div style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--text-main)' }}>{order.transaction_id || 'PAY-INR-SUCCESS'}</div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tax Invoice</div>
+              <div style={{ fontSize: '0.92rem', fontWeight: 800, color: 'var(--text-main)' }}>{invoiceNum}</div>
             </div>
 
             <div>
@@ -120,11 +125,20 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
         </div>
 
         {/* Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <button
+            onClick={() => setShowInvoice(true)}
+            className="btn-gold"
+            style={{ padding: '14px 24px', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+          >
+            <FileText size={18} />
+            Download Tax Invoice
+          </button>
+
           <button
             onClick={onContinueShopping}
-            className="btn-gold"
-            style={{ padding: '14px 28px', fontSize: '0.95rem' }}
+            className="btn-dark"
+            style={{ padding: '14px 24px', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: 8 }}
           >
             <Home size={18} />
             Continue Shopping
@@ -133,7 +147,7 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
           <button
             onClick={onViewOrders}
             className="btn-dark"
-            style={{ padding: '14px 24px', fontSize: '0.95rem' }}
+            style={{ padding: '14px 22px', fontSize: '0.95rem', display: 'inline-flex', alignItems: 'center', gap: 8 }}
           >
             <Package size={18} color="#d97706" />
             View in Dashboard
@@ -141,6 +155,11 @@ export default function OrderSuccessPage({ order, onContinueShopping, onViewOrde
         </div>
 
       </div>
+
+      {showInvoice && (
+        <InvoiceModal order={order} onClose={() => setShowInvoice(false)} />
+      )}
     </div>
   );
 }
+

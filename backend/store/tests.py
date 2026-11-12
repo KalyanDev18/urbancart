@@ -495,3 +495,69 @@ class OrderEmailNotificationTests(TestCase):
                 self.assertIn('Refund already processed!', mail.outbox[1].body)
 
 
+class OrderTaxInvoiceTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username='invoicebuyer', email='buyer@urban.in', password='pass1234', first_name='Aarav')
+        self.other_user = User.objects.create_user(username='otherbuyer', email='other@urban.in', password='pass1234')
+        self.product = Product.objects.create(name='Acoustic ANC Headphones', category='Electronics', price=Decimal('4999.00'))
+        self.order = Order.objects.create(
+            user=self.user,
+            full_name='Aarav Sharma',
+            email='buyer@urban.in',
+            address='Flat 402, Lotus Towers',
+            city='Bengaluru',
+            postal_code='560001',
+            total_amount=Decimal('5098.00'),
+            payment_method='UPI',
+            payment_status='Paid',
+            order_status='Processing',
+            transaction_id='TXN-INVOICE-TEST1',
+        )
+        OrderItem.objects.create(
+            order=self.order,
+            product=self.product,
+            price=self.product.price,
+            quantity=1,
+        )
+        self.client = APIClient()
+
+    def test_invoice_api_json_format(self):
+        self.client.force_authenticate(user=self.user)
+        res = self.client.get(f'/api/orders/{self.order.id}/invoice/')
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['order_id'], self.order.id)
+        self.assertEqual(data['invoice_number'], f'INV-2026-{self.order.id:05d}')
+        self.assertEqual(data['seller']['gstin'], '07AAACU1234F1Z8')
+        self.assertEqual(data['buyer']['name'], 'Aarav Sharma')
+        self.assertEqual(len(data['items']), 1)
+        self.assertEqual(data['items'][0]['hsn_code'], '8518')
+        self.assertIn('Rupees', data['amount_in_words'])
+        self.assertEqual(data['tax_summary']['gst_rate_percent'], 18)
+
+    def test_invoice_api_html_format(self):
+        self.client.force_authenticate(user=self.user)
+        res = self.client.get(f'/api/orders/{self.order.id}/invoice/?format=html')
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('text/html', res['Content-Type'])
+        content = res.content.decode('utf-8')
+        self.assertIn('TAX INVOICE', content)
+        self.assertIn(f'INV-2026-{self.order.id:05d}', content)
+        self.assertIn('07AAACU1234F1Z8', content)
+        self.assertIn('Acoustic ANC Headphones', content)
+
+    def test_invoice_access_denied_for_other_user(self):
+        self.client.force_authenticate(user=self.other_user)
+        res = self.client.get(f'/api/orders/{self.order.id}/invoice/')
+        self.assertEqual(res.status_code, 403)
+
+    def test_amount_to_words_inr_utility(self):
+        from .utils import amount_to_words_inr
+        self.assertEqual(amount_to_words_inr(Decimal('0')), 'Zero Rupees Only')
+        self.assertEqual(amount_to_words_inr(Decimal('100.00')), 'One Hundred Rupees Only')
+        words = amount_to_words_inr(Decimal('5098.50'))
+        self.assertIn('Five Thousand Ninety-Eight Rupees', words)
+        self.assertIn('Fifty Paise Only', words)
+
+
+

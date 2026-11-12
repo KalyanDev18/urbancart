@@ -127,6 +127,10 @@ class Order(models.Model):
     def __str__(self):
         return f"Order #{self.id} - {self.full_name} ({self.order_status})"
 
+    @property
+    def invoice_number(self):
+        return f"INV-2026-{self.id:05d}"
+
 
 class SupportTicket(models.Model):
     ISSUE_CHOICES = (
