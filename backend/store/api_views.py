@@ -1531,14 +1531,20 @@ def admin_test_email_api(request):
 
     advice = None
     if not ok:
-        if '403' in str(err) or 'resend' in str(err).lower():
+        err_lower = str(err).lower()
+        if 'not yet activated' in err_lower or ('brevo' in err_lower and 'permission_denied' in err_lower):
             advice = (
-                "Resend Sandbox Limitation: Resend free accounts without a custom domain can ONLY send to your registered email (kdev23416@gmail.com). "
-                "To deliver to any customer email address, add BREVO_API_KEY on Render (free 300 emails/day to anyone without domain setup) or verify a domain on Resend."
+                "Brevo Account Activation Pending: Brevo requires new accounts to be activated before sending transactional emails. "
+                "You can email contact@brevo.com to unlock it, OR use Google Apps Script (EMAIL_WEBHOOK_URL) which works instantly without any approval or domain setup!"
             )
-        elif 'render' in str(err).lower() or 'smtp' in str(err).lower():
+        elif 'resend' in err_lower and ('403' in err_lower or 'only sends to account owner' in err_lower):
             advice = (
-                "Render Free tier blocks outbound SMTP port 587. Add BREVO_API_KEY or EMAIL_WEBHOOK_URL in Render Environment Variables for HTTPS email delivery."
+                "Resend Sandbox Limitation: Resend free tier without a custom domain only delivers to kdev23416@gmail.com. "
+                "To deliver to any customer email address, deploy the Google Apps Script Webhook (EMAIL_WEBHOOK_URL) or activate Brevo."
+            )
+        elif 'render' in err_lower or 'smtp' in err_lower:
+            advice = (
+                "Render Free tier blocks outbound SMTP port 587. Add EMAIL_WEBHOOK_URL (Google Apps Script Web App) or BREVO_API_KEY in Render Environment Variables for HTTPS delivery."
             )
 
     return Response({

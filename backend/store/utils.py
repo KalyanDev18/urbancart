@@ -79,16 +79,20 @@ def _send_via_webhook(webhook_url, email, subject, plain_text, html_text):
         headers={'Content-Type': 'application/json', 'User-Agent': 'UrbanCart-Mailer/1.0'},
         method='POST',
     )
-    with urllib.request.urlopen(req, timeout=8) as resp:
-        body = resp.read().decode('utf-8', 'ignore')
-        if resp.status >= 400:
-            raise RuntimeError(f"Webhook returned HTTP {resp.status}: {body[:200]}")
-        try:
-            parsed = json.loads(body)
-            if parsed.get('ok') is False or parsed.get('status') == 'error':
-                raise RuntimeError(parsed.get('error', 'Webhook error'))
-        except ValueError:
-            pass
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            body = resp.read().decode('utf-8', 'ignore')
+            if resp.status >= 400:
+                raise RuntimeError(f"Webhook returned HTTP {resp.status}: {body[:200]}")
+            try:
+                parsed = json.loads(body)
+                if parsed.get('ok') is False or parsed.get('status') == 'error':
+                    raise RuntimeError(parsed.get('error', 'Webhook error'))
+            except ValueError:
+                pass
+    except urllib.error.HTTPError as he:
+        body = he.read().decode('utf-8', 'ignore')
+        raise RuntimeError(f"Webhook HTTP {he.code}: {body[:200]}")
 
 
 def _send_via_brevo(api_key, sender_email, email, subject, plain_text, html_text):
@@ -111,10 +115,19 @@ def _send_via_brevo(api_key, sender_email, email, subject, plain_text, html_text
         },
         method='POST',
     )
-    with urllib.request.urlopen(req, timeout=8) as resp:
-        if resp.status >= 400:
-            body = resp.read().decode('utf-8', 'ignore')
-            raise RuntimeError(f"Brevo returned HTTP {resp.status}: {body[:200]}")
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            if resp.status >= 400:
+                body = resp.read().decode('utf-8', 'ignore')
+                raise RuntimeError(f"Brevo returned HTTP {resp.status}: {body[:200]}")
+    except urllib.error.HTTPError as he:
+        body = he.read().decode('utf-8', 'ignore')
+        try:
+            parsed = json.loads(body)
+            msg = parsed.get('message', body[:200])
+        except Exception:
+            msg = body[:200]
+        raise RuntimeError(f"Brevo HTTP {he.code}: {msg}")
 
 
 def _send_via_resend(api_key, sender_email, email, subject, plain_text, html_text):
