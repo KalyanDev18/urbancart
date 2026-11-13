@@ -15,6 +15,7 @@ import {
   Search,
   DollarSign,
   Users,
+  Mail,
 } from 'lucide-react';
 import { api, API_BASE_URL, optimizeImageUrl } from '../api/client';
 import { useAuth } from '../context/AuthContext';
@@ -70,6 +71,31 @@ export default function AdminPage({ onRequireAuth, onContinueShopping }) {
   const [productDrafts, setProductDrafts] = useState({});
   const [ticketDrafts, setTicketDrafts] = useState({});
   const [busyKey, setBusyKey] = useState('');
+
+  // Email diagnostics state
+  const [testEmailInput, setTestEmailInput] = useState('');
+  const [testEmailLoading, setTestEmailLoading] = useState(false);
+  const [testEmailResult, setTestEmailResult] = useState(null);
+
+  const handleRunEmailTest = async (e) => {
+    e.preventDefault();
+    if (!testEmailInput) return;
+    setTestEmailLoading(true);
+    setTestEmailResult(null);
+    try {
+      const res = await api.adminTestEmail(testEmailInput);
+      setTestEmailResult(res);
+      if (res.email_sent) {
+        showToast(`✓ Test email delivered to ${testEmailInput}`);
+      } else {
+        showToast('⚠️ Test email could not be delivered.');
+      }
+    } catch (err) {
+      setTestEmailResult({ email_sent: false, error: err.message });
+    } finally {
+      setTestEmailLoading(false);
+    }
+  };
 
   const showToast = (msg) => {
     setToast(msg);
@@ -528,6 +554,7 @@ export default function AdminPage({ onRequireAuth, onContinueShopping }) {
           { id: 'orders', label: `Orders (${orders.length})`, icon: Package },
           { id: 'products', label: `Products (${products.length})`, icon: ShoppingBag },
           { id: 'tickets', label: `Support Desk (${tickets.length})`, icon: MessageSquare },
+          { id: 'mail', label: 'Email Diagnostics', icon: Mail },
         ].map((t) => {
           const Icon = t.icon;
           const active = activeTab === t.id;
@@ -1030,6 +1057,82 @@ export default function AdminPage({ onRequireAuth, onContinueShopping }) {
               );
             })
           )}
+        </div>
+      )}
+
+      {/* TAB 4: EMAIL DIAGNOSTICS & TEST */}
+      {activeTab === 'mail' && (
+        <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 20, padding: 'clamp(18px, 4vw, 28px)' }}>
+          <div style={{ marginBottom: 20 }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-main)', marginBottom: 6 }}>
+              🧪 Live Email Deliverability Test & Diagnostics
+            </h3>
+            <p style={{ fontSize: '0.86rem', color: 'var(--text-dim)', margin: 0 }}>
+              Test sending an actual email to any address (customer, test Gmail, Yahoo, etc.) to verify if your email provider delivers externally or blocks it.
+            </p>
+          </div>
+
+          <form onSubmit={handleRunEmailTest} style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
+            <input
+              type="email"
+              required
+              placeholder="Enter any recipient email (e.g. friend@gmail.com)"
+              value={testEmailInput}
+              onChange={(e) => setTestEmailInput(e.target.value)}
+              style={{
+                flex: 1,
+                minWidth: 260,
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-strong)',
+                borderRadius: 12,
+                padding: '12px 14px',
+                color: 'var(--text-main)',
+                fontSize: '0.92rem',
+              }}
+            />
+            <button
+              type="submit"
+              disabled={testEmailLoading}
+              className="btn-gold"
+              style={{ padding: '12px 20px', fontSize: '0.92rem', display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <Mail size={16} />
+              {testEmailLoading ? 'Testing Live Delivery...' : 'Send Test Email'}
+            </button>
+          </form>
+
+          {testEmailResult && (
+            <div style={{
+              background: testEmailResult.email_sent ? 'rgba(16, 185, 129, 0.12)' : 'rgba(239, 68, 68, 0.12)',
+              border: `1px solid ${testEmailResult.email_sent ? '#10b981' : '#ef4444'}`,
+              borderRadius: 14,
+              padding: 18,
+              marginTop: 16,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 800, fontSize: '1rem', color: testEmailResult.email_sent ? '#10b981' : '#ef4444', marginBottom: 8 }}>
+                {testEmailResult.email_sent ? <CheckCircle2 size={20} /> : <AlertTriangle size={20} />}
+                {testEmailResult.email_sent ? 'Delivery Succeeded!' : 'Delivery Failed!'}
+              </div>
+              <p style={{ margin: '0 0 8px', fontSize: '0.88rem', color: 'var(--text-main)' }}>
+                {testEmailResult.email_sent
+                  ? `An automated test email was successfully dispatched to ${testEmailResult.recipient}. Check your inbox (and Spam folder).`
+                  : `Error: ${testEmailResult.error}`}
+              </p>
+              {testEmailResult.advice && (
+                <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: 10, padding: '12px 14px', marginTop: 10, fontSize: '0.84rem', color: 'var(--amber-primary)', lineHeight: 1.5 }}>
+                  💡 <strong>Diagnostic Advice:</strong> {testEmailResult.advice}
+                </div>
+              )}
+            </div>
+          )}
+
+          <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--border-subtle)', fontSize: '0.84rem', color: 'var(--text-dim)', lineHeight: 1.6 }}>
+            <strong>Why do emails sometimes go only to the admin?</strong>
+            <ul style={{ paddingLeft: 20, margin: '8px 0 0' }}>
+              <li><strong>Resend Sandbox Limitation:</strong> On Resend free accounts without a custom verified domain, Resend strictly allows sending <em>only</em> to your own account email. Any email to external users is blocked.</li>
+              <li><strong>Solution:</strong> Use Brevo (<code>BREVO_API_KEY</code>) which allows sending 300 free emails/day to <em>any</em> recipient without needing a domain, or deploy Google Apps Script (<code>EMAIL_WEBHOOK_URL</code>).</li>
+            </ul>
+          </div>
         </div>
       )}
     </div>

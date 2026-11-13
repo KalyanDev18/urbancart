@@ -232,6 +232,10 @@ export const api = {
     method: 'PATCH',
     body: JSON.stringify(data),
   }),
+  adminTestEmail: (email) => request('/api/admin/test-email/', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+  }),
 
   // Product Reviews & Ratings
   getProductReviews: (productId) => request(`/api/products/${productId}/reviews/`),

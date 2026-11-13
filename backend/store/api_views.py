@@ -25,7 +25,7 @@ from .serializers import (
     OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer, ProductReviewSerializer
 )
 from .utils import (
-    send_otp_email, send_order_status_email, send_ticket_update_email,
+    send_email, send_otp_email, send_order_status_email, send_ticket_update_email,
     generate_tax_invoice_html, amount_to_words_inr
 )
 
@@ -1500,3 +1500,53 @@ def delete_product_review_api(request, product_id, review_id):
         'average_rating': str(product.rating),
         'review_count': product.review_count,
     })
+
+
+@api_view(['POST'])
+@permission_classes([permissions.IsAdminUser])
+def admin_test_email_api(request):
+    """POST /api/admin/test-email/ -> Diagnostics utility for staff to test email delivery to ANY recipient."""
+    recipient = (request.data.get('email') or '').strip().lower()
+    if not recipient or '@' not in recipient:
+        return Response({'error': 'Please provide a valid recipient email.'}, status=status.HTTP_400_BAD_REQUEST)
+
+    subject = f"🧪 UrbanCart Email Test to {recipient}"
+    plain = f"Hello,\n\nThis is an automated test email sent from UrbanCart Admin to verify live delivery to {recipient}.\n\nIf you see this, external delivery is working properly!"
+    html = f"""<div style="font-family:sans-serif;padding:24px;border:1px solid #e2e8f0;border-radius:12px;max-width:520px;background:#ffffff;">
+        <h2 style="color:#d97706;margin-top:0;">🧪 UrbanCart Email Delivery Test</h2>
+        <p style="color:#334155;">This message was triggered from your UrbanCart Admin Panel to test deliverability to: <strong>{recipient}</strong>.</p>
+        <div style="background:#ecfdf5;border:1px solid #a7f3d0;padding:12px 16px;border-radius:8px;color:#065f46;font-weight:bold;margin:16px 0;">
+            ✓ Delivery Pipeline Verified!
+        </div>
+        <p style="color:#64748b;font-size:12px;">Sent via UrbanCart Mail Engine.</p>
+    </div>"""
+
+    ok, err = send_email(recipient, subject, plain, html)
+    active_providers = {
+        'webhook_configured': bool(os.environ.get('EMAIL_WEBHOOK_URL')),
+        'brevo_configured': bool(os.environ.get('BREVO_API_KEY')),
+        'resend_configured': bool(os.environ.get('RESEND_API_KEY')),
+        'smtp_configured': bool(getattr(settings, 'EMAIL_HOST_USER', '')),
+    }
+
+    advice = None
+    if not ok:
+        if '403' in str(err) or 'resend' in str(err).lower():
+            advice = (
+                "Resend Sandbox Limitation: Resend free accounts without a custom domain can ONLY send to your registered email (kdev23416@gmail.com). "
+                "To deliver to any customer email address, add BREVO_API_KEY on Render (free 300 emails/day to anyone without domain setup) or verify a domain on Resend."
+            )
+        elif 'render' in str(err).lower() or 'smtp' in str(err).lower():
+            advice = (
+                "Render Free tier blocks outbound SMTP port 587. Add BREVO_API_KEY or EMAIL_WEBHOOK_URL in Render Environment Variables for HTTPS email delivery."
+            )
+
+    return Response({
+        'status': 'success' if ok else 'failed',
+        'email_sent': ok,
+        'recipient': recipient,
+        'error': err,
+        'advice': advice,
+        'active_providers': active_providers,
+    }, status=status.HTTP_200_OK)
+

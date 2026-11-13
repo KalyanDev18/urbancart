@@ -227,6 +227,20 @@ class AdminAccessAndControlTests(TestCase):
                 self.assertTrue(env_u.is_superuser)
                 self.assertTrue(env_u.check_password('EnvAdminTestPassword!42'))
 
+    def test_admin_test_email_api_endpoint(self):
+        # Non-staff blocked
+        self.client.force_authenticate(user=self.customer)
+        block_res = self.client.post('/api/admin/test-email/', {'email': 'friend@example.com'}, format='json')
+        self.assertEqual(block_res.status_code, 403)
+
+        # Staff can trigger test
+        self.client.force_authenticate(user=self.admin_user)
+        res = self.client.post('/api/admin/test-email/', {'email': 'friend@example.com'}, format='json')
+        self.assertEqual(res.status_code, 200)
+        data = res.json()
+        self.assertEqual(data['recipient'], 'friend@example.com')
+        self.assertIn('active_providers', data)
+
 
 class ProductReviewSystemTests(TestCase):
     def setUp(self):
