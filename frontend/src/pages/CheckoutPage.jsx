@@ -18,6 +18,18 @@ export default function CheckoutPage({ onOrderSuccess, onBackToCart }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Sync user profile when user state changes / finishes loading
+  useEffect(() => {
+    if (user) {
+      if (!fullName) {
+        setFullName(`${user.first_name || ''} ${user.last_name || ''}`.trim() || user.username || '');
+      }
+      if (!email && user.email) {
+        setEmail(user.email);
+      }
+    }
+  }, [user]);
+
   // Fetch saved addresses if available
   useEffect(() => {
     api.getAddresses()

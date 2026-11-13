@@ -382,7 +382,7 @@ class OrderEmailNotificationTests(TestCase):
             with patch.dict(os.environ, clean_env):
                 mail.outbox.clear()
 
-                # 1. Checkout -> Order Confirmed email
+                # 1. Checkout -> Order Confirmed email to customer + Store Admin Alert
                 self.client.force_authenticate(user=self.customer)
                 checkout_res = self.client.post('/api/checkout/', {
                     'full_name': 'Rohan Verma',
@@ -395,12 +395,15 @@ class OrderEmailNotificationTests(TestCase):
                 self.assertEqual(checkout_res.status_code, 200)
                 order_id = checkout_res.data['order']['id']
 
-                self.assertEqual(len(mail.outbox), 1)
-                self.assertIn('Order Confirmed', mail.outbox[0].subject)
-                self.assertEqual(mail.outbox[0].to, ['rohan@example.com'])
-                self.assertIn('Aero Runner Pro', mail.outbox[0].body)
+                # Dispatches 1 email to customer (rohan@example.com) + 1 admin alert to store owner
+                self.assertEqual(len(mail.outbox), 2)
+                customer_mail = [m for m in mail.outbox if 'rohan@example.com' in m.to][0]
+                admin_mail = [m for m in mail.outbox if 'rohan@example.com' not in m.to][0]
+                self.assertIn('Order Confirmed', customer_mail.subject)
+                self.assertIn('Aero Runner Pro', customer_mail.body)
+                self.assertIn('Admin Alert', admin_mail.subject)
 
-                # 2. Admin marks Shipped -> Order Shipped email
+                # 2. Admin marks Shipped -> Order Shipped email to customer
                 self.client.force_authenticate(user=self.admin_user)
                 ship_res = self.client.patch(
                     f'/api/admin/orders/{order_id}/',
@@ -408,28 +411,28 @@ class OrderEmailNotificationTests(TestCase):
                     format='json',
                 )
                 self.assertEqual(ship_res.status_code, 200)
-                self.assertEqual(len(mail.outbox), 2)
-                self.assertIn('Shipped', mail.outbox[1].subject)
+                self.assertEqual(len(mail.outbox), 3)
+                self.assertIn('Shipped', mail.outbox[2].subject)
 
-                # 3. Admin marks Delivered -> Order Delivered email
+                # 3. Admin marks Delivered -> Order Delivered email to customer
                 deliv_res = self.client.patch(
                     f'/api/admin/orders/{order_id}/',
                     {'order_status': 'Delivered', 'payment_status': 'Paid'},
                     format='json',
                 )
                 self.assertEqual(deliv_res.status_code, 200)
-                self.assertEqual(len(mail.outbox), 3)
-                self.assertIn('Delivered', mail.outbox[2].subject)
+                self.assertEqual(len(mail.outbox), 4)
+                self.assertIn('Delivered', mail.outbox[3].subject)
 
-                # 4. Customer requests Return -> Return Request email
+                # 4. Customer requests Return -> Return Request email to customer + Admin alert
                 self.client.force_authenticate(user=self.customer)
                 ret_res = self.client.post(f'/api/orders/{order_id}/return/', {
                     'reason': 'Need larger size',
                     'resolution': 'REFUND',
                 }, format='json')
                 self.assertEqual(ret_res.status_code, 200)
-                self.assertEqual(len(mail.outbox), 4)
-                self.assertIn('Return Request', mail.outbox[3].subject)
+                self.assertEqual(len(mail.outbox), 6)
+                self.assertTrue(any('Return Request' in m.subject for m in mail.outbox))
 
                 # 5. Admin marks Returned & Refunded -> Refund Processed email
                 self.client.force_authenticate(user=self.admin_user)
@@ -439,8 +442,8 @@ class OrderEmailNotificationTests(TestCase):
                     format='json',
                 )
                 self.assertEqual(rfnd_res.status_code, 200)
-                self.assertEqual(len(mail.outbox), 5)
-                self.assertIn('Refund Processed', mail.outbox[4].subject)
+                self.assertEqual(len(mail.outbox), 7)
+                self.assertIn('Refund Processed', mail.outbox[6].subject)
 
     def test_cancel_order_and_ticket_reply_send_emails(self):
         import os
@@ -474,15 +477,16 @@ class OrderEmailNotificationTests(TestCase):
             with patch.dict(os.environ, clean_env):
                 mail.outbox.clear()
 
-                # Cancel order sends Cancelled email with refund ref
+                # Cancel order sends Cancelled email to customer + Admin alert
                 self.client.force_authenticate(user=self.customer)
                 cxl_res = self.client.post(f'/api/orders/{order.id}/cancel/', {'reason': 'Changed mind'}, format='json')
                 self.assertEqual(cxl_res.status_code, 200)
-                self.assertEqual(len(mail.outbox), 1)
-                self.assertIn('Cancelled', mail.outbox[0].subject)
-                self.assertIn('Changed mind', mail.outbox[0].body)
+                self.assertEqual(len(mail.outbox), 2)
+                customer_cxl = [m for m in mail.outbox if 'rohan@example.com' in m.to][0]
+                self.assertIn('Cancelled', customer_cxl.subject)
+                self.assertIn('Changed mind', customer_cxl.body)
 
-                # Admin updates support ticket -> email sent
+                # Admin updates support ticket -> email sent to customer
                 self.client.force_authenticate(user=self.admin_user)
                 t_res = self.client.patch(
                     f'/api/admin/tickets/{ticket.id}/',
@@ -490,9 +494,9 @@ class OrderEmailNotificationTests(TestCase):
                     format='json',
                 )
                 self.assertEqual(t_res.status_code, 200)
-                self.assertEqual(len(mail.outbox), 2)
-                self.assertIn('Support Update', mail.outbox[1].subject)
-                self.assertIn('Refund already processed!', mail.outbox[1].body)
+                self.assertEqual(len(mail.outbox), 3)
+                self.assertIn('Support Update', mail.outbox[2].subject)
+                self.assertIn('Refund already processed!', mail.outbox[2].body)
 
 
 class OrderTaxInvoiceTests(TestCase):

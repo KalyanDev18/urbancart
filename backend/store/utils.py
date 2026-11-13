@@ -92,9 +92,10 @@ def _send_via_webhook(webhook_url, email, subject, plain_text, html_text):
 
 
 def _send_via_brevo(api_key, sender_email, email, subject, plain_text, html_text):
-    """Dispatches email via Brevo HTTPS REST API (Port 443, never blocked by Render free tier)."""
+    """Dispatches email via Brevo HTTPS REST API (Port 443, delivers to ANY email address, 300 free/day)."""
+    clean_sender = sender_email if (sender_email and '@' in sender_email) else 'kdev23416@gmail.com'
     payload = json.dumps({
-        'sender': {'name': 'UrbanCart', 'email': sender_email or 'noreply@urbancart.com'},
+        'sender': {'name': 'UrbanCart', 'email': clean_sender},
         'to': [{'email': email}],
         'subject': subject,
         'textContent': plain_text,
@@ -112,7 +113,8 @@ def _send_via_brevo(api_key, sender_email, email, subject, plain_text, html_text
     )
     with urllib.request.urlopen(req, timeout=8) as resp:
         if resp.status >= 400:
-            raise RuntimeError(f"Brevo returned HTTP {resp.status}")
+            body = resp.read().decode('utf-8', 'ignore')
+            raise RuntimeError(f"Brevo returned HTTP {resp.status}: {body[:200]}")
 
 
 def _send_via_resend(api_key, sender_email, email, subject, plain_text, html_text):
@@ -134,50 +136,63 @@ def _send_via_resend(api_key, sender_email, email, subject, plain_text, html_tex
         },
         method='POST',
     )
-    with urllib.request.urlopen(req, timeout=8) as resp:
-        if resp.status >= 400:
-            raise RuntimeError(f"Resend returned HTTP {resp.status}")
+    try:
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            if resp.status >= 400:
+                body = resp.read().decode('utf-8', 'ignore')
+                raise RuntimeError(f"Resend returned HTTP {resp.status}: {body[:200]}")
+    except urllib.error.HTTPError as he:
+        body = he.read().decode('utf-8', 'ignore')
+        if he.code == 403:
+            raise RuntimeError(
+                f"Resend 403 Forbidden: Resend unverified account only sends to account owner email. "
+                f"To send to '{email}', verify custom domain on resend.com or use Brevo/Google Apps Script."
+            )
+        raise RuntimeError(f"Resend HTTP {he.code}: {body[:200]}")
 
 
 def send_email(to_email, subject, plain_text, html_text):
     """
     Dispatches styled email over HTTPS API (Render Free-Tier compatible) or SMTP fallback.
+    Executes configured services in order with graceful multi-provider fallback.
     Returns (success: bool, error_msg: str or None).
     """
     if not to_email or '@' not in str(to_email):
         return False, "Invalid recipient email address."
 
-    to_email = str(to_email).strip()
+    to_email = str(to_email).strip().lower()
     from_email = getattr(settings, 'EMAIL_HOST_USER', '') or getattr(settings, 'DEFAULT_FROM_EMAIL', 'UrbanCart <noreply@urbancart.com>')
+    errors = []
 
-    # 1. HTTPS Webhook (e.g. Google Apps Script Web App over port 443)
+    # 1. HTTPS Webhook (Google Apps Script Web App over port 443 — sends to ANY email)
     webhook_url = os.environ.get('EMAIL_WEBHOOK_URL', '').strip()
     if webhook_url:
         try:
             _send_via_webhook(webhook_url, to_email, subject, plain_text, html_text)
             return True, None
         except Exception as e:
-            return False, f"Webhook delivery error: {e}"
+            errors.append(f"Webhook: {e}")
 
-    # 2. Brevo HTTP REST API (300 free emails/day over port 443)
+    # 2. Brevo HTTP REST API (Port 443 — sends to ANY recipient email, 300 free/day)
     brevo_key = os.environ.get('BREVO_API_KEY', '').strip()
     if brevo_key:
         try:
-            _send_via_brevo(brevo_key, getattr(settings, 'EMAIL_HOST_USER', ''), to_email, subject, plain_text, html_text)
+            sender = getattr(settings, 'EMAIL_HOST_USER', '') or os.environ.get('BREVO_SENDER_EMAIL', '') or 'kdev23416@gmail.com'
+            _send_via_brevo(brevo_key, sender, to_email, subject, plain_text, html_text)
             return True, None
         except Exception as e:
-            return False, f"Brevo API error: {e}"
+            errors.append(f"Brevo: {e}")
 
-    # 3. Resend HTTP REST API (over port 443)
+    # 3. Resend HTTP REST API (Port 443)
     resend_key = os.environ.get('RESEND_API_KEY', '').strip()
     if resend_key:
         try:
             _send_via_resend(resend_key, getattr(settings, 'RESEND_FROM_EMAIL', ''), to_email, subject, plain_text, html_text)
             return True, None
         except Exception as e:
-            return False, f"Resend API error: {e}"
+            errors.append(f"Resend: {e}")
 
-    # 4. Standard SMTP fallback (works locally; Render free tier blocks ports 25/465/587)
+    # 4. Standard SMTP fallback (Port 587 — works locally & on hosts where port 587 is open)
     try:
         send_mail(
             subject=subject,
@@ -191,11 +206,12 @@ def send_email(to_email, subject, plain_text, html_text):
     except Exception as e:
         err_str = str(e)
         if 'timed out' in err_str.lower() or '101' in err_str or 'network is unreachable' in err_str.lower():
-            return False, (
-                "Render Free tier blocks outbound SMTP port 587. "
-                "Add EMAIL_WEBHOOK_URL (Google Apps Script) or BREVO_API_KEY in Render Environment Variables for instant HTTPS email delivery."
-            )
-        return False, err_str
+            errors.append("Render Free tier blocks outbound SMTP port 587. Configure EMAIL_WEBHOOK_URL or BREVO_API_KEY for HTTPS delivery.")
+        else:
+            errors.append(f"SMTP: {err_str}")
+
+    combined = " | ".join(errors) if errors else "No email backend available."
+    return False, combined
 
 
 def send_otp_email(email, otp):
@@ -556,10 +572,21 @@ def build_order_email_content(order_info, status_type, extra_note=None):
     return subject, plain_text, html_text
 
 
-def send_order_status_email(order, status_type=None, extra_note=None, async_send=None):
+def get_admin_emails():
+    """Returns set of admin notification emails from ADMIN_EMAILS or fallback to EMAIL_HOST_USER."""
+    raw = os.environ.get('ADMIN_EMAILS')
+    if raw is not None:
+        return {e.strip().lower() for e in raw.split(',') if e.strip()}
+    host_user = getattr(settings, 'EMAIL_HOST_USER', '').strip().lower()
+    if host_user and '@' in host_user:
+        return {host_user}
+    return set()
+
+
+def send_order_status_email(order, status_type=None, extra_note=None, async_send=None, notify_admin=True):
     """
     Sends styled order lifecycle email (Confirmed, Shipped, Delivered, Cancelled, Return Requested, Refunded)
-    to order.email using the same delivery pipeline as OTP verification.
+    to order.email (customer). Also dispatches store admin notification alerts on new orders & critical events.
     """
     if not order or not getattr(order, 'email', None):
         return False, "Order has no recipient email."
@@ -600,24 +627,43 @@ def send_order_status_email(order, status_type=None, extra_note=None, async_send
         normalized_type = _normalize_order_status_type(status_type or order.order_status, order.payment_status)
         subject, plain_text, html_text = build_order_email_content(order_info, normalized_type, extra_note=extra_note)
 
-        if async_send:
-            def _worker():
-                try:
-                    ok, err = send_email(order_info['email'], subject, plain_text, html_text)
-                    if ok:
-                        print(f"[UrbanCart Order Mailer] Sent {normalized_type} email for Order #{order_info['id']} to {order_info['email']}")
-                    else:
-                        print(f"[UrbanCart Order Mailer Warning] Failed {normalized_type} email for Order #{order_info['id']}: {err}")
-                except Exception as exc:
-                    print(f"[UrbanCart Order Mailer Exception] Order #{order_info['id']}: {exc}")
+        def _dispatch():
+            # 1. Send to Customer (order.email)
+            customer_email = order_info['email']
+            ok, err = send_email(customer_email, subject, plain_text, html_text)
+            if ok:
+                print(f"[UrbanCart Order Mailer] Sent {normalized_type} email for Order #{order_info['id']} to customer {customer_email}")
+            else:
+                print(f"[UrbanCart Order Mailer Warning] Failed {normalized_type} email for Order #{order_info['id']} to {customer_email}: {err}")
 
-            threading.Thread(target=_worker, daemon=True).start()
+            # 2. Store Admin Alert (on new order confirmation or cancel/return)
+            if notify_admin and normalized_type in ('CONFIRMED', 'CANCELLED', 'RETURN_REQUESTED'):
+                admin_emails = get_admin_emails()
+                app_url = os.environ.get('FRONTEND_URL', 'https://urbancart-amber.vercel.app').rstrip('/')
+                for adm in admin_emails:
+                    if adm != customer_email:
+                        adm_label = 'New Order Placed' if normalized_type == 'CONFIRMED' else normalized_type.replace('_', ' ').title()
+                        adm_subject = f"🔔 [Admin Alert] {adm_label}: Order #{order_info['id']} ({order_info['full_name']} — ₹{order_info['total_amount']})"
+                        adm_plain = (
+                            f"UrbanCart Store Admin Alert\n"
+                            f"Event: {adm_label}\n"
+                            f"Order ID: #{order_info['id']}\n\n"
+                            f"Customer: {order_info['full_name']} ({customer_email})\n"
+                            f"Payment: {order_info['payment_method']} ({order_info['payment_status']})\n"
+                            f"Amount: ₹{order_info['total_amount']}\n"
+                            f"Shipping Address: {order_info['address']}, {order_info['city']} - {order_info['postal_code']}\n\n"
+                            f"ITEMS:\n" + "\n".join(f"  • {it['quantity']}x {it['name']} — ₹{it['total']}" for it in items) + "\n\n"
+                            f"Manage order in Admin Dashboard: {app_url}/admin\n"
+                        )
+                        send_email(adm, adm_subject, adm_plain, html_text)
+
+            return ok, err
+
+        if async_send:
+            threading.Thread(target=_dispatch, daemon=True).start()
             return True, None
 
-        ok, err = send_email(order_info['email'], subject, plain_text, html_text)
-        if not ok:
-            print(f"[UrbanCart Order Mailer Warning] Failed {normalized_type} email for Order #{order_info['id']}: {err}")
-        return ok, err
+        return _dispatch()
     except Exception as e:
         print(f"[UrbanCart Order Mailer Error] Order #{getattr(order, 'id', '?')}: {e}")
         return False, str(e)
