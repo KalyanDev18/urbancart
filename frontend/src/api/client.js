@@ -237,6 +237,40 @@ export const api = {
     body: JSON.stringify({ email }),
   }),
 
+  // Sellers (Vendors) CRUD
+  adminGetSellers: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/api/admin/sellers/${q ? '?' + q : ''}`);
+  },
+  adminCreateSeller: (data) => request('/api/admin/sellers/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  adminUpdateSeller: (sellerId, data) => request(`/api/admin/sellers/${sellerId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  adminDeleteSeller: (sellerId) => request(`/api/admin/sellers/${sellerId}/`, {
+    method: 'DELETE',
+  }),
+
+  // Delivery Agents CRUD
+  adminGetDeliveryAgents: (params = {}) => {
+    const q = new URLSearchParams(params).toString();
+    return request(`/api/admin/delivery-agents/${q ? '?' + q : ''}`);
+  },
+  adminCreateDeliveryAgent: (data) => request('/api/admin/delivery-agents/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+  adminUpdateDeliveryAgent: (agentId, data) => request(`/api/admin/delivery-agents/${agentId}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  }),
+  adminDeleteDeliveryAgent: (agentId) => request(`/api/admin/delivery-agents/${agentId}/`, {
+    method: 'DELETE',
+  }),
+
   // Product Reviews & Ratings
   getProductReviews: (productId) => request(`/api/products/${productId}/reviews/`),
   submitProductReview: (productId, data) => request(`/api/products/${productId}/reviews/`, {

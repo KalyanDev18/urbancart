@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.contrib.auth.models import User
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, SupportTicket, ProductReview
+from .models import (
+    Category, Product, CartItem, Order, OrderItem, ShippingAddress,
+    SupportTicket, ProductReview, Seller, DeliveryAgent
+)
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,9 +15,39 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = '__all__'
 
+class SellerSerializer(serializers.ModelSerializer):
+    products_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Seller
+        fields = [
+            'id', 'name', 'contact_person', 'email', 'phone', 'city', 'state',
+            'address', 'gst_number', 'rating', 'is_active', 'products_count',
+            'created_at', 'updated_at'
+        ]
+
+    def get_products_count(self, obj):
+        cnt = getattr(obj, 'products_count', None)
+        return cnt if cnt is not None else obj.products.count()
+
+class DeliveryAgentSerializer(serializers.ModelSerializer):
+    active_deliveries_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DeliveryAgent
+        fields = [
+            'id', 'name', 'phone', 'email', 'vehicle_type', 'vehicle_number',
+            'city', 'assigned_area', 'status', 'rating', 'is_active',
+            'active_deliveries_count', 'created_at', 'updated_at'
+        ]
+
+    def get_active_deliveries_count(self, obj):
+        return obj.assigned_orders.filter(order_status__in=['Processing', 'Shipped']).count()
+
 class ProductSerializer(serializers.ModelSerializer):
     discount_percent = serializers.SerializerMethodField()
     original_price = serializers.SerializerMethodField()
+    seller_name = serializers.ReadOnlyField(source='seller.name')
 
     class Meta:
         model = Product
@@ -67,12 +100,14 @@ class OrderItemSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     items = OrderItemSerializer(many=True, read_only=True)
     invoice_number = serializers.ReadOnlyField()
+    delivery_agent_name = serializers.ReadOnlyField(source='delivery_agent.name')
+    delivery_agent_phone = serializers.ReadOnlyField(source='delivery_agent.phone')
 
     class Meta:
         model = Order
         fields = [
-            'id', 'invoice_number', 'user', 'full_name', 'email', 'address', 
-            'city', 'postal_code', 'total_amount', 'payment_method', 
+            'id', 'invoice_number', 'user', 'delivery_agent', 'delivery_agent_name', 'delivery_agent_phone',
+            'full_name', 'email', 'address', 'city', 'postal_code', 'total_amount', 'payment_method', 
             'payment_status', 'order_status', 'transaction_id',
             'cancel_reason', 'return_reason', 'refund_amount', 'refund_reference',
             'items', 'created_at', 'updated_at'

@@ -1,4 +1,4 @@
-﻿import os
+import os
 import django
 from decimal import Decimal
 
@@ -519,6 +519,88 @@ def seed_diverse():
 
     from django.core.management import call_command
     call_command('ensure_admin')
+
+    from store.models import Seller, DeliveryAgent
+    if not Seller.objects.exists():
+        s1 = Seller.objects.create(
+            name="Apex Trends Apparel",
+            contact_person="Rohan Mehta",
+            email="rohan@apextrends.in",
+            phone="+91 98112 44321",
+            city="New Delhi",
+            state="Delhi",
+            address="Plot 14, Okhla Industrial Area Phase III",
+            gst_number="07AAACA1234A1Z5",
+            rating=Decimal("4.9"),
+            is_active=True
+        )
+        s2 = Seller.objects.create(
+            name="VoltTech Electronics Hub",
+            contact_person="Siddharth Roy",
+            email="sid@volttech.com",
+            phone="+91 98220 99887",
+            city="Bengaluru",
+            state="Karnataka",
+            address="TechZone Park, Electronic City",
+            gst_number="29AABCV5678B1Z2",
+            rating=Decimal("4.8"),
+            is_active=True
+        )
+        s3 = Seller.objects.create(
+            name="UrbanStride Footwear Co.",
+            contact_person="Pooja Sharma",
+            email="pooja@urbanstride.in",
+            phone="+91 98765 11223",
+            city="Mumbai",
+            state="Maharashtra",
+            address="Bandra West Linking Road",
+            gst_number="27AABCS9988C1Z0",
+            rating=Decimal("4.7"),
+            is_active=True
+        )
+        Product.objects.filter(category='Clothing').update(seller=s1)
+        Product.objects.filter(category__in=['Electronics', 'Home Tech', 'Gaming']).update(seller=s2)
+        Product.objects.filter(category__in=['Footwear', 'Accessories']).update(seller=s3)
+        print("Populated 3 verified sellers and linked products!")
+
+    if not DeliveryAgent.objects.exists():
+        DeliveryAgent.objects.create(
+            name="Ramesh Kumar",
+            phone="+91 98101 23456",
+            email="ramesh.express@gmail.com",
+            vehicle_type="Bike",
+            vehicle_number="DL 01 AB 4321",
+            city="Delhi",
+            assigned_area="Connaught Place & Central Delhi",
+            status="Available",
+            rating=Decimal("4.9"),
+            is_active=True
+        )
+        DeliveryAgent.objects.create(
+            name="Vikram Singh",
+            phone="+91 98202 34567",
+            email="vikram.logistics@gmail.com",
+            vehicle_type="Electric Bike",
+            vehicle_number="DL 04 EV 8765",
+            city="Delhi",
+            assigned_area="South Delhi & Saket",
+            status="Out for Delivery",
+            rating=Decimal("4.8"),
+            is_active=True
+        )
+        DeliveryAgent.objects.create(
+            name="Amit Verma",
+            phone="+91 98303 45678",
+            email="amit.delivery@gmail.com",
+            vehicle_type="Van",
+            vehicle_number="DL 03 CD 9911",
+            city="Delhi",
+            assigned_area="West Delhi & Janakpuri",
+            status="Available",
+            rating=Decimal("4.9"),
+            is_active=True
+        )
+        print("Populated 3 delivery agents!")
 
 if __name__ == '__main__':
     seed_diverse()

@@ -50,6 +50,10 @@ urlpatterns = [
     path('api/admin/orders/<int:order_id>/', api_views.admin_update_order_api, name='api_admin_order_update'),
     path('api/admin/products/', api_views.admin_create_product_api, name='api_admin_product_create'),
     path('api/admin/products/<int:product_id>/', api_views.admin_product_detail_api, name='api_admin_product_detail'),
+    path('api/admin/sellers/', api_views.admin_sellers_api, name='api_admin_sellers'),
+    path('api/admin/sellers/<int:seller_id>/', api_views.admin_seller_detail_api, name='api_admin_seller_detail'),
+    path('api/admin/delivery-agents/', api_views.admin_delivery_agents_api, name='api_admin_delivery_agents'),
+    path('api/admin/delivery-agents/<int:agent_id>/', api_views.admin_delivery_agent_detail_api, name='api_admin_delivery_agent_detail'),
     path('api/admin/tickets/<int:ticket_id>/', api_views.admin_update_ticket_api, name='api_admin_ticket_update'),
     path('api/admin/test-email/', api_views.admin_test_email_api, name='api_admin_test_email'),
 

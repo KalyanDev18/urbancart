@@ -19,10 +19,15 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework import viewsets
 
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket, ProductReview
+from .models import (
+    Category, Product, CartItem, Order, OrderItem, ShippingAddress,
+    EmailOTP, SupportTicket, ProductReview, Seller, DeliveryAgent
+)
 from .serializers import (
     CategorySerializer, ProductSerializer, CartItemSerializer, 
-    OrderSerializer, OrderItemSerializer, ShippingAddressSerializer, UserSerializer, SupportTicketSerializer, ProductReviewSerializer
+    OrderSerializer, OrderItemSerializer, ShippingAddressSerializer,
+    UserSerializer, SupportTicketSerializer, ProductReviewSerializer,
+    SellerSerializer, DeliveryAgentSerializer
 )
 from .utils import (
     send_email, send_otp_email, send_order_status_email, send_ticket_update_email,
@@ -1141,10 +1146,12 @@ def ai_chatbot_api(request):
 @api_view(['GET'])
 @permission_classes([permissions.IsAdminUser])
 def admin_overview_api(request):
-    """GET /api/admin/overview/ -> Aggregated metrics, orders, products & tickets for staff."""
-    orders_qs = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')
-    products_qs = Product.objects.order_by('-created_at')
+    """GET /api/admin/overview/ -> Aggregated metrics, orders, products, sellers & delivery agents for staff."""
+    orders_qs = Order.objects.select_related('user', 'delivery_agent').prefetch_related('items__product').order_by('-created_at')
+    products_qs = Product.objects.select_related('seller', 'category_rel').order_by('-created_at')
     tickets_qs = SupportTicket.objects.select_related('user', 'order').order_by('-created_at')
+    sellers_qs = Seller.objects.order_by('-created_at')
+    agents_qs = DeliveryAgent.objects.order_by('-created_at')
 
     gross_revenue = orders_qs.exclude(order_status='Cancelled').aggregate(total=Sum('total_amount'))['total'] or Decimal('0.00')
     refund_total = orders_qs.filter(payment_status__in=['Refund Initiated', 'Refunded']).aggregate(total=Sum('refund_amount'))['total'] or Decimal('0.00')
@@ -1156,6 +1163,9 @@ def admin_overview_api(request):
         'total_products': products_qs.count(),
         'low_stock_products': products_qs.filter(stock__lte=5).count(),
         'total_customers': User.objects.filter(is_staff=False).count(),
+        'total_sellers': sellers_qs.count(),
+        'total_delivery_agents': agents_qs.count(),
+        'active_delivery_agents': agents_qs.filter(is_active=True, status='Available').count(),
         'gross_revenue': str(gross_revenue),
         'refund_total': str(refund_total),
     }
@@ -1167,6 +1177,8 @@ def admin_overview_api(request):
         'orders': OrderSerializer(orders_qs[:100], many=True).data,
         'products': ProductSerializer(products_qs, many=True).data,
         'tickets': SupportTicketSerializer(tickets_qs[:100], many=True).data,
+        'sellers': SellerSerializer(sellers_qs, many=True).data,
+        'delivery_agents': DeliveryAgentSerializer(agents_qs, many=True).data,
         'categories': categories,
     })
 
@@ -1174,7 +1186,7 @@ def admin_overview_api(request):
 @api_view(['PATCH'])
 @permission_classes([permissions.IsAdminUser])
 def admin_update_order_api(request, order_id):
-    """PATCH /api/admin/orders/<id>/ -> Update order fulfillment status and payment/refund state."""
+    """PATCH /api/admin/orders/<id>/ -> Update order fulfillment status, delivery agent, and payment/refund state."""
     order = Order.objects.filter(id=order_id).first()
     if not order:
         return Response({'error': 'Order not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -1186,6 +1198,15 @@ def admin_update_order_api(request, order_id):
     new_payment_status = request.data.get('payment_status')
     refund_amount = request.data.get('refund_amount')
     refund_reference = request.data.get('refund_reference')
+
+    if 'delivery_agent_id' in request.data:
+        agent_id = request.data.get('delivery_agent_id')
+        if agent_id in (None, '', 0, 'none'):
+            order.delivery_agent = None
+        else:
+            agent = DeliveryAgent.objects.filter(id=agent_id).first()
+            if agent:
+                order.delivery_agent = agent
 
     valid_order_statuses = dict(Order.ORDER_STATUS_CHOICES)
     valid_payment_statuses = dict(Order.PAYMENT_STATUS_CHOICES)
@@ -1263,7 +1284,11 @@ def admin_create_product_api(request):
         defaults={'slug': slugify(category)[:110] or f'cat-{uuid.uuid4().hex[:6]}'}
     )
 
+    seller_id = request.data.get('seller_id')
+    seller_obj = Seller.objects.filter(id=seller_id).first() if seller_id else None
+
     product = Product.objects.create(
+        seller=seller_obj,
         category_rel=cat_obj,
         category=category,
         name=name[:255],
@@ -1286,7 +1311,7 @@ def admin_create_product_api(request):
 @api_view(['PATCH', 'DELETE'])
 @permission_classes([permissions.IsAdminUser])
 def admin_product_detail_api(request, product_id):
-    """PATCH/DELETE /api/admin/products/<id>/ -> Update price/stock/featured or delete product."""
+    """PATCH/DELETE /api/admin/products/<id>/ -> Update full product details or delete product."""
     product = Product.objects.filter(id=product_id).first()
     if not product:
         return Response({'error': 'Product not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -1319,6 +1344,11 @@ def admin_product_detail_api(request, product_id):
             product.price = price
         except (InvalidOperation, ValueError):
             return Response({'error': 'Valid non-negative price is required.'}, status=status.HTTP_400_BAD_REQUEST)
+    if 'compare_at_price' in request.data:
+        try:
+            product.compare_at_price = Decimal(str(request.data['compare_at_price'] or 0))
+        except (InvalidOperation, ValueError):
+            product.compare_at_price = Decimal('0')
     if 'stock' in request.data:
         try:
             product.stock = max(0, int(request.data['stock']))
@@ -1326,6 +1356,14 @@ def admin_product_detail_api(request, product_id):
             return Response({'error': 'Valid stock integer is required.'}, status=status.HTTP_400_BAD_REQUEST)
     if 'is_featured' in request.data:
         product.is_featured = bool(request.data['is_featured'])
+    if 'seller_id' in request.data:
+        sid = request.data.get('seller_id')
+        if sid in (None, '', 0, 'none'):
+            product.seller = None
+        else:
+            seller_obj = Seller.objects.filter(id=sid).first()
+            if seller_obj:
+                product.seller = seller_obj
 
     product.save()
     _invalidate_home_cache()
@@ -1333,6 +1371,203 @@ def admin_product_detail_api(request, product_id):
         'status': 'success',
         'message': f'Product "{product.name}" updated.',
         'product': ProductSerializer(product).data,
+    })
+
+
+# --- SELLER MANAGEMENT APIS (CRUD) ---
+
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.IsAdminUser])
+def admin_sellers_api(request):
+    """GET /api/admin/sellers/ -> List sellers | POST /api/admin/sellers/ -> Insert new seller."""
+    if request.method == 'POST':
+        name = (request.data.get('name') or '').strip()
+        if not name:
+            return Response({'error': 'Seller/Store name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        if Seller.objects.filter(name__iexact=name).exists():
+            return Response({'error': f'Seller with name "{name}" already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        contact_person = (request.data.get('contact_person') or '').strip()
+        email = (request.data.get('email') or '').strip()
+        phone = (request.data.get('phone') or '').strip()
+        city = (request.data.get('city') or '').strip()
+        state_val = (request.data.get('state') or 'Delhi').strip()
+        address = (request.data.get('address') or '').strip()
+        gst_number = (request.data.get('gst_number') or '').strip().upper()
+        try:
+            rating = Decimal(str(request.data.get('rating', '4.8')))
+        except Exception:
+            rating = Decimal('4.8')
+        is_active = bool(request.data.get('is_active', True))
+
+        seller = Seller.objects.create(
+            name=name,
+            contact_person=contact_person,
+            email=email,
+            phone=phone,
+            city=city,
+            state=state_val,
+            address=address,
+            gst_number=gst_number,
+            rating=rating,
+            is_active=is_active,
+        )
+        return Response({
+            'status': 'success',
+            'message': f'Seller "{seller.name}" added successfully.',
+            'seller': SellerSerializer(seller).data,
+        }, status=status.HTTP_201_CREATED)
+
+    search = request.GET.get('search', '').strip()
+    qs = Seller.objects.order_by('-created_at')
+    if search:
+        qs = qs.filter(Q(name__icontains=search) | Q(contact_person__icontains=search) | Q(city__icontains=search))
+    return Response({'sellers': SellerSerializer(qs, many=True).data})
+
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([permissions.IsAdminUser])
+def admin_seller_detail_api(request, seller_id):
+    """PATCH /api/admin/sellers/<id>/ -> Update seller | DELETE /api/admin/sellers/<id>/ -> Delete seller."""
+    seller = Seller.objects.filter(id=seller_id).first()
+    if not seller:
+        return Response({'error': 'Seller not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'DELETE':
+        seller_name = seller.name
+        seller.delete()
+        return Response({'status': 'success', 'message': f'Seller "{seller_name}" deleted.'})
+
+    if 'name' in request.data and str(request.data['name']).strip():
+        new_name = str(request.data['name']).strip()
+        if Seller.objects.filter(name__iexact=new_name).exclude(id=seller.id).exists():
+            return Response({'error': f'Another seller with name "{new_name}" already exists.'}, status=status.HTTP_400_BAD_REQUEST)
+        seller.name = new_name
+    if 'contact_person' in request.data:
+        seller.contact_person = str(request.data['contact_person']).strip()
+    if 'email' in request.data:
+        seller.email = str(request.data['email']).strip()
+    if 'phone' in request.data:
+        seller.phone = str(request.data['phone']).strip()
+    if 'city' in request.data:
+        seller.city = str(request.data['city']).strip()
+    if 'state' in request.data:
+        seller.state = str(request.data['state']).strip()
+    if 'address' in request.data:
+        seller.address = str(request.data['address']).strip()
+    if 'gst_number' in request.data:
+        seller.gst_number = str(request.data['gst_number']).strip().upper()
+    if 'rating' in request.data:
+        try:
+            seller.rating = Decimal(str(request.data['rating']))
+        except Exception:
+            pass
+    if 'is_active' in request.data:
+        seller.is_active = bool(request.data['is_active'])
+
+    seller.save()
+    return Response({
+        'status': 'success',
+        'message': f'Seller "{seller.name}" updated.',
+        'seller': SellerSerializer(seller).data,
+    })
+
+
+# --- DELIVERY AGENT MANAGEMENT APIS (CRUD) ---
+
+@api_view(['GET', 'POST'])
+@permission_classes([permissions.IsAdminUser])
+def admin_delivery_agents_api(request):
+    """GET /api/admin/delivery-agents/ -> List agents | POST /api/admin/delivery-agents/ -> Insert new agent."""
+    if request.method == 'POST':
+        name = (request.data.get('name') or '').strip()
+        phone = (request.data.get('phone') or '').strip()
+        if not name:
+            return Response({'error': 'Delivery Agent name is required.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not phone:
+            return Response({'error': 'Phone number is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        email = (request.data.get('email') or '').strip()
+        vehicle_type = (request.data.get('vehicle_type') or 'Bike').strip()
+        vehicle_number = (request.data.get('vehicle_number') or '').strip()
+        city = (request.data.get('city') or 'Delhi').strip()
+        assigned_area = (request.data.get('assigned_area') or '').strip()
+        agent_status = (request.data.get('status') or 'Available').strip()
+        try:
+            rating = Decimal(str(request.data.get('rating', '4.9')))
+        except Exception:
+            rating = Decimal('4.9')
+        is_active = bool(request.data.get('is_active', True))
+
+        agent = DeliveryAgent.objects.create(
+            name=name,
+            phone=phone,
+            email=email,
+            vehicle_type=vehicle_type,
+            vehicle_number=vehicle_number,
+            city=city,
+            assigned_area=assigned_area,
+            status=agent_status,
+            rating=rating,
+            is_active=is_active,
+        )
+        return Response({
+            'status': 'success',
+            'message': f'Delivery Agent "{agent.name}" added successfully.',
+            'delivery_agent': DeliveryAgentSerializer(agent).data,
+        }, status=status.HTTP_201_CREATED)
+
+    search = request.GET.get('search', '').strip()
+    qs = DeliveryAgent.objects.order_by('-created_at')
+    if search:
+        qs = qs.filter(Q(name__icontains=search) | Q(phone__icontains=search) | Q(assigned_area__icontains=search) | Q(city__icontains=search))
+    return Response({'delivery_agents': DeliveryAgentSerializer(qs, many=True).data})
+
+
+@api_view(['PATCH', 'DELETE'])
+@permission_classes([permissions.IsAdminUser])
+def admin_delivery_agent_detail_api(request, agent_id):
+    """PATCH /api/admin/delivery-agents/<id>/ -> Update agent | DELETE /api/admin/delivery-agents/<id>/ -> Delete agent."""
+    agent = DeliveryAgent.objects.filter(id=agent_id).first()
+    if not agent:
+        return Response({'error': 'Delivery Agent not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'DELETE':
+        agent_name = agent.name
+        agent.delete()
+        return Response({'status': 'success', 'message': f'Delivery Agent "{agent_name}" removed.'})
+
+    if 'name' in request.data and str(request.data['name']).strip():
+        agent.name = str(request.data['name']).strip()
+    if 'phone' in request.data and str(request.data['phone']).strip():
+        agent.phone = str(request.data['phone']).strip()
+    if 'email' in request.data:
+        agent.email = str(request.data['email']).strip()
+    if 'vehicle_type' in request.data:
+        agent.vehicle_type = str(request.data['vehicle_type']).strip()
+    if 'vehicle_number' in request.data:
+        agent.vehicle_number = str(request.data['vehicle_number']).strip()
+    if 'city' in request.data:
+        agent.city = str(request.data['city']).strip()
+    if 'assigned_area' in request.data:
+        agent.assigned_area = str(request.data['assigned_area']).strip()
+    if 'status' in request.data:
+        new_st = str(request.data['status']).strip()
+        if new_st in dict(DeliveryAgent.STATUS_CHOICES):
+            agent.status = new_st
+    if 'rating' in request.data:
+        try:
+            agent.rating = Decimal(str(request.data['rating']))
+        except Exception:
+            pass
+    if 'is_active' in request.data:
+        agent.is_active = bool(request.data['is_active'])
+
+    agent.save()
+    return Response({
+        'status': 'success',
+        'message': f'Delivery Agent "{agent.name}" updated.',
+        'delivery_agent': DeliveryAgentSerializer(agent).data,
     })
 
 

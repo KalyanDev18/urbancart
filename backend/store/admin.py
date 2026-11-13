@@ -1,7 +1,24 @@
 import uuid
 from django.contrib import admin
-from .models import Category, Product, CartItem, Order, OrderItem, ShippingAddress, EmailOTP, SupportTicket, ProductReview
+from .models import (
+    Category, Product, CartItem, Order, OrderItem, ShippingAddress,
+    EmailOTP, SupportTicket, ProductReview, Seller, DeliveryAgent
+)
 from .utils import send_order_status_email, send_ticket_update_email
+
+@admin.register(Seller)
+class SellerAdmin(admin.ModelAdmin):
+    list_display = ('name', 'contact_person', 'phone', 'city', 'state', 'rating', 'is_active', 'created_at')
+    list_filter = ('is_active', 'state', 'created_at')
+    search_fields = ('name', 'contact_person', 'phone', 'email', 'gst_number')
+    list_editable = ('is_active',)
+
+@admin.register(DeliveryAgent)
+class DeliveryAgentAdmin(admin.ModelAdmin):
+    list_display = ('name', 'phone', 'vehicle_type', 'vehicle_number', 'city', 'assigned_area', 'status', 'is_active')
+    list_filter = ('status', 'vehicle_type', 'is_active', 'city')
+    search_fields = ('name', 'phone', 'vehicle_number', 'assigned_area')
+    list_editable = ('status', 'is_active')
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -11,8 +28,8 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'stock', 'rating', 'review_count', 'is_featured', 'created_at')
-    list_filter = ('category', 'is_featured', 'created_at')
+    list_display = ('name', 'category', 'seller', 'price', 'stock', 'rating', 'review_count', 'is_featured', 'created_at')
+    list_filter = ('category', 'seller', 'is_featured', 'created_at')
     search_fields = ('name', 'description')
     list_editable = ('price', 'stock', 'is_featured')
     prepopulated_fields = {'slug': ('name',)}
@@ -27,8 +44,8 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'email', 'total_amount', 'payment_method', 'order_status', 'payment_status', 'refund_reference', 'created_at')
-    list_filter = ('order_status', 'payment_status', 'payment_method', 'created_at')
+    list_display = ('id', 'full_name', 'email', 'total_amount', 'delivery_agent', 'payment_method', 'order_status', 'payment_status', 'refund_reference', 'created_at')
+    list_filter = ('order_status', 'payment_status', 'payment_method', 'delivery_agent', 'created_at')
     search_fields = ('full_name', 'email', 'transaction_id', 'refund_reference')
     inlines = [OrderItemInline]
     actions = ['mark_as_shipped', 'mark_as_delivered', 'mark_as_refunded']

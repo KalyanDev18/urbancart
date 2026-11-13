@@ -12,10 +12,28 @@ class Category(models.Model):
     class Meta:
         verbose_name_plural = 'Categories'
 
+class Seller(models.Model):
+    name = models.CharField(max_length=200, unique=True, db_index=True)
+    contact_person = models.CharField(max_length=150, blank=True, default='')
+    email = models.EmailField(blank=True, default='')
+    phone = models.CharField(max_length=30, blank=True, default='')
+    city = models.CharField(max_length=100, blank=True, default='')
+    state = models.CharField(max_length=100, blank=True, default='Delhi')
+    address = models.TextField(blank=True, default='')
+    gst_number = models.CharField(max_length=30, blank=True, default='')
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.8, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
     def __str__(self):
         return self.name
 
 class Product(models.Model):
+    seller = models.ForeignKey(Seller, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     category_rel = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     category = models.CharField(max_length=100, default='General')
     name = models.CharField(max_length=255, db_index=True)
@@ -82,6 +100,40 @@ class CartItem(models.Model):
     def __str__(self):
         return f"{self.quantity} x {self.product.name}"
 
+class DeliveryAgent(models.Model):
+    VEHICLE_CHOICES = (
+        ('Bike', 'Bike / Motorcycle'),
+        ('Scooter', 'Scooter'),
+        ('Electric Bike', 'Electric Bike (EV)'),
+        ('Van', 'Delivery Van / Truck'),
+        ('Auto', 'Auto Rickshaw / 3-Wheeler'),
+    )
+
+    STATUS_CHOICES = (
+        ('Available', 'Available (On Duty)'),
+        ('Out for Delivery', 'Out for Delivery'),
+        ('Off Duty', 'Off Duty'),
+    )
+
+    name = models.CharField(max_length=150, db_index=True)
+    phone = models.CharField(max_length=30)
+    email = models.EmailField(blank=True, default='')
+    vehicle_type = models.CharField(max_length=30, choices=VEHICLE_CHOICES, default='Bike')
+    vehicle_number = models.CharField(max_length=50, blank=True, default='')
+    city = models.CharField(max_length=100, default='Delhi')
+    assigned_area = models.CharField(max_length=150, blank=True, default='')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='Available')
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.9, validators=[MinValueValidator(0), MaxValueValidator(5)])
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} ({self.vehicle_type}) - {self.status}"
+
 class Order(models.Model):
     PAYMENT_METHOD_CHOICES = (
         ('CARD', 'Credit / Debit Card'),
@@ -107,6 +159,7 @@ class Order(models.Model):
     )
 
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    delivery_agent = models.ForeignKey(DeliveryAgent, on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_orders')
     full_name = models.CharField(max_length=255)
     email = models.EmailField()
     address = models.TextField()

@@ -578,4 +578,138 @@ class OrderTaxInvoiceTests(TestCase):
         self.assertIn('Fifty Paise Only', words)
 
 
+class SellerAndDeliveryAgentCrudTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.admin_user = User.objects.create_superuser(
+            username='adminuser2',
+            email='adminuser2@example.com',
+            password='Password123!',
+        )
+        self.customer = User.objects.create_user(
+            username='regcustomer',
+            email='customer2@example.com',
+            password='Password123!',
+        )
+        self.product = Product.objects.create(
+            name='Urban Pro Tech Tee',
+            category='Clothing',
+            price=Decimal('999.00'),
+            stock=20,
+        )
+
+    def test_seller_crud_endpoints(self):
+        # 1. Non-staff blocked
+        self.client.force_authenticate(user=self.customer)
+        unauth_res = self.client.post('/api/admin/sellers/', {'name': 'Unauthorized Store'}, format='json')
+        self.assertEqual(unauth_res.status_code, 403)
+
+        # 2. Staff creates seller (INSERT)
+        self.client.force_authenticate(user=self.admin_user)
+        create_res = self.client.post('/api/admin/sellers/', {
+            'name': 'Titan Trendz Wholesale',
+            'contact_person': 'Amit Shah',
+            'email': 'amit@titantrendz.in',
+            'phone': '+91 99887 66554',
+            'city': 'Surat',
+            'state': 'Gujarat',
+            'gst_number': '24AAACT1234A1Z1',
+            'rating': '4.9',
+            'is_active': True,
+        }, format='json')
+        self.assertEqual(create_res.status_code, 201)
+        seller_id = create_res.data['seller']['id']
+        self.assertEqual(create_res.data['seller']['name'], 'Titan Trendz Wholesale')
+
+        # 3. List sellers (READ)
+        list_res = self.client.get('/api/admin/sellers/?search=Surat')
+        self.assertEqual(list_res.status_code, 200)
+        self.assertTrue(any(s['id'] == seller_id for s in list_res.data['sellers']))
+
+        # 4. Update seller (UPDATE)
+        patch_res = self.client.patch(f'/api/admin/sellers/{seller_id}/', {
+            'phone': '+91 91122 33445',
+            'city': 'Ahmedabad',
+        }, format='json')
+        self.assertEqual(patch_res.status_code, 200)
+        self.assertEqual(patch_res.data['seller']['city'], 'Ahmedabad')
+        self.assertEqual(patch_res.data['seller']['phone'], '+91 91122 33445')
+
+        # 5. Assign seller to product
+        prod_patch = self.client.patch(f'/api/admin/products/{self.product.id}/', {
+            'seller_id': seller_id,
+            'compare_at_price': '1499.00',
+        }, format='json')
+        self.assertEqual(prod_patch.status_code, 200)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.seller_id, seller_id)
+        self.assertEqual(self.product.compare_at_price, Decimal('1499.00'))
+
+        # 6. Delete seller (DELETE)
+        del_res = self.client.delete(f'/api/admin/sellers/{seller_id}/')
+        self.assertEqual(del_res.status_code, 200)
+        self.product.refresh_from_db()
+        self.assertIsNone(self.product.seller)
+
+    def test_delivery_agent_crud_endpoints(self):
+        self.client.force_authenticate(user=self.admin_user)
+
+        # 1. Create delivery agent (INSERT)
+        create_res = self.client.post('/api/admin/delivery-agents/', {
+            'name': 'Deepak Verma',
+            'phone': '+91 98700 11223',
+            'vehicle_type': 'Electric Bike',
+            'vehicle_number': 'DL 05 EV 9900',
+            'city': 'Delhi',
+            'assigned_area': 'East Delhi',
+            'status': 'Available',
+            'rating': '4.9',
+        }, format='json')
+        self.assertEqual(create_res.status_code, 201)
+        agent_id = create_res.data['delivery_agent']['id']
+        self.assertEqual(create_res.data['delivery_agent']['name'], 'Deepak Verma')
+
+        # 2. List agents (READ)
+        list_res = self.client.get('/api/admin/delivery-agents/?search=Deepak')
+        self.assertEqual(list_res.status_code, 200)
+        self.assertTrue(any(a['id'] == agent_id for a in list_res.data['delivery_agents']))
+
+        # 3. Update agent status & vehicle (UPDATE)
+        patch_res = self.client.patch(f'/api/admin/delivery-agents/{agent_id}/', {
+            'status': 'Out for Delivery',
+            'vehicle_type': 'Bike',
+        }, format='json')
+        self.assertEqual(patch_res.status_code, 200)
+        self.assertEqual(patch_res.data['delivery_agent']['status'], 'Out for Delivery')
+        self.assertEqual(patch_res.data['delivery_agent']['vehicle_type'], 'Bike')
+
+        # 4. Assign agent to an order
+        order = Order.objects.create(
+            user=self.customer,
+            full_name='Test Buyer',
+            email='buyer2@example.com',
+            address='Street 1',
+            city='Delhi',
+            postal_code='110001',
+            total_amount=Decimal('999.00'),
+            payment_status='Paid',
+            order_status='Processing',
+        )
+        ord_patch = self.client.patch(f'/api/admin/orders/{order.id}/', {
+            'delivery_agent_id': agent_id,
+            'order_status': 'Shipped',
+        }, format='json')
+        self.assertEqual(ord_patch.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.delivery_agent_id, agent_id)
+        self.assertEqual(ord_patch.data['order']['delivery_agent_name'], 'Deepak Verma')
+
+        # 5. Delete agent (DELETE)
+        del_res = self.client.delete(f'/api/admin/delivery-agents/{agent_id}/')
+        self.assertEqual(del_res.status_code, 200)
+        order.refresh_from_db()
+        self.assertIsNone(order.delivery_agent)
+
+
+
 
