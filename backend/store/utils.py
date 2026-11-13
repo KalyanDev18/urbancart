@@ -80,7 +80,7 @@ def _send_via_webhook(webhook_url, email, subject, plain_text, html_text):
         method='POST',
     )
     try:
-        with urllib.request.urlopen(req, timeout=8) as resp:
+        with urllib.request.urlopen(req, timeout=15) as resp:
             body = resp.read().decode('utf-8', 'ignore')
             if resp.status >= 400:
                 raise RuntimeError(f"Webhook returned HTTP {resp.status}: {body[:200]}")
